@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { Clock, MapPin } from 'lucide-react';
+import { Clock, MapPin, Calendar } from 'lucide-react';
 import { getTeamLogo } from '@/lib/team-logos';
 import Image from 'next/image';
 
@@ -46,7 +46,7 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
         
         if (days > 0) {
-          setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+          setTimeLeft(`${days}d ${hours}h ${minutes}m`);
         } else if (hours > 0) {
           setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
         } else if (minutes > 0) {
@@ -123,60 +123,67 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-      <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Clock className="h-4 w-4 text-[rgb(98,181,229)]" />
-          {format(new Date(fixture.kickoff_time), 'PPp')}
+    <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-8 border border-gray-100">
+      {/* Header with date and countdown */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4 md:mb-6 pb-3 md:pb-4 border-b border-gray-100">
+        <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+          <Calendar className="h-3 w-3 md:h-4 md:w-4 text-[rgb(98,181,229)]" />
+          <span>{format(new Date(fixture.kickoff_time), 'EEE, MMM d')}</span>
+          <Clock className="h-3 w-3 md:h-4 md:w-4 text-[rgb(98,181,229)] ml-2" />
+          <span>{format(new Date(fixture.kickoff_time), 'h:mm a')}</span>
         </div>
-        <div className="text-sm font-bold px-3 py-1 rounded-full bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)]">
+        <div className="text-xs md:text-sm font-bold px-2 md:px-3 py-1 rounded-full bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] self-start sm:self-auto">
           {timeLeft}
         </div>
       </div>
       
-      <div className="flex items-center justify-between mb-6">
+      {/* Teams Display - Mobile Optimized */}
+      <div className="flex items-center justify-between mb-4 md:mb-6">
         <div className="text-center flex-1">
           <div className="flex flex-col items-center">
             <Image 
               src={getTeamLogo(fixture.home_team)} 
               alt={fixture.home_team}
-              width={80}
-              height={80}
-              className="mb-2"
+              width={60}
+              height={60}
+              className="mb-2 md:w-20 md:h-20"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
             />
-            <h3 className="font-bold text-lg">{fixture.home_team}</h3>
-            <p className="text-sm text-gray-600">Home</p>
+            <h3 className="font-bold text-sm md:text-lg">{fixture.home_team}</h3>
+            <p className="text-xs md:text-sm text-gray-600">Home</p>
           </div>
         </div>
-        <div className="px-4">
-          <p className="text-2xl font-bold text-gray-400">VS</p>
+        <div className="px-2 md:px-4">
+          <p className="text-lg md:text-2xl font-bold text-gray-400">VS</p>
         </div>
         <div className="text-center flex-1">
           <div className="flex flex-col items-center">
             <Image 
               src={getTeamLogo(fixture.away_team)} 
               alt={fixture.away_team}
-              width={80}
-              height={80}
-              className="mb-2"
+              width={60}
+              height={60}
+              className="mb-2 md:w-20 md:h-20"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
             />
-            <h3 className="font-bold text-lg">{fixture.away_team}</h3>
-            <p className="text-sm text-gray-600">Away</p>
+            <h3 className="font-bold text-sm md:text-lg">{fixture.away_team}</h3>
+            <p className="text-xs md:text-sm text-gray-600">Away</p>
           </div>
         </div>
       </div>
 
       {fixture.can_predict ? (
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="flex gap-12 justify-center items-center">
+        <form onSubmit={handleSubmit} className="space-y-4 md:space-y-8">
+          {/* Score Inputs - Mobile Optimized */}
+          <div className="flex items-center justify-center gap-4 md:gap-12">
             <div className="text-center">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Home Score</label>
+              <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2 md:mb-3">
+                Home
+              </label>
               <input
                 type="text"
                 inputMode="numeric"
@@ -203,14 +210,16 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
                 }}
                 placeholder="0"
                 disabled={loading}
-                className="w-20 h-20 text-center text-4xl font-bold border-2 border-gray-200 rounded-2xl focus:border-[rgb(98,181,229)] focus:outline-none focus:ring-4 focus:ring-[rgb(98,181,229)]/20 transition-all shadow-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-16 h-16 md:w-20 md:h-20 text-center text-2xl md:text-4xl font-bold border-2 border-gray-200 rounded-xl md:rounded-2xl focus:border-[rgb(98,181,229)] focus:outline-none focus:ring-2 md:focus:ring-4 focus:ring-[rgb(98,181,229)]/20 transition-all shadow-md md:shadow-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
-            <div className="mt-8">
-              <span className="text-3xl font-bold text-gray-300">VS</span>
-            </div>
+            
+            <div className="text-xl md:text-3xl font-bold text-gray-300 mt-6 md:mt-8">-</div>
+            
             <div className="text-center">
-              <label className="block text-sm font-semibold text-gray-700 mb-3">Away Score</label>
+              <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2 md:mb-3">
+                Away
+              </label>
               <input
                 type="text"
                 inputMode="numeric"
@@ -237,32 +246,37 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
                 }}
                 placeholder="0"
                 disabled={loading}
-                className="w-20 h-20 text-center text-4xl font-bold border-2 border-gray-200 rounded-2xl focus:border-[rgb(98,181,229)] focus:outline-none focus:ring-4 focus:ring-[rgb(98,181,229)]/20 transition-all shadow-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-16 h-16 md:w-20 md:h-20 text-center text-2xl md:text-4xl font-bold border-2 border-gray-200 rounded-xl md:rounded-2xl focus:border-[rgb(98,181,229)] focus:outline-none focus:ring-2 md:focus:ring-4 focus:ring-[rgb(98,181,229)]/20 transition-all shadow-md md:shadow-lg [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
           </div>
           
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button 
+            type="submit" 
+            className="w-full text-sm md:text-base py-2 md:py-3" 
+            disabled={loading}
+          >
             {loading ? 'Submitting...' : 'Submit Prediction'}
           </Button>
         </form>
       ) : (
-        <div className="text-center py-4 bg-gray-100 rounded">
-          <p className="text-gray-600">Predictions are closed for this match</p>
+        <div className="text-center py-3 md:py-4 bg-gray-100 rounded-lg">
+          <p className="text-sm md:text-base text-gray-600">Predictions are closed for this match</p>
         </div>
       )}
       
-      <div className="mt-6 pt-4 border-t border-gray-100 text-center">
-        <p className="text-sm text-gray-500">
+      {/* Footer with prediction count */}
+      <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-gray-100 text-center">
+        <p className="text-xs md:text-sm text-gray-500">
           {fixture.predictions_count === 0 
-            ? "Be the first to predict this match!" 
+            ? "Be the first to predict!" 
             : fixture.predictions_count === 1
             ? "1 player has predicted"
-            : `${fixture.predictions_count} players have predicted`}
+            : `${fixture.predictions_count} players predicted`}
         </p>
         {fixture.predictions_count > 0 && !fixture.can_predict && (
           <p className="text-xs text-gray-400 mt-1">
-            Predictions will be revealed after the deadline
+            Predictions revealed after deadline
           </p>
         )}
       </div>
