@@ -20,7 +20,14 @@ export function MatchResultsModal({ fixture, isOpen, onClose }: MatchResultsModa
   useEffect(() => {
     if (isOpen && fixture) {
       fetchPredictions();
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
     }
+    
+    return () => {
+      // Re-enable body scroll when modal closes
+      document.body.style.overflow = 'unset';
+    };
   }, [isOpen, fixture]);
 
   const fetchPredictions = async () => {
@@ -41,9 +48,9 @@ export function MatchResultsModal({ fixture, isOpen, onClose }: MatchResultsModa
   const wrongPredictions = predictions.filter(p => p.points_earned === 0);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-        <div className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(49,91,115)] text-white p-6">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full my-auto flex flex-col max-h-[calc(100vh-2rem)] md:max-h-[90vh]">
+        <div className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(49,91,115)] text-white p-4 md:p-6 flex-shrink-0">
           <div className="flex justify-between items-start">
             <div>
               <h2 className="text-2xl font-bold mb-2">Match Results</h2>
@@ -94,22 +101,22 @@ export function MatchResultsModal({ fixture, isOpen, onClose }: MatchResultsModa
           </div>
         </div>
 
-        <div className="p-6">
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="text-center p-4 bg-yellow-50 rounded-lg">
-              <Trophy className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
-              <p className="text-2xl font-bold">{perfectPredictions.length}</p>
-              <p className="text-sm text-gray-600">Perfect Predictions</p>
+        <div className="p-4 md:p-6 flex-1 overflow-y-auto">
+          <div className="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
+            <div className="text-center p-2 md:p-4 bg-yellow-50 rounded-lg">
+              <Trophy className="h-6 md:h-8 w-6 md:w-8 text-yellow-500 mx-auto mb-1 md:mb-2" />
+              <p className="text-xl md:text-2xl font-bold">{perfectPredictions.length}</p>
+              <p className="text-xs md:text-sm text-gray-600">Perfect</p>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <Target className="h-8 w-8 text-green-500 mx-auto mb-2" />
-              <p className="text-2xl font-bold">{correctResults.length}</p>
-              <p className="text-sm text-gray-600">Correct Results</p>
+            <div className="text-center p-2 md:p-4 bg-green-50 rounded-lg">
+              <Target className="h-6 md:h-8 w-6 md:w-8 text-green-500 mx-auto mb-1 md:mb-2" />
+              <p className="text-xl md:text-2xl font-bold">{correctResults.length}</p>
+              <p className="text-xs md:text-sm text-gray-600">Correct</p>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <Users className="h-8 w-8 text-gray-500 mx-auto mb-2" />
-              <p className="text-2xl font-bold">{predictions.length}</p>
-              <p className="text-sm text-gray-600">Total Predictions</p>
+            <div className="text-center p-2 md:p-4 bg-gray-50 rounded-lg">
+              <Users className="h-6 md:h-8 w-6 md:w-8 text-gray-500 mx-auto mb-1 md:mb-2" />
+              <p className="text-xl md:text-2xl font-bold">{predictions.length}</p>
+              <p className="text-xs md:text-sm text-gray-600">Total</p>
             </div>
           </div>
 
@@ -119,7 +126,7 @@ export function MatchResultsModal({ fixture, isOpen, onClose }: MatchResultsModa
               <p className="mt-4 text-gray-600">Loading predictions...</p>
             </div>
           ) : (
-            <div className="space-y-4 max-h-96 overflow-y-auto">
+            <div className="space-y-4">
               {perfectPredictions.length > 0 && (
                 <div>
                   <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
