@@ -77,36 +77,36 @@ export function RecentResults() {
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <div className="flex-1 flex items-center gap-2">
+              <div className="flex-1 text-center">
                 <Image 
                   src={getTeamLogo(fixture.home_team)} 
                   alt={fixture.home_team}
                   width={24}
                   height={24}
-                  className="inline-block"
+                  className="mx-auto mb-1"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
                 />
-                <span className="font-medium">{fixture.home_team}</span>
+                <span className="font-medium text-sm">{fixture.home_team}</span>
               </div>
               <div className="px-4">
                 <span className="font-bold text-lg">
                   {fixture.home_score} - {fixture.away_score}
                 </span>
               </div>
-              <div className="flex-1 flex items-center justify-end gap-2">
-                <span className="font-medium">{fixture.away_team}</span>
+              <div className="flex-1 text-center">
                 <Image 
                   src={getTeamLogo(fixture.away_team)} 
                   alt={fixture.away_team}
                   width={24}
                   height={24}
-                  className="inline-block"
+                  className="mx-auto mb-1"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
                 />
+                <span className="font-medium text-sm">{fixture.away_team}</span>
               </div>
             </div>
             <div className="flex items-center justify-between mt-2">
