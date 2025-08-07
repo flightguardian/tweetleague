@@ -46,119 +46,84 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-3">Season Leaderboard</h1>
+    <div className="max-w-5xl mx-auto px-4 md:px-6">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-3">Season Leaderboard</h1>
         <p className="text-gray-600 text-sm md:text-base">Track the best predictors in the Sky Blues community</p>
       </div>
       
-      {/* Mobile View - Card Layout */}
-      <div className="md:hidden space-y-3">
-        {leaderboard.length === 0 ? (
-          <div className="bg-white rounded-lg p-6 text-center text-gray-500">
-            No predictions made yet. Be the first to predict!
-          </div>
-        ) : (
-          leaderboard.map((player, index) => (
-            <div 
-              key={player.username} 
-              className={`bg-white rounded-lg p-4 shadow-lg border ${
-                index < 3 ? 'border-yellow-400 bg-yellow-50' : 'border-gray-200'
-              }`}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-8 h-8">
-                    {getPositionIcon(player.position)}
-                  </div>
-                  <Link 
-                    href={`/user/${player.username}`}
-                    className="font-bold text-gray-800 hover:text-[rgb(98,181,229)]"
-                  >
-                    {player.username}
-                  </Link>
-                </div>
-                <div className="text-2xl font-bold text-[rgb(98,181,229)]">
-                  {player.total_points}
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-4 gap-2 text-xs">
-                <div className="text-center">
-                  <div className="text-gray-500">Perfect</div>
-                  <div className="font-semibold">{player.correct_scores}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-gray-500">Correct</div>
-                  <div className="font-semibold">{player.correct_results}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-gray-500">Played</div>
-                  <div className="font-semibold">{player.predictions_made}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-gray-500">Avg</div>
-                  <div className="font-semibold">{player.avg_points_per_game.toFixed(2)}</div>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Desktop View - Table with horizontal scroll */}
-      <div className="hidden md:block bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+      {/* Table with horizontal scroll and sticky header */}
+      <div className="bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl border border-gray-100 overflow-hidden">
+        {/* Wrapper for horizontal scroll */}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px]">
-            <thead className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(78,145,183)] text-white">
+          <table className="w-full min-w-[500px]">
+            <thead className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(78,145,183)] text-white sticky top-0 z-10">
               <tr>
-                <th className="px-4 py-3 text-left whitespace-nowrap">Pos</th>
-                <th className="px-4 py-3 text-left">Player</th>
-                <th className="px-4 py-3 text-center whitespace-nowrap">Points</th>
-                <th className="px-4 py-3 text-center whitespace-nowrap">Perfect</th>
-                <th className="px-4 py-3 text-center whitespace-nowrap">Correct</th>
-                <th className="px-4 py-3 text-center whitespace-nowrap">Played</th>
-                <th className="px-4 py-3 text-center whitespace-nowrap">Avg</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold sticky left-0 bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(98,181,229)] z-20">Pos</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold sticky left-8 md:left-12 bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(98,181,229)] z-20">Player</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Pts</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Perf</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Corr</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Plyd</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Avg</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-200">
               {leaderboard.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-gray-500">
+                  <td colSpan={7} className="text-center py-8 text-gray-500 text-sm">
                     No predictions made yet. Be the first to predict!
                   </td>
                 </tr>
               ) : (
                 leaderboard.map((player, index) => (
-                  <tr key={player.username} className={`border-b ${index < 3 ? 'bg-yellow-50' : ''}`}>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center">
+                  <tr 
+                    key={player.username} 
+                    className={`${index < 3 ? 'bg-yellow-50' : 'bg-white hover:bg-gray-50'} transition-colors`}
+                  >
+                    <td className="px-2 md:px-4 py-2 md:py-3 sticky left-0 bg-inherit">
+                      <div className="flex items-center justify-center w-6 md:w-auto">
                         {getPositionIcon(player.position)}
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-medium">
+                    <td className="px-2 md:px-4 py-2 md:py-3 font-medium sticky left-8 md:left-12 bg-inherit">
                       <Link 
                         href={`/user/${player.username}`}
-                        className="hover:text-[rgb(98,181,229)] transition-colors"
+                        className="hover:text-[rgb(98,181,229)] transition-colors text-xs md:text-sm truncate block max-w-[100px] md:max-w-none"
                       >
                         {player.username}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-center font-bold text-lg">{player.total_points}</td>
-                    <td className="px-4 py-3 text-center">{player.correct_scores}</td>
-                    <td className="px-4 py-3 text-center">{player.correct_results}</td>
-                    <td className="px-4 py-3 text-center">{player.predictions_made}</td>
-                    <td className="px-4 py-3 text-center">{player.avg_points_per_game.toFixed(2)}</td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 text-center font-bold text-sm md:text-lg text-[rgb(98,181,229)]">
+                      {player.total_points}
+                    </td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm">
+                      {player.correct_scores}
+                    </td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm">
+                      {player.correct_results}
+                    </td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm">
+                      {player.predictions_made}
+                    </td>
+                    <td className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm">
+                      {player.avg_points_per_game.toFixed(2)}
+                    </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
+        
+        {/* Scroll indicator for mobile */}
+        <div className="md:hidden px-4 py-2 bg-gray-50 text-center">
+          <p className="text-xs text-gray-500">← Swipe to see more stats →</p>
+        </div>
       </div>
       
       {/* Scoring System - Mobile Responsive */}
-      <div className="mt-6 bg-white rounded-2xl shadow-xl p-4 md:p-6 border border-gray-100">
+      <div className="mt-6 bg-white rounded-xl md:rounded-2xl shadow-lg md:shadow-xl p-4 md:p-6 border border-gray-100">
         <h2 className="font-bold text-base md:text-lg mb-4 flex items-center gap-2">
           <span className="w-1 h-6 bg-[rgb(98,181,229)] rounded-full"></span>
           Scoring System
