@@ -293,6 +293,15 @@ export function SeasonManager() {
                     </button>
                   </>
                 )}
+                {season.status === 'ARCHIVED' && (
+                  <button
+                    onClick={() => activateSeason(season.id)}
+                    className="p-2 text-green-600 hover:bg-green-50 rounded transition-colors"
+                    title="Make Current"
+                  >
+                    <Play className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
