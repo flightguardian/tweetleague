@@ -128,7 +128,7 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4 md:mb-6 pb-3 md:pb-4 border-b border-gray-100">
         <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
           <Calendar className="h-3 w-3 md:h-4 md:w-4 text-[rgb(98,181,229)]" />
-          <span>{format(new Date(fixture.kickoff_time), 'EEE, MMM d')}</span>
+          <span>{format(new Date(fixture.kickoff_time), 'EEE, d MMM')}</span>
           <Clock className="h-3 w-3 md:h-4 md:w-4 text-[rgb(98,181,229)] ml-2" />
           <span>{format(new Date(fixture.kickoff_time), 'h:mm a')}</span>
         </div>
