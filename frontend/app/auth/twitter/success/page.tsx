@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { Loader } from 'lucide-react';
 
-export default function TwitterAuthSuccess() {
+function TwitterAuthSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
@@ -35,5 +35,20 @@ export default function TwitterAuthSuccess() {
         <p className="text-gray-600">Please wait while we complete your login</p>
       </div>
     </div>
+  );
+}
+
+export default function TwitterAuthSuccess() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="h-12 w-12 animate-spin text-[rgb(98,181,229)] mx-auto mb-4" />
+          <h1 className="text-2xl font-bold mb-2">Loading...</h1>
+        </div>
+      </div>
+    }>
+      <TwitterAuthSuccessContent />
+    </Suspense>
   );
 }
