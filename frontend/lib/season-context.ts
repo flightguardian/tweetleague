@@ -15,3 +15,6 @@ export function getSeasonParams() {
   }
   return {};
 }
+
+// Export for use in components
+export default { getSelectedSeasonId, getSeasonParams };
