@@ -7,10 +7,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { Trash2, Edit, Plus, Calendar, Clock, MapPin } from 'lucide-react';
+import { Trash2, Edit, Plus, Calendar, Clock, MapPin, MoreVertical } from 'lucide-react';
 import { getTeamLogo } from '@/lib/team-logos';
 import Image from 'next/image';
 import { getSeasonParams } from '@/lib/season-context';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Fixture {
   id: number;
@@ -172,9 +178,9 @@ export function FixtureManager() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Fixture Management</h2>
+    <div className="bg-white rounded-2xl shadow-xl p-4 md:p-8 border border-gray-100">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800">Fixture Management</h2>
         <Button
           onClick={() => {
             setShowAddForm(!showAddForm);
@@ -187,7 +193,7 @@ export function FixtureManager() {
               kickoff_time: ''
             });
           }}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 w-full sm:w-auto"
         >
           <Plus className="h-4 w-4" />
           {showAddForm ? 'Cancel' : 'Add Fixture'}
@@ -257,13 +263,14 @@ export function FixtureManager() {
               />
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button type="submit">
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button type="submit" className="w-full sm:w-auto">
               {editingId ? 'Update Fixture' : 'Create Fixture'}
             </Button>
             <Button
               type="button"
               variant="outline"
+              className="w-full sm:w-auto"
               onClick={() => {
                 setShowAddForm(false);
                 setEditingId(null);
@@ -275,7 +282,92 @@ export function FixtureManager() {
         </form>
       )}
 
-      <div className="space-y-3">
+      {/* Mobile View */}
+      <div className="space-y-3 md:hidden">
+        {fixtures
+          .filter(f => f.status === 'scheduled')
+          .map((fixture) => (
+            <div key={fixture.id} className="border border-gray-200 rounded-lg p-3">
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Image
+                      src={getTeamLogo(fixture.home_team)}
+                      alt={fixture.home_team}
+                      width={20}
+                      height={20}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                    <span className="font-medium text-sm">{fixture.home_team}</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mb-1">vs</div>
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={getTeamLogo(fixture.away_team)}
+                      alt={fixture.away_team}
+                      width={20}
+                      height={20}
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                    <span className="font-medium text-sm">{fixture.away_team}</span>
+                  </div>
+                </div>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem 
+                      onClick={() => handleEdit(fixture)}
+                      disabled={fixture.predictions_count > 0}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handlePostpone(fixture.id)}>
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Postpone
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => handleDelete(fixture.id)}
+                      disabled={fixture.predictions_count > 0}
+                      className="text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              
+              <div className="flex items-center gap-3 text-xs text-gray-600">
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  {format(new Date(fixture.kickoff_time), 'MMM d')}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {format(new Date(fixture.kickoff_time), 'HH:mm')}
+                </div>
+                {fixture.predictions_count > 0 && (
+                  <div className="text-gray-500">
+                    {fixture.predictions_count} predictions
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+      </div>
+
+      {/* Desktop View */}
+      <div className="hidden md:block space-y-3">
         {fixtures
           .filter(f => f.status === 'scheduled')
           .map((fixture) => (
