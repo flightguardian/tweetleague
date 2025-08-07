@@ -144,7 +144,7 @@ async def register(
         email=user_data.email.lower(),
         username=user_data.username,
         password_hash=hashed_password,
-        email_verified=False,  # Start as unverified
+        email_verified=True,  # Auto-verify for now (no email service)
         provider='email'
     )
     
@@ -162,16 +162,14 @@ async def register(
         db.add(user_stats)
         db.commit()
     
-    # Create verification token
-    verification_token = create_verification_token(db, new_user.id)
-    
-    # Send verification email in background
-    background_tasks.add_task(
-        email_service.send_verification_email,
-        new_user.email,
-        new_user.username,
-        verification_token
-    )
+    # Skip email verification for now (uncomment when email is configured)
+    # verification_token = create_verification_token(db, new_user.id)
+    # background_tasks.add_task(
+    #     email_service.send_verification_email,
+    #     new_user.email,
+    #     new_user.username,
+    #     verification_token
+    # )
     
     # Create access token
     access_token = create_access_token(data={"sub": str(new_user.id)})
