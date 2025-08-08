@@ -226,14 +226,20 @@ async def update_fixture_score(
     
     # Update user statistics
     for update in points_updates:
+        # Get the correct season from the fixture
+        if not fixture.season_id:
+            # If fixture has no season, skip stats update
+            continue
+            
         user_stats = db.query(UserStats).filter(
-            UserStats.user_id == update["user_id"]
+            UserStats.user_id == update["user_id"],
+            UserStats.season_id == fixture.season_id
         ).first()
         
         if not user_stats:
             user_stats = UserStats(
                 user_id=update["user_id"],
-                season="2025-2026"
+                season_id=fixture.season_id
             )
             db.add(user_stats)
         
@@ -242,6 +248,9 @@ async def update_fixture_score(
             user_stats.correct_scores += 1
         elif update["points"] == 1:
             user_stats.correct_results += 1
+        
+        # Update predictions made count
+        user_stats.predictions_made += 1
         
         # Update streak
         if update["points"] > 0:
