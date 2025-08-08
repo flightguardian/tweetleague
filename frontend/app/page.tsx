@@ -90,7 +90,7 @@ export default function Home() {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-white/50 text-white hover:bg-white/20 backdrop-blur"
+                className="border-2 border-white text-white hover:bg-white hover:text-[rgb(98,181,229)] transition-all"
               >
                 <HelpCircle className="mr-2 h-5 w-5" />
                 How It Works

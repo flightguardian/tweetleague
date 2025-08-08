@@ -72,7 +72,7 @@ export default function HowItWorksPage() {
             </Button>
           </Link>
           <Link href="/">
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+            <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-[rgb(98,181,229)] transition-all">
               <Home className="mr-2 h-5 w-5" />
               Back to Home
             </Button>
@@ -417,7 +417,7 @@ export default function HowItWorksPage() {
               </Button>
             </Link>
             <Link href="/">
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" className="border-2 border-gray-300 hover:border-[rgb(98,181,229)] hover:bg-gray-50">
                 <Home className="mr-2 h-5 w-5" />
                 Back to Home
               </Button>
