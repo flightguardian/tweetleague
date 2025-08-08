@@ -152,24 +152,25 @@ def social_login(auth_data: SocialAuth, db: Session = Depends(get_db)):
                 username = f"{base_username}_{counter}"
                 counter += 1
             
-            # Prepare Twitter-specific fields
-            twitter_fields = {}
+            # Create user with all fields directly
+            user_data = {
+                'email': auth_data.email,
+                'username': username,
+                'avatar_url': auth_data.avatar_url,
+                'provider': auth_data.provider,
+                'email_verified': True
+            }
+            
             if auth_data.provider == "twitter":
-                twitter_fields['twitter_id'] = auth_data.provider_id
+                user_data['twitter_id'] = auth_data.provider_id
                 if auth_data.twitter_handle:
                     print(f"[SOCIAL AUTH] Setting Twitter handle for new user: {auth_data.twitter_handle}")
-                    twitter_fields['twitter_handle'] = auth_data.twitter_handle.replace('@', '')
+                    user_data['twitter_handle'] = auth_data.twitter_handle.replace('@', '')
+                    print(f"[SOCIAL AUTH] User data to save: {user_data}")
             elif auth_data.provider == "google":
-                twitter_fields['google_id'] = auth_data.provider_id
+                user_data['google_id'] = auth_data.provider_id
             
-            user = User(
-                email=auth_data.email,
-                username=username,
-                avatar_url=auth_data.avatar_url,
-                provider=auth_data.provider,
-                email_verified=True,
-                **twitter_fields
-            )
+            user = User(**user_data)
             
             db.add(user)
             db.commit()
@@ -177,6 +178,10 @@ def social_login(auth_data: SocialAuth, db: Session = Depends(get_db)):
             
             # Debug: Check if twitter_handle was saved
             print(f"[SOCIAL AUTH] Created user {user.id} with twitter_handle: {user.twitter_handle}")
+            
+            # Double-check by querying the database
+            saved_user = db.query(User).filter(User.id == user.id).first()
+            print(f"[SOCIAL AUTH] Verified from DB - User {saved_user.id}: twitter_handle={saved_user.twitter_handle}, twitter_id={saved_user.twitter_id}")
             
             # Create user stats for current season
             current_season = db.query(Season).filter(Season.is_current == True).first()
