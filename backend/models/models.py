@@ -29,6 +29,7 @@ class User(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
+    twitter_handle = Column(String, unique=True, nullable=True)  # Twitter username without @
     twitter_id = Column(String, unique=True, nullable=True)
     google_id = Column(String, unique=True, nullable=True)
     provider = Column(String, nullable=True)

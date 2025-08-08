@@ -74,18 +74,11 @@ export function Header() {
                 </Button>
               </>
             ) : (
-              <>
-                <Link href="/login">
-                  <Button variant="secondary" size="sm">
-                    Login
-                  </Button>
-                </Link>
-                <Link href="/register">
-                  <Button variant="default" size="sm" className="bg-white text-[rgb(98,181,229)] hover:bg-gray-100">
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
+              <Link href="/auth">
+                <Button variant="default" size="sm" className="bg-white text-[rgb(98,181,229)] hover:bg-gray-100">
+                  Sign In / Sign Up
+                </Button>
+              </Link>
             )}
           </nav>
 
@@ -154,14 +147,9 @@ export function Header() {
                 </>
               ) : (
                 <div className="flex flex-col space-y-2 pt-2">
-                  <Link href="/login" onClick={closeMobileMenu}>
-                    <Button variant="secondary" className="w-full">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link href="/register" onClick={closeMobileMenu}>
+                  <Link href="/auth" onClick={closeMobileMenu}>
                     <Button variant="default" className="w-full bg-white text-[rgb(98,181,229)] hover:bg-gray-100">
-                      Sign Up
+                      Sign In / Sign Up
                     </Button>
                   </Link>
                 </div>

@@ -22,6 +22,7 @@ class UserRegister(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=20)
     password: str = Field(..., min_length=8)
+    twitter_handle: Optional[str] = Field(None, min_length=1, max_length=15)
     
     @validator('email')
     def validate_email_field(cls, v):
@@ -42,6 +43,16 @@ class UserRegister(BaseModel):
         is_valid, error = validate_password(v)
         if not is_valid:
             raise ValueError(error)
+        return v
+    
+    @validator('twitter_handle')
+    def validate_twitter_handle(cls, v):
+        if v:
+            # Remove @ if provided
+            v = v.lstrip('@')
+            # Twitter handles can only contain letters, numbers, and underscores
+            if not all(c.isalnum() or c == '_' for c in v):
+                raise ValueError('Twitter handle can only contain letters, numbers, and underscores')
         return v
 
 class EmailVerification(BaseModel):
@@ -68,6 +79,7 @@ class UserResponse(BaseModel):
     is_admin: bool
     email_verified: bool
     avatar_url: Optional[str] = None
+    twitter_handle: Optional[str] = None
 
 class TokenResponse(BaseModel):
     access_token: str
@@ -138,12 +150,24 @@ async def register(
                 detail="Username already taken. Please choose another."
             )
     
+    # Check if twitter handle is already taken (if provided)
+    if user_data.twitter_handle:
+        existing_twitter = db.query(User).filter(
+            User.twitter_handle == user_data.twitter_handle
+        ).first()
+        if existing_twitter:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Twitter handle already taken by another user."
+            )
+    
     # Create new user
     hashed_password = get_password_hash(user_data.password)
     new_user = User(
         email=user_data.email.lower(),
         username=user_data.username,
         password_hash=hashed_password,
+        twitter_handle=user_data.twitter_handle,
         email_verified=True,  # Auto-verify for now (no email service)
         provider='email'
     )
@@ -183,7 +207,8 @@ async def register(
             username=new_user.username,
             is_admin=new_user.is_admin,
             email_verified=new_user.email_verified,
-            avatar_url=new_user.avatar_url
+            avatar_url=new_user.avatar_url,
+            twitter_handle=new_user.twitter_handle
         )
     )
 
@@ -388,7 +413,8 @@ async def login(
             username=user.username,
             is_admin=user.is_admin,
             email_verified=user.email_verified,
-            avatar_url=user.avatar_url
+            avatar_url=user.avatar_url,
+            twitter_handle=user.twitter_handle
         )
     )
 
@@ -476,6 +502,7 @@ def social_login(auth_data: SocialAuthRequest, db: Session = Depends(get_db)):
             username=user.username,
             is_admin=user.is_admin,
             email_verified=user.email_verified,
-            avatar_url=user.avatar_url
+            avatar_url=user.avatar_url,
+            twitter_handle=user.twitter_handle
         )
     )
