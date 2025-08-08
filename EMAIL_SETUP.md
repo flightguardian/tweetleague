@@ -8,15 +8,19 @@
 - **Setup**:
   1. Sign up at https://www.brevo.com
   2. Verify your email
-  3. Go to SMTP & API → SMTP tab
-  4. Generate an SMTP key
-  5. Update your environment variables:
+  3. **IMPORTANT: Verify a sender email**:
+     - Go to Settings → Senders & IPs
+     - Click "Add a Sender"
+     - Add and verify an email you control
+  4. Go to SMTP & API → SMTP tab
+  5. Generate an SMTP key
+  6. Update your environment variables:
      ```
      SMTP_HOST=smtp-relay.brevo.com
      SMTP_PORT=587
      SMTP_USERNAME=YOUR_BREVO_LOGIN_EMAIL
      SMTP_PASSWORD=YOUR_SMTP_KEY
-     FROM_EMAIL=noreply@tweetleague.com
+     FROM_EMAIL=your-verified-sender@email.com  # MUST be verified in Brevo!
      FROM_NAME=COV Tweet League
      ```
 
