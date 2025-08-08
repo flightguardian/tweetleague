@@ -354,7 +354,7 @@ export default function HowItWorksPage() {
               },
               {
                 q: "Can I see other people's predictions?",
-                a: "Predictions become visible to everyone after the deadline (5 minutes before kickoff). This keeps things fair and exciting!"
+                a: "Yes! After you submit your prediction, you can click 'View Submitted Predictions' on the homepage to see what other players have predicted for that match. You can see their usernames, predictions, and current league positions."
               },
               {
                 q: "How do I get match reminders?",
