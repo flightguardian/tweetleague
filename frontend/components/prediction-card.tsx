@@ -112,11 +112,29 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
         onPredictionSubmit();
       }
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.response?.data?.detail || 'Failed to submit prediction',
-        variant: 'destructive',
-      });
+      // Check if it's an email verification error
+      if (error.response?.status === 403 && error.response?.data?.detail?.includes('verify your email')) {
+        toast({
+          title: 'Email Verification Required',
+          description: error.response.data.detail,
+          variant: 'destructive',
+          action: (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => window.location.href = '/resend-verification'}
+            >
+              Resend Email
+            </Button>
+          ),
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: error.response?.data?.detail || 'Failed to submit prediction',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }

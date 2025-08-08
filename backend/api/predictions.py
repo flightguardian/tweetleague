@@ -50,6 +50,13 @@ def create_or_update_prediction(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    # Check if user's email is verified
+    if not current_user.email_verified:
+        raise HTTPException(
+            status_code=403, 
+            detail="Please verify your email address before making predictions. Check your email for the verification link."
+        )
+    
     fixture = db.query(Fixture).filter(Fixture.id == prediction_data.fixture_id).first()
     
     if not fixture:
