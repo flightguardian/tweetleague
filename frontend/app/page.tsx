@@ -8,6 +8,7 @@ import { RecentResults } from '@/components/recent-results';
 import { ManagerOfMonth } from '@/components/manager-of-month';
 import { EmailVerificationModal } from '@/components/email-verification-modal';
 import { Trophy, Users, Target, HelpCircle, ArrowRight } from 'lucide-react';
+import { FaXTwitter } from 'react-icons/fa6';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 

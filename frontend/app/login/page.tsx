@@ -48,7 +48,7 @@ export default function LoginPage() {
         <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">
           Welcome Back
         </h1>
-        <p className="text-center text-gray-600 mb-6">Sign in to your CCFC account</p>
+        <p className="text-center text-gray-600 mb-6">Sign in to your COV account</p>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

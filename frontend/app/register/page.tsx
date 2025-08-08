@@ -191,7 +191,7 @@ export default function RegisterPage() {
         <h1 className="text-3xl font-bold mb-2 text-center text-gray-800">
           Join the League
         </h1>
-        <p className="text-center text-gray-600 mb-6">Create your CCFC Tweet League account</p>
+        <p className="text-center text-gray-600 mb-6">Create your COV Tweet League account</p>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
