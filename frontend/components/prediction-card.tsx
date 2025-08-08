@@ -117,12 +117,18 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
       if (error.response?.status === 403 && error.response?.data?.detail?.includes('verify your email')) {
         toast({
           title: 'Email Verification Required',
-          description: error.response.data.detail,
+          description: (
+            <div className="space-y-2">
+              <p>{error.response.data.detail}</p>
+              <p className="text-xs font-semibold">📧 Check your junk/spam folder if you don't see it!</p>
+            </div>
+          ) as any,
           variant: 'destructive',
           action: (
             <Button 
               variant="outline" 
               size="sm" 
+              className="border-white text-white hover:bg-white hover:text-red-600"
               onClick={() => window.location.href = '/resend-verification'}
             >
               Resend Email
