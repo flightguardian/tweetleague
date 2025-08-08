@@ -108,11 +108,19 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
 @router.post("/social", response_model=Token)
 def social_login(auth_data: SocialAuth, db: Session = Depends(get_db)):
+    # Debug logging
+    print(f"[SOCIAL AUTH] Received data: provider={auth_data.provider}, provider_id={auth_data.provider_id}, email={auth_data.email}, name={auth_data.name}, twitter_handle={auth_data.twitter_handle}")
+    
     # Check if user exists with this provider ID
     if auth_data.provider == "google":
         user = db.query(User).filter(User.google_id == auth_data.provider_id).first()
     elif auth_data.provider == "twitter":
         user = db.query(User).filter(User.twitter_id == auth_data.provider_id).first()
+        # Update Twitter handle for existing Twitter users
+        if user and auth_data.twitter_handle:
+            print(f"[SOCIAL AUTH] Updating Twitter handle for existing user {user.id}: {auth_data.twitter_handle}")
+            user.twitter_handle = auth_data.twitter_handle.replace('@', '')
+            db.commit()
     else:
         raise HTTPException(status_code=400, detail="Invalid provider")
     
@@ -144,25 +152,31 @@ def social_login(auth_data: SocialAuth, db: Session = Depends(get_db)):
                 username = f"{base_username}_{counter}"
                 counter += 1
             
+            # Prepare Twitter-specific fields
+            twitter_fields = {}
+            if auth_data.provider == "twitter":
+                twitter_fields['twitter_id'] = auth_data.provider_id
+                if auth_data.twitter_handle:
+                    print(f"[SOCIAL AUTH] Setting Twitter handle for new user: {auth_data.twitter_handle}")
+                    twitter_fields['twitter_handle'] = auth_data.twitter_handle.replace('@', '')
+            elif auth_data.provider == "google":
+                twitter_fields['google_id'] = auth_data.provider_id
+            
             user = User(
                 email=auth_data.email,
                 username=username,
                 avatar_url=auth_data.avatar_url,
                 provider=auth_data.provider,
-                email_verified=True
+                email_verified=True,
+                **twitter_fields
             )
-            
-            if auth_data.provider == "google":
-                user.google_id = auth_data.provider_id
-            elif auth_data.provider == "twitter":
-                user.twitter_id = auth_data.provider_id
-                # Set Twitter handle if provided
-                if auth_data.twitter_handle:
-                    user.twitter_handle = auth_data.twitter_handle.replace('@', '')
             
             db.add(user)
             db.commit()
             db.refresh(user)
+            
+            # Debug: Check if twitter_handle was saved
+            print(f"[SOCIAL AUTH] Created user {user.id} with twitter_handle: {user.twitter_handle}")
             
             # Create user stats for current season
             current_season = db.query(Season).filter(Season.is_current == True).first()
