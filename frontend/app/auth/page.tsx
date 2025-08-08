@@ -89,9 +89,28 @@ export default function AuthPage() {
         }
       }
     } catch (error: any) {
+      console.error('Auth error:', error.response?.data);
+      
+      let errorMessage = 'Something went wrong';
+      
+      // Handle validation errors (422)
+      if (error.response?.status === 422) {
+        const validationErrors = error.response.data?.detail;
+        if (Array.isArray(validationErrors)) {
+          // Pydantic validation errors come as an array
+          errorMessage = validationErrors.map((err: any) => 
+            err.msg || err.message || 'Validation error'
+          ).join(', ');
+        } else if (typeof validationErrors === 'string') {
+          errorMessage = validationErrors;
+        }
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      }
+      
       toast({
         title: 'Error',
-        description: error.response?.data?.detail || 'Something went wrong',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
