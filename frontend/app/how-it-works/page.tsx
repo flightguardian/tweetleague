@@ -42,7 +42,7 @@ export default function HowItWorksPage() {
             </div>
             <div>
               <h3 className="font-bold text-lg mb-1">Sign Up</h3>
-              <p className="text-white/90">Create your free account with email or social login</p>
+              <p className="text-white/90">Create your free account with email or Twitter</p>
             </div>
           </div>
           <div className="flex items-start">
@@ -96,7 +96,7 @@ export default function HowItWorksPage() {
               <div>
                 <h3 className="font-semibold mb-1">Create Your Account</h3>
                 <p className="text-gray-600">
-                  Sign up using your email address or quickly join with your Twitter or Google account. 
+                  Sign up using your email address or quickly join with your Twitter account. 
                   It's completely free and takes less than a minute!
                 </p>
               </div>
@@ -142,7 +142,7 @@ export default function HowItWorksPage() {
                 <ul className="space-y-2 text-gray-600">
                   <li className="flex items-start">
                     <span className="text-[rgb(98,181,229)] mr-2">•</span>
-                    Predictions open when fixtures are announced
+                    Predictions open when the previous fixture is closed
                   </li>
                   <li className="flex items-start">
                     <span className="text-[rgb(98,181,229)] mr-2">•</span>
@@ -354,7 +354,7 @@ export default function HowItWorksPage() {
               },
               {
                 q: "Can I see other people's predictions?",
-                a: "Yes! After you submit your prediction, you can click 'View Submitted Predictions' on the homepage to see what other players have predicted for that match. You can see their usernames, predictions, and current league positions."
+                a: "Yes! On the homepage, you'll see how many players have predicted for each match (e.g., '5 players predicted'). Click this link to see what other players have predicted for that match. You can see their usernames, predictions, and current league positions."
               },
               {
                 q: "How do I get match reminders?",
