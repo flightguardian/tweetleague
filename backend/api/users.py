@@ -13,6 +13,7 @@ class UserProfile(BaseModel):
     id: int
     username: str
     email: str
+    email_verified: bool = False
     avatar_url: str | None
     twitter_handle: str | None
     created_at: str
@@ -82,6 +83,7 @@ def get_current_user_profile(
         id=current_user.id,
         username=current_user.username,
         email=current_user.email,
+        email_verified=current_user.email_verified,
         avatar_url=current_user.avatar_url,
         twitter_handle=current_user.twitter_handle,
         created_at=current_user.created_at.isoformat(),
@@ -124,6 +126,7 @@ def get_user_profile(
         id=user.id,
         username=user.username,
         email=user.email,
+        email_verified=user.email_verified,
         avatar_url=user.avatar_url,
         twitter_handle=user.twitter_handle,
         created_at=user.created_at.isoformat(),
