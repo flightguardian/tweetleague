@@ -30,6 +30,8 @@ class EmailService:
             msg['Subject'] = subject
             msg['From'] = f"{self.from_name} <{self.from_email}>"
             msg['To'] = to_email
+            msg['Reply-To'] = self.from_email
+            msg['List-Unsubscribe'] = f"<mailto:{self.from_email}?subject=Unsubscribe>"
             
             # Add text and HTML parts
             if text_content:
@@ -55,7 +57,7 @@ class EmailService:
         """Send email verification link"""
         verification_url = f"{self.frontend_url}/verify-email?token={verification_token}"
         
-        subject = "Verify your Tweet League account"
+        subject = "Welcome to Tweet League - Please confirm your email"
         
         html_content = f"""
         <!DOCTYPE html>
@@ -77,9 +79,10 @@ class EmailService:
                 </div>
                 <div class="content">
                     <h2>Hi {username},</h2>
-                    <p>Thanks for signing up! Please verify your email address to complete your registration and start making predictions.</p>
+                    <p>Welcome to Tweet League, the Coventry City prediction game!</p>
+                    <p>To get started and make your first prediction, please confirm your email address by clicking the button below:</p>
                     <center>
-                        <a href="{verification_url}" class="button">Verify Email Address</a>
+                        <a href="{verification_url}" class="button">Confirm Email Address</a>
                     </center>
                     <p>Or copy and paste this link into your browser:</p>
                     <p style="word-break: break-all; background: white; padding: 10px; border-radius: 5px;">{verification_url}</p>
