@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
-import { format } from 'date-fns';
+import { format, formatInTimeZone } from 'date-fns-tz';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -42,8 +42,12 @@ export function FixtureManager() {
     kickoff_date: '',
     kickoff_time: ''
   });
+  const [userTimezone, setUserTimezone] = useState('UTC');
 
   useEffect(() => {
+    // Get user's timezone
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    setUserTimezone(tz);
     fetchFixtures();
   }, []);
 
@@ -76,7 +80,9 @@ export function FixtureManager() {
       return;
     }
 
-    const kickoffDateTime = new Date(`${formData.kickoff_date}T${formData.kickoff_time}`);
+    // Create date in local timezone and convert to ISO/UTC for backend
+    const localDateTime = `${formData.kickoff_date}T${formData.kickoff_time}`;
+    const kickoffDateTime = new Date(localDateTime);
     
     try {
       if (editingId) {
@@ -123,13 +129,20 @@ export function FixtureManager() {
   };
 
   const handleEdit = (fixture: Fixture) => {
+    // Convert UTC time to local timezone for editing
     const date = new Date(fixture.kickoff_time);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
     setFormData({
       home_team: fixture.home_team,
       away_team: fixture.away_team,
       competition: fixture.competition,
-      kickoff_date: format(date, 'yyyy-MM-dd'),
-      kickoff_time: format(date, 'HH:mm')
+      kickoff_date: `${year}-${month}-${day}`,
+      kickoff_time: `${hours}:${minutes}`
     });
     setEditingId(fixture.id);
     setShowAddForm(true);
@@ -173,6 +186,26 @@ export function FixtureManager() {
     }
   };
 
+  // Helper function to format time with timezone info
+  const formatTimeWithTimezone = (dateString: string) => {
+    const date = new Date(dateString);
+    const localTime = format(date, 'HH:mm');
+    
+    // Also show UK time if user is not in UK timezone
+    const ukTimezone = 'Europe/London';
+    if (userTimezone !== ukTimezone && !userTimezone.includes('London')) {
+      try {
+        const ukTime = formatInTimeZone(date, ukTimezone, 'HH:mm');
+        if (ukTime !== localTime) {
+          return `${localTime} (${ukTime} UK)`;
+        }
+      } catch {
+        // Fallback if timezone conversion fails
+      }
+    }
+    return localTime;
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading fixtures...</div>;
   }
@@ -180,7 +213,14 @@ export function FixtureManager() {
   return (
     <div className="bg-white rounded-2xl shadow-xl p-4 md:p-8 border border-gray-100">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800">Fixture Management</h2>
+        <div>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800">Fixture Management</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            Your timezone: {userTimezone}
+            {userTimezone !== 'Europe/London' && !userTimezone.includes('London') && 
+              ' (UK times shown for reference)'}
+          </p>
+        </div>
         <Button
           onClick={() => {
             setShowAddForm(!showAddForm);
@@ -254,13 +294,16 @@ export function FixtureManager() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Kickoff Time
+                Kickoff Time ({userTimezone})
               </label>
               <Input
                 type="time"
                 value={formData.kickoff_time}
                 onChange={(e) => setFormData({ ...formData, kickoff_time: e.target.value })}
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Enter time in your local timezone
+              </p>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
@@ -354,7 +397,7 @@ export function FixtureManager() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {format(new Date(fixture.kickoff_time), 'HH:mm')}
+                  {formatTimeWithTimezone(fixture.kickoff_time)}
                 </div>
                 {fixture.predictions_count > 0 && (
                   <div className="text-gray-500">
@@ -408,7 +451,7 @@ export function FixtureManager() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      {format(new Date(fixture.kickoff_time), 'p')}
+                      {formatTimeWithTimezone(fixture.kickoff_time)}
                     </div>
                   </div>
                   <div className="flex gap-1">
