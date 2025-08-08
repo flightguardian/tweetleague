@@ -15,6 +15,8 @@ export function RecentResults() {
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
+    // Clear old season selection since we removed the selector
+    localStorage.removeItem('selectedSeasonId');
     fetchRecentResults();
   }, []);
 

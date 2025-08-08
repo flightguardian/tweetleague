@@ -11,6 +11,8 @@ export function ManagerOfMonth() {
   const [currentMonth, setCurrentMonth] = useState('');
 
   useEffect(() => {
+    // Clear old season selection since we removed the selector
+    localStorage.removeItem('selectedSeasonId');
     fetchMonthLeaders();
     // Set current month name
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',

@@ -5,24 +5,31 @@ import { useSession } from 'next-auth/react';
 import { api } from '@/lib/api';
 import { Trophy, Medal, Award, User, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
-import { getSeasonParams } from '@/lib/season-context';
 import { TopLeaderboard } from '@/components/top-leaderboard';
 
 export default function LeaderboardPage() {
   const { data: session } = useSession();
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [userPosition, setUserPosition] = useState<any>(null);
+  const [currentSeason, setCurrentSeason] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchLeaderboard();
+    // Clear old season selection from localStorage since we removed the selector
+    localStorage.removeItem('selectedSeasonId');
+    fetchCurrentSeasonAndLeaderboard();
   }, [session]);
 
-  const fetchLeaderboard = async () => {
+  const fetchCurrentSeasonAndLeaderboard = async () => {
     try {
-      const seasonParams = getSeasonParams();
+      // First get the current season
+      const seasonsResponse = await api.get('/seasons/');
+      const current = seasonsResponse.data.find((s: any) => s.is_current);
+      setCurrentSeason(current);
+      
+      // Then fetch leaderboard for current season (API defaults to current if no season_id specified)
       const response = await api.get('/leaderboard', {
-        params: { limit: 100, ...seasonParams }
+        params: { limit: 100 }
       });
       setLeaderboard(response.data);
       
@@ -60,7 +67,9 @@ export default function LeaderboardPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 md:px-6">
       <div className="mb-6 md:mb-8">
-        <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-3">Season Leaderboard</h1>
+        <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-3">
+          {currentSeason ? `${currentSeason.name} League Standings` : 'League Standings'}
+        </h1>
         <p className="text-gray-600 text-sm md:text-base">Track the best predictors in the Sky Blues community</p>
       </div>
       

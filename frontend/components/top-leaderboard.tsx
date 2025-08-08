@@ -10,6 +10,8 @@ export function TopLeaderboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Clear old season selection since we removed the selector
+    localStorage.removeItem('selectedSeasonId');
     fetchLeaderboard();
   }, []);
 
