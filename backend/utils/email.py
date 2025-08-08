@@ -85,37 +85,100 @@ class EmailService:
         
         html_content = f"""
         <!DOCTYPE html>
-        <html>
+        <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
         <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <meta name="x-apple-disable-message-reformatting">
+            <!--[if mso]>
+            <noscript>
+                <xml>
+                    <o:OfficeDocumentSettings>
+                        <o:PixelsPerInch>96</o:PixelsPerInch>
+                    </o:OfficeDocumentSettings>
+                </xml>
+            </noscript>
+            <![endif]-->
             <style>
-                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                .header {{ background: linear-gradient(135deg, rgb(98,181,229) 0%, rgb(49,91,115) 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
-                .content {{ background: #f4f4f4; padding: 30px; border-radius: 0 0 10px 10px; }}
-                .button {{ display: inline-block; padding: 15px 30px; background: rgb(98,181,229); color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
-                .footer {{ text-align: center; margin-top: 20px; color: #666; font-size: 12px; }}
+                table, td, div, h1, p {{font-family: Arial, sans-serif;}}
             </style>
         </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Welcome to Tweet League!</h1>
-                </div>
-                <div class="content">
-                    <h2>Hi {username},</h2>
-                    <p>Welcome to Tweet League, the Coventry City prediction game!</p>
-                    <p>To get started and make your first prediction, please confirm your email address by clicking the button below:</p>
-                    <center>
-                        <a href="{verification_url}" class="button">Confirm Email Address</a>
-                    </center>
-                    <p>Or copy and paste this link into your browser:</p>
-                    <p style="word-break: break-all; background: white; padding: 10px; border-radius: 5px;">{verification_url}</p>
-                    <p>This link will expire in 24 hours.</p>
-                    <p>If you didn't create an account, you can safely ignore this email.</p>
-                </div>
-                <div class="footer">
-                    <p>© 2025 Tweet League. All rights reserved.</p>
-                </div>
+        <body style="margin:0;padding:0;word-spacing:normal;background-color:#f4f4f4;">
+            <div role="article" aria-roledescription="email" lang="en" style="text-size-adjust:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;background-color:#f4f4f4;">
+                <table role="presentation" style="width:100%;border:none;border-spacing:0;">
+                    <tr>
+                        <td align="center" style="padding:20px 0;">
+                            <!--[if mso]>
+                            <table role="presentation" align="center" style="width:600px;">
+                            <tr>
+                            <td>
+                            <![endif]-->
+                            <table role="presentation" style="width:94%;max-width:600px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">
+                                <!-- Header with Outlook-compatible background -->
+                                <tr>
+                                    <td style="padding:0;background:#62B5E5;">
+                                        <!--[if mso]>
+                                        <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:600px;height:120px;">
+                                            <v:fill type="gradient" color="#62B5E5" color2="#315B73" angle="135"/>
+                                            <v:textbox inset="0,0,0,0">
+                                        <![endif]-->
+                                        <div style="padding:40px 30px;text-align:center;">
+                                            <h1 style="margin:0;font-size:28px;line-height:36px;color:#ffffff;font-weight:bold;">Welcome to COV Tweet League!</h1>
+                                        </div>
+                                        <!--[if mso]>
+                                            </v:textbox>
+                                        </v:rect>
+                                        <![endif]-->
+                                    </td>
+                                </tr>
+                                <!-- Content -->
+                                <tr>
+                                    <td style="padding:30px;background:#ffffff;">
+                                        <h2 style="margin:0 0 20px 0;font-size:20px;line-height:28px;color:#333333;">Hi {username},</h2>
+                                        <p style="margin:0 0 20px 0;">Welcome to the Coventry City prediction game!</p>
+                                        <p style="margin:0 0 20px 0;">To get started and make your first prediction, please confirm your email address by clicking the button below:</p>
+                                        
+                                        <!-- Button with VML fallback -->
+                                        <table role="presentation" style="width:100%;border:none;border-spacing:0;margin:30px 0;">
+                                            <tr>
+                                                <td align="center">
+                                                    <!--[if mso]>
+                                                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{verification_url}" style="height:50px;v-text-anchor:middle;width:250px;" arcsize="10%" stroke="f" fillcolor="#62B5E5">
+                                                        <w:anchorlock/>
+                                                        <center style="color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;">Confirm Email Address</center>
+                                                    </v:roundrect>
+                                                    <![endif]-->
+                                                    <!--[if !mso]><!-->
+                                                    <a href="{verification_url}" style="display:inline-block;padding:15px 30px;background-color:#62B5E5;color:#ffffff;font-weight:bold;text-decoration:none;border-radius:5px;font-size:16px;">Confirm Email Address</a>
+                                                    <!--<![endif]-->
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <p style="margin:20px 0;font-size:14px;line-height:20px;">Or copy and paste this link into your browser:</p>
+                                        <p style="margin:0 0 20px 0;padding:12px;background-color:#f4f4f4;border-radius:4px;word-break:break-all;font-size:12px;font-family:monospace;">{verification_url}</p>
+                                        <p style="margin:0 0 20px 0;font-size:14px;color:#666666;">This link will expire in 24 hours.</p>
+                                        <p style="margin:0;font-size:14px;color:#666666;">If you didn't create an account, you can safely ignore this email.</p>
+                                    </td>
+                                </tr>
+                                <!-- Footer -->
+                                <tr>
+                                    <td style="padding:20px;text-align:center;font-size:12px;background-color:#f4f4f4;color:#666666;">
+                                        <p style="margin:0;">© 2025 COV Tweet League. All rights reserved.</p>
+                                        <p style="margin:5px 0 0 0;">
+                                            <a href="https://twitter.com/covtweetleague" style="color:#62B5E5;text-decoration:none;">@covtweetleague</a>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <!--[if mso]>
+                            </td>
+                            </tr>
+                            </table>
+                            <![endif]-->
+                        </td>
+                    </tr>
+                </table>
             </div>
         </body>
         </html>
@@ -147,36 +210,86 @@ class EmailService:
         
         html_content = f"""
         <!DOCTYPE html>
-        <html>
+        <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
         <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <meta name="x-apple-disable-message-reformatting">
+            <!--[if mso]>
+            <noscript>
+                <xml>
+                    <o:OfficeDocumentSettings>
+                        <o:PixelsPerInch>96</o:PixelsPerInch>
+                    </o:OfficeDocumentSettings>
+                </xml>
+            </noscript>
+            <![endif]-->
             <style>
-                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                .header {{ background: linear-gradient(135deg, rgb(98,181,229) 0%, rgb(49,91,115) 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
-                .content {{ background: #f4f4f4; padding: 30px; border-radius: 0 0 10px 10px; }}
-                .button {{ display: inline-block; padding: 15px 30px; background: rgb(98,181,229); color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
-                .footer {{ text-align: center; margin-top: 20px; color: #666; font-size: 12px; }}
+                table, td, div, h1, p {{font-family: Arial, sans-serif;}}
             </style>
         </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Password Reset Request</h1>
-                </div>
-                <div class="content">
-                    <h2>Hi {username},</h2>
-                    <p>We received a request to reset your password. Click the button below to create a new password:</p>
-                    <center>
-                        <a href="{reset_url}" class="button">Reset Password</a>
-                    </center>
-                    <p>Or copy and paste this link into your browser:</p>
-                    <p style="word-break: break-all; background: white; padding: 10px; border-radius: 5px;">{reset_url}</p>
-                    <p>This link will expire in 1 hour.</p>
-                    <p>If you didn't request a password reset, you can safely ignore this email.</p>
-                </div>
-                <div class="footer">
-                    <p>© 2025 Tweet League. All rights reserved.</p>
-                </div>
+        <body style="margin:0;padding:0;word-spacing:normal;background-color:#f4f4f4;">
+            <div role="article" aria-roledescription="email" lang="en" style="text-size-adjust:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;background-color:#f4f4f4;">
+                <table role="presentation" style="width:100%;border:none;border-spacing:0;">
+                    <tr>
+                        <td align="center" style="padding:20px 0;">
+                            <table role="presentation" style="width:94%;max-width:600px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">
+                                <!-- Header -->
+                                <tr>
+                                    <td style="padding:0;background:#62B5E5;">
+                                        <!--[if mso]>
+                                        <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:600px;height:120px;">
+                                            <v:fill type="gradient" color="#62B5E5" color2="#315B73" angle="135"/>
+                                            <v:textbox inset="0,0,0,0">
+                                        <![endif]-->
+                                        <div style="padding:40px 30px;text-align:center;">
+                                            <h1 style="margin:0;font-size:28px;line-height:36px;color:#ffffff;font-weight:bold;">Password Reset Request</h1>
+                                        </div>
+                                        <!--[if mso]>
+                                            </v:textbox>
+                                        </v:rect>
+                                        <![endif]-->
+                                    </td>
+                                </tr>
+                                <!-- Content -->
+                                <tr>
+                                    <td style="padding:30px;background:#ffffff;">
+                                        <h2 style="margin:0 0 20px 0;font-size:20px;line-height:28px;color:#333333;">Hi {username},</h2>
+                                        <p style="margin:0 0 20px 0;">We received a request to reset your password. Click the button below to create a new password:</p>
+                                        
+                                        <!-- Button -->
+                                        <table role="presentation" style="width:100%;border:none;border-spacing:0;margin:30px 0;">
+                                            <tr>
+                                                <td align="center">
+                                                    <!--[if mso]>
+                                                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{reset_url}" style="height:50px;v-text-anchor:middle;width:200px;" arcsize="10%" stroke="f" fillcolor="#62B5E5">
+                                                        <w:anchorlock/>
+                                                        <center style="color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;">Reset Password</center>
+                                                    </v:roundrect>
+                                                    <![endif]-->
+                                                    <!--[if !mso]><!-->
+                                                    <a href="{reset_url}" style="display:inline-block;padding:15px 30px;background-color:#62B5E5;color:#ffffff;font-weight:bold;text-decoration:none;border-radius:5px;font-size:16px;">Reset Password</a>
+                                                    <!--<![endif]-->
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <p style="margin:20px 0;font-size:14px;line-height:20px;">Or copy and paste this link into your browser:</p>
+                                        <p style="margin:0 0 20px 0;padding:12px;background-color:#f4f4f4;border-radius:4px;word-break:break-all;font-size:12px;font-family:monospace;">{reset_url}</p>
+                                        <p style="margin:0 0 20px 0;font-size:14px;color:#666666;">This link will expire in 1 hour.</p>
+                                        <p style="margin:0;font-size:14px;color:#666666;">If you didn't request a password reset, you can safely ignore this email.</p>
+                                    </td>
+                                </tr>
+                                <!-- Footer -->
+                                <tr>
+                                    <td style="padding:20px;text-align:center;font-size:12px;background-color:#f4f4f4;color:#666666;">
+                                        <p style="margin:0;">© 2025 COV Tweet League. All rights reserved.</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
             </div>
         </body>
         </html>
