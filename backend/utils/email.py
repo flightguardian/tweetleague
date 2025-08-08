@@ -14,8 +14,8 @@ class EmailService:
         self.smtp_username = os.getenv("SMTP_USERNAME", "")
         self.smtp_password = os.getenv("SMTP_PASSWORD", "")
         self.from_email = os.getenv("FROM_EMAIL", "noreply@tweetleague.com")
-        self.from_name = os.getenv("FROM_NAME", "CCFC Tweet League")
-        self.frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+        self.from_name = os.getenv("FROM_NAME", "Tweet League")
+        self.frontend_url = os.getenv("FRONTEND_URL", "https://tweetleague.com")
         
     def send_email(self, to_email: str, subject: str, html_content: str, text_content: Optional[str] = None) -> bool:
         """Send an email using SMTP"""
@@ -55,7 +55,7 @@ class EmailService:
         """Send email verification link"""
         verification_url = f"{self.frontend_url}/verify-email?token={verification_token}"
         
-        subject = "Verify your CCFC Tweet League account"
+        subject = "Verify your Tweet League account"
         
         html_content = f"""
         <!DOCTYPE html>
@@ -73,7 +73,7 @@ class EmailService:
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>Welcome to CCFC Tweet League!</h1>
+                    <h1>Welcome to Tweet League!</h1>
                 </div>
                 <div class="content">
                     <h2>Hi {username},</h2>
@@ -87,7 +87,7 @@ class EmailService:
                     <p>If you didn't create an account, you can safely ignore this email.</p>
                 </div>
                 <div class="footer">
-                    <p>© 2024 CCFC Tweet League. All rights reserved.</p>
+                    <p>© 2025 Tweet League. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -95,7 +95,7 @@ class EmailService:
         """
         
         text_content = f"""
-        Welcome to CCFC Tweet League!
+        Welcome to Tweet League!
         
         Hi {username},
         
@@ -107,7 +107,7 @@ class EmailService:
         
         If you didn't create an account, you can safely ignore this email.
         
-        © 2024 CCFC Tweet League
+        © 2025 Tweet League
         """
         
         return self.send_email(to_email, subject, html_content, text_content)
@@ -116,7 +116,7 @@ class EmailService:
         """Send password reset email"""
         reset_url = f"{self.frontend_url}/reset-password?token={reset_token}"
         
-        subject = "Reset your CCFC Tweet League password"
+        subject = "Reset your Tweet League password"
         
         html_content = f"""
         <!DOCTYPE html>
@@ -148,7 +148,7 @@ class EmailService:
                     <p>If you didn't request a password reset, you can safely ignore this email.</p>
                 </div>
                 <div class="footer">
-                    <p>© 2024 CCFC Tweet League. All rights reserved.</p>
+                    <p>© 2025 Tweet League. All rights reserved.</p>
                 </div>
             </div>
         </body>
@@ -168,7 +168,7 @@ class EmailService:
         
         If you didn't request a password reset, you can safely ignore this email.
         
-        © 2024 CCFC Tweet League
+        © 2025 Tweet League
         """
         
         return self.send_email(to_email, subject, html_content, text_content)
