@@ -14,6 +14,7 @@ class UserProfile(BaseModel):
     username: str
     email: str
     avatar_url: str | None
+    twitter_handle: str | None
     created_at: str
     total_points: int
     correct_scores: int
@@ -29,6 +30,7 @@ class UserUpdate(BaseModel):
     username: Optional[str] = Field(None, min_length=3, max_length=30)
     email: Optional[EmailStr] = None
     email_notifications: Optional[bool] = None
+    twitter_handle: Optional[str] = Field(None, max_length=15)
     
     @validator('username')
     def validate_username(cls, v):
@@ -36,6 +38,18 @@ class UserUpdate(BaseModel):
             # Only allow alphanumeric and underscore
             if not v.replace('_', '').isalnum():
                 raise ValueError('Username can only contain letters, numbers, and underscores')
+        return v
+    
+    @validator('twitter_handle')
+    def validate_twitter_handle(cls, v):
+        if v:
+            # Remove @ if provided
+            v = v.lstrip('@')
+            # Twitter handles: 1-15 chars, alphanumeric and underscore only
+            if not v.replace('_', '').isalnum():
+                raise ValueError('Twitter handle can only contain letters, numbers, and underscores')
+            if len(v) > 15:
+                raise ValueError('Twitter handle must be 15 characters or less')
         return v
 
 class PasswordChange(BaseModel):
@@ -69,6 +83,7 @@ def get_current_user_profile(
         username=current_user.username,
         email=current_user.email,
         avatar_url=current_user.avatar_url,
+        twitter_handle=current_user.twitter_handle,
         created_at=current_user.created_at.isoformat(),
         total_points=stats.total_points,
         correct_scores=stats.correct_scores,
@@ -110,6 +125,7 @@ def get_user_profile(
         username=user.username,
         email=user.email,
         avatar_url=user.avatar_url,
+        twitter_handle=user.twitter_handle,
         created_at=user.created_at.isoformat(),
         total_points=stats.total_points,
         correct_scores=stats.correct_scores,
@@ -159,6 +175,18 @@ def update_profile(
     if update_data.email_notifications is not None:
         current_user.email_notifications = update_data.email_notifications
     
+    # Update Twitter handle
+    if update_data.twitter_handle is not None:
+        # Check if handle is taken by another user
+        if update_data.twitter_handle:
+            existing_user = db.query(User).filter(
+                User.twitter_handle == update_data.twitter_handle,
+                User.id != current_user.id
+            ).first()
+            if existing_user:
+                raise HTTPException(status_code=400, detail="Twitter handle already linked to another account")
+        current_user.twitter_handle = update_data.twitter_handle if update_data.twitter_handle else None
+    
     db.commit()
     db.refresh(current_user)
     
@@ -181,6 +209,7 @@ def update_profile(
         username=current_user.username,
         email=current_user.email,
         avatar_url=current_user.avatar_url,
+        twitter_handle=current_user.twitter_handle,
         created_at=current_user.created_at.isoformat(),
         total_points=stats.total_points,
         correct_scores=stats.correct_scores,

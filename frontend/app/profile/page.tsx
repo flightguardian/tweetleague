@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   User, Mail, Trophy, Target, Calendar, Shield, 
   Edit2, Save, X, Lock, Bell, BellOff, CheckCircle,
-  TrendingUp, Award, Star
+  TrendingUp, Award, Star, Twitter
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -24,7 +24,8 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    email_notifications: true
+    email_notifications: true,
+    twitter_handle: ''
   });
   const [passwordForm, setPasswordForm] = useState({
     current_password: '',
@@ -54,7 +55,8 @@ export default function ProfilePage() {
       setFormData({
         username: response.data.username,
         email: response.data.email,
-        email_notifications: response.data.email_notifications
+        email_notifications: response.data.email_notifications,
+        twitter_handle: response.data.twitter_handle || ''
       });
     } catch (error) {
       console.error('Failed to fetch user stats:', error);
@@ -72,7 +74,8 @@ export default function ProfilePage() {
       const response = await api.put('/users/me', {
         username: formData.username !== userStats.username ? formData.username : undefined,
         email: (canChangeEmail && formData.email !== userStats.email) ? formData.email : undefined,
-        email_notifications: formData.email_notifications
+        email_notifications: formData.email_notifications,
+        twitter_handle: formData.twitter_handle !== (userStats.twitter_handle || '') ? formData.twitter_handle : undefined
       });
       
       toast({
@@ -209,7 +212,8 @@ export default function ProfilePage() {
                       setFormData({
                         username: userStats.username,
                         email: userStats.email,
-                        email_notifications: userStats.email_notifications
+                        email_notifications: userStats.email_notifications,
+                        twitter_handle: userStats.twitter_handle || ''
                       });
                     }}
                     variant="outline"
@@ -263,6 +267,47 @@ export default function ProfilePage() {
                         </p>
                       )}
                     </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Twitter Handle
+                  </label>
+                  {editMode ? (
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">@</span>
+                      <Input
+                        value={formData.twitter_handle}
+                        onChange={(e) => {
+                          // Remove @ if user includes it
+                          const value = e.target.value.replace('@', '');
+                          setFormData({ ...formData, twitter_handle: value });
+                        }}
+                        placeholder="username"
+                        disabled={saving}
+                        className="pl-8"
+                        maxLength={15}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      {userStats?.twitter_handle ? (
+                        <p className="font-medium text-lg flex items-center">
+                          <Twitter className="mr-2 h-4 w-4 text-[rgb(98,181,229)]" />
+                          @{userStats.twitter_handle}
+                        </p>
+                      ) : (
+                        <p className="text-gray-500 italic">Not set</p>
+                      )}
+                    </div>
+                  )}
+                  {editMode && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Used for importing historical predictions
+                    </p>
                   )}
                 </div>
               </div>

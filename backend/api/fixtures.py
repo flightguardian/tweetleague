@@ -230,7 +230,7 @@ def get_fixture(
         status=fixture.status,
         home_score=fixture.home_score,
         away_score=fixture.away_score,
-        season=fixture.season,
+        season=fixture.season.name if fixture.season else "Unknown",
         round=fixture.round,
         can_predict=can_predict,
         predictions_count=len(fixture.predictions)
