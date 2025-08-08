@@ -41,6 +41,9 @@ export function Header() {
             <Link href="/leaderboard" className="hover:text-sky-200 transition-colors">
               Leaderboard
             </Link>
+            <Link href="/how-it-works" className="hover:text-sky-200 transition-colors">
+              How It Works
+            </Link>
             {status === 'loading' ? (
               <span className="text-sm">Loading...</span>
             ) : session ? (
@@ -102,6 +105,13 @@ export function Header() {
                 onClick={closeMobileMenu}
               >
                 Leaderboard
+              </Link>
+              <Link 
+                href="/how-it-works" 
+                className="py-2 px-3 rounded hover:bg-white/10 transition-colors"
+                onClick={closeMobileMenu}
+              >
+                How It Works
               </Link>
               
               {status === 'loading' ? (

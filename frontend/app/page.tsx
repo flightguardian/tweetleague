@@ -6,7 +6,9 @@ import { api } from '@/lib/api';
 import { PredictionCard } from '@/components/prediction-card';
 import { RecentResults } from '@/components/recent-results';
 import { ManagerOfMonth } from '@/components/manager-of-month';
-import { Trophy, Users, Target } from 'lucide-react';
+import { Trophy, Users, Target, HelpCircle, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -73,6 +75,27 @@ export default function Home() {
               <p className="text-xs md:text-sm opacity-90 mt-1 hidden md:block">Rise up the ranks</p>
               <p className="text-xs opacity-90 mt-1 md:hidden">Climb ranks</p>
             </div>
+          </div>
+          
+          <div className="mt-6 md:mt-8 flex flex-wrap justify-center gap-4">
+            {!session && (
+              <Link href="/register">
+                <Button size="lg" variant="secondary" className="bg-white text-[rgb(98,181,229)] hover:bg-gray-100 font-semibold">
+                  Get Started
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            )}
+            <Link href="/how-it-works">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-white/50 text-white hover:bg-white/20 backdrop-blur"
+              >
+                <HelpCircle className="mr-2 h-5 w-5" />
+                How It Works
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
