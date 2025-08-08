@@ -80,6 +80,7 @@ class UserResponse(BaseModel):
     email_verified: bool
     avatar_url: Optional[str] = None
     twitter_handle: Optional[str] = None
+    provider: Optional[str] = None
 
 class TokenResponse(BaseModel):
     access_token: str
@@ -490,7 +491,8 @@ async def login(
             is_admin=user.is_admin,
             email_verified=user.email_verified,
             avatar_url=user.avatar_url,
-            twitter_handle=user.twitter_handle
+            twitter_handle=user.twitter_handle,
+            provider=user.provider
         )
     )
 
@@ -618,6 +620,7 @@ def social_login(auth_data: SocialAuthRequest, db: Session = Depends(get_db)):
             is_admin=user.is_admin,
             email_verified=user.email_verified,
             avatar_url=user.avatar_url,
-            twitter_handle=user.twitter_handle
+            twitter_handle=user.twitter_handle,
+            provider=user.provider
         )
     )

@@ -95,6 +95,7 @@ const handler = NextAuth({
           user.accessToken = response.data.access_token;
           user.isAdmin = response.data.user.is_admin;
           user.email = email; // Ensure email is set
+          user.provider = response.data.user.provider; // Store provider from backend
           return true;
         } catch (error) {
           console.error('Social auth error details:', error);
@@ -109,6 +110,11 @@ const handler = NextAuth({
         token.id = user.id;
         token.accessToken = user.accessToken;
         token.isAdmin = user.isAdmin;
+        token.provider = user.provider; // Get provider from user object
+      }
+      // Store provider info from account if available (for first login)
+      if (account) {
+        token.provider = account.provider;
       }
       return token;
     },
@@ -117,6 +123,7 @@ const handler = NextAuth({
         session.user.id = token.id as string;
         session.accessToken = token.accessToken as string;
         session.user.isAdmin = token.isAdmin as boolean;
+        session.user.provider = token.provider as string;
       }
       return session;
     }
