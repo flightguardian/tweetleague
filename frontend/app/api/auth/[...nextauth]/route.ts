@@ -24,18 +24,18 @@ const handler = NextAuth({
     CredentialsProvider({
       name: "credentials",
       credentials: {
-        username: { label: "Username", type: "text" },
+        email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) return null;
+        if (!credentials?.email || !credentials?.password) return null;
         
         try {
           const formData = new FormData();
-          formData.append('username', credentials.username);
+          formData.append('username', credentials.email); // Backend expects 'username' field but we send email
           formData.append('password', credentials.password);
           
-          const response = await api.post('/auth/token', formData, {
+          const response = await api.post('/auth/login', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
           });
           
@@ -120,8 +120,8 @@ const handler = NextAuth({
     }
   },
   pages: {
-    signIn: '/login',
-    error: '/login',
+    signIn: '/auth',
+    error: '/auth',
   },
   session: {
     strategy: "jwt"
