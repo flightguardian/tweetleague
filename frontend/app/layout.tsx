@@ -9,8 +9,29 @@ import { FaXTwitter } from 'react-icons/fa6';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Coventry City Tweet League",
-  description: "Predict match outcomes for Coventry City FC",
+  title: {
+    default: "COV Tweet League - Coventry City Predictions",
+    template: "%s | COV Tweet League"
+  },
+  description: "Predict Coventry City FC match outcomes and compete with fellow Sky Blues fans",
+  icons: {
+    icon: '/trophy.svg',
+    shortcut: '/trophy.svg',
+    apple: '/trophy.svg',
+  },
+  openGraph: {
+    title: 'COV Tweet League',
+    description: 'Predict Coventry City FC match outcomes and compete with fellow Sky Blues fans',
+    type: 'website',
+    siteName: 'COV Tweet League',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'COV Tweet League',
+    description: 'Predict Coventry City FC match outcomes',
+    creator: '@covtweetleague',
+    site: '@covtweetleague',
+  },
 };
 
 export default function RootLayout({
