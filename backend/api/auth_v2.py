@@ -512,11 +512,27 @@ def social_login(auth_data: SocialAuthRequest, db: Session = Depends(get_db)):
         user = db.query(User).filter(User.google_id == auth_data.provider_id).first()
     elif auth_data.provider == "twitter":
         user = db.query(User).filter(User.twitter_id == auth_data.provider_id).first()
-        # Update Twitter handle for existing Twitter users
-        if user and auth_data.twitter_handle:
-            print(f"[SOCIAL AUTH] Updating twitter_handle for existing user {user.id}: {auth_data.twitter_handle}")
-            user.twitter_handle = auth_data.twitter_handle.replace('@', '')
-            db.commit()
+        if user:
+            # Always update Twitter handle and avatar for existing Twitter users (in case they changed on Twitter)
+            update_needed = False
+            
+            if auth_data.twitter_handle:
+                new_handle = auth_data.twitter_handle.replace('@', '')
+                if user.twitter_handle != new_handle:
+                    print(f"[SOCIAL AUTH] Twitter handle changed for user {user.id}: {user.twitter_handle} -> {new_handle}")
+                    user.twitter_handle = new_handle
+                    update_needed = True
+                else:
+                    print(f"[SOCIAL AUTH] Twitter handle unchanged for user {user.id}: {new_handle}")
+            
+            # Update avatar if changed
+            if auth_data.avatar_url and user.avatar_url != auth_data.avatar_url:
+                print(f"[SOCIAL AUTH] Avatar URL changed for user {user.id}")
+                user.avatar_url = auth_data.avatar_url
+                update_needed = True
+            
+            if update_needed:
+                db.commit()
     else:
         raise HTTPException(status_code=400, detail="Invalid provider")
     
@@ -530,10 +546,11 @@ def social_login(auth_data: SocialAuthRequest, db: Session = Depends(get_db)):
                 user.google_id = auth_data.provider_id
             elif auth_data.provider == "twitter":
                 user.twitter_id = auth_data.provider_id
-                # Update Twitter handle if provided
+                # Always update Twitter handle when linking account
                 if auth_data.twitter_handle:
-                    print(f"[SOCIAL AUTH] Updating twitter_handle for linked user {user.id}: {auth_data.twitter_handle}")
-                    user.twitter_handle = auth_data.twitter_handle.replace('@', '')
+                    new_handle = auth_data.twitter_handle.replace('@', '')
+                    print(f"[SOCIAL AUTH] Setting twitter_handle for linked user {user.id}: {new_handle}")
+                    user.twitter_handle = new_handle
             
             if auth_data.avatar_url and not user.avatar_url:
                 user.avatar_url = auth_data.avatar_url
