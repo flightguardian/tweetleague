@@ -178,8 +178,15 @@ def update_profile(
     if update_data.email_notifications is not None:
         current_user.email_notifications = update_data.email_notifications
     
-    # Update Twitter handle
+    # Update Twitter handle (only for non-Twitter login users)
     if update_data.twitter_handle is not None:
+        # Prevent Twitter users from changing their handle
+        if current_user.provider == 'twitter':
+            raise HTTPException(
+                status_code=400, 
+                detail="Cannot change Twitter handle for Twitter login accounts"
+            )
+        
         # Check if handle is taken by another user
         if update_data.twitter_handle:
             existing_user = db.query(User).filter(

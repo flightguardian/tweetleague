@@ -271,53 +271,56 @@ export default function ProfilePage() {
                   )}
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  {editMode && (!session.user?.provider || session.user?.provider === 'local') ? (
-                    <Input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="Enter email"
-                      disabled={saving}
-                    />
-                  ) : (
-                    <div>
-                      <p className="font-medium text-lg flex items-center">
-                        <Mail className="mr-2 h-4 w-4 text-gray-500" />
-                        {userStats?.email}
-                      </p>
-                      {userStats?.email_verified ? (
-                        <p className="text-xs text-green-600 mt-1 flex items-center">
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Email verified
+                {/* Only show email for non-Twitter users */}
+                {session.user?.provider !== 'twitter' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email Address
+                    </label>
+                    {editMode && (!session.user?.provider || session.user?.provider === 'local') ? (
+                      <Input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="Enter email"
+                        disabled={saving}
+                      />
+                    ) : (
+                      <div>
+                        <p className="font-medium text-lg flex items-center">
+                          <Mail className="mr-2 h-4 w-4 text-gray-500" />
+                          {userStats?.email}
                         </p>
-                      ) : (
-                        <div className="mt-2">
-                          <p className="text-xs text-amber-600 mb-2">
-                            ⚠️ Email not verified - You won't be able to submit predictions
+                        {userStats?.email_verified ? (
+                          <p className="text-xs text-green-600 mt-1 flex items-center">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Email verified
                           </p>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleResendVerification}
-                            disabled={saving}
-                            className="text-xs"
-                          >
-                            Resend Verification Email
-                          </Button>
-                        </div>
-                      )}
-                      {editMode && session.user?.provider && session.user?.provider !== 'local' && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          Email managed by {session.user.provider}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
+                        ) : (
+                          <div className="mt-2">
+                            <p className="text-xs text-amber-600 mb-2">
+                              ⚠️ Email not verified - You won't be able to submit predictions
+                            </p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={handleResendVerification}
+                              disabled={saving}
+                              className="text-xs"
+                            >
+                              Resend Verification Email
+                            </Button>
+                          </div>
+                        )}
+                        {editMode && session.user?.provider && session.user?.provider !== 'local' && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Email managed by {session.user.provider}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               
               <div className="grid md:grid-cols-2 gap-6">
@@ -325,7 +328,8 @@ export default function ProfilePage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Twitter Handle
                   </label>
-                  {editMode ? (
+                  {/* Non-editable for Twitter users, editable for others */}
+                  {editMode && session.user?.provider !== 'twitter' ? (
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">@</span>
                       <Input
@@ -348,14 +352,21 @@ export default function ProfilePage() {
                           <Twitter className="mr-2 h-4 w-4 text-[rgb(98,181,229)]" />
                           @{userStats.twitter_handle}
                         </p>
+                      ) : session.user?.provider === 'twitter' ? (
+                        <p className="text-gray-500 italic">Loading...</p>
                       ) : (
                         <p className="text-gray-500 italic">Not set</p>
                       )}
                     </div>
                   )}
-                  {editMode && (
+                  {editMode && session.user?.provider !== 'twitter' && (
                     <p className="text-xs text-gray-500 mt-1">
                       Used for importing historical predictions
+                    </p>
+                  )}
+                  {session.user?.provider === 'twitter' && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Linked to your Twitter account
                     </p>
                   )}
                 </div>
