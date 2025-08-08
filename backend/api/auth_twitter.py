@@ -221,10 +221,22 @@ async def twitter_callback(
     
     twitter_user = response.json()
     
+    # Log the Twitter user data for debugging
+    logger.info(f"Twitter user data: name={twitter_user.get('name')}, screen_name={twitter_user.get('screen_name')}, id={user_id}")
+    
+    # Extract the actual Twitter handle (screen_name from API response)
+    twitter_handle = twitter_user.get("screen_name", screen_name)  # This is the @username
+    display_name = twitter_user.get("name", screen_name)  # This is the display name
+    
     # Check if user exists
     user = db.query(User).filter(User.twitter_id == user_id).first()
     
-    if not user:
+    if user:
+        # Update Twitter handle and avatar in case they changed
+        user.twitter_handle = twitter_handle  # Use actual Twitter handle
+        user.avatar_url = twitter_user.get("profile_image_url_https")
+        db.commit()
+    else:
         # Check if email exists (if provided)
         email = twitter_user.get("email", f"{screen_name}@twitter.local")
         existing_user = db.query(User).filter(User.email == email).first()
@@ -232,13 +244,19 @@ async def twitter_callback(
         if existing_user:
             # Link Twitter account to existing user
             existing_user.twitter_id = user_id
+            existing_user.twitter_handle = twitter_handle  # Use actual Twitter handle
+            if not existing_user.avatar_url:  # Only update avatar if not already set
+                existing_user.avatar_url = twitter_user.get("profile_image_url_https")
             user = existing_user
         else:
             # Create new user
+            # Use display name for username if available, otherwise use Twitter handle
+            username = display_name[:20] if display_name else twitter_handle
             user = User(
                 email=email,
-                username=screen_name,
+                username=username,  # Use display name for username
                 twitter_id=user_id,
+                twitter_handle=twitter_handle,  # Save actual Twitter handle
                 provider="twitter",
                 email_verified=True,  # Twitter accounts are pre-verified
                 avatar_url=twitter_user.get("profile_image_url_https")
