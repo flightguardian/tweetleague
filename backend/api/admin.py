@@ -430,3 +430,193 @@ async def remove_user_admin(
     db.commit()
     
     return {"message": f"Admin privileges removed from {user.username}"}
+
+# Store original fixture states for undo functionality
+fixture_backups = {}
+
+@router.post("/test/simulate-score/{fixture_id}", response_model=dict)
+async def simulate_fixture_score(
+    fixture_id: int,
+    score_data: ScoreUpdate,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_admin_user)
+):
+    """TEST ENDPOINT: Simulate a fixture score (can be undone)"""
+    fixture = db.query(Fixture).filter(Fixture.id == fixture_id).first()
+    
+    if not fixture:
+        raise HTTPException(status_code=404, detail="Fixture not found")
+    
+    # Store the original state for undo
+    fixture_backups[fixture_id] = {
+        "home_score": fixture.home_score,
+        "away_score": fixture.away_score,
+        "status": fixture.status,
+        "predictions": {}
+    }
+    
+    # Store original prediction points
+    predictions = db.query(Prediction).filter(
+        Prediction.fixture_id == fixture_id
+    ).all()
+    
+    for pred in predictions:
+        fixture_backups[fixture_id]["predictions"][pred.id] = pred.points_earned
+    
+    # Store original user stats
+    fixture_backups[fixture_id]["user_stats"] = {}
+    for pred in predictions:
+        user_stats = db.query(UserStats).filter(
+            UserStats.user_id == pred.user_id,
+            UserStats.season_id == fixture.season_id
+        ).first()
+        if user_stats:
+            fixture_backups[fixture_id]["user_stats"][pred.user_id] = {
+                "total_points": user_stats.total_points,
+                "correct_scores": user_stats.correct_scores,
+                "correct_results": user_stats.correct_results,
+                "current_streak": user_stats.current_streak,
+                "best_streak": user_stats.best_streak,
+                "predictions_made": user_stats.predictions_made,
+                "avg_points_per_game": user_stats.avg_points_per_game
+            }
+    
+    # Now update the fixture with the simulated score
+    fixture.home_score = score_data.home_score
+    fixture.away_score = score_data.away_score
+    fixture.status = FixtureStatus.FINISHED
+    
+    # Calculate points for all predictions
+    points_updates = []
+    for prediction in predictions:
+        points = 0
+        
+        # Exact score = 3 points
+        if (prediction.home_prediction == score_data.home_score and 
+            prediction.away_prediction == score_data.away_score):
+            points = 3
+        # Correct result = 1 point
+        elif ((prediction.home_prediction > prediction.away_prediction and 
+               score_data.home_score > score_data.away_score) or
+              (prediction.home_prediction < prediction.away_prediction and 
+               score_data.home_score < score_data.away_score) or
+              (prediction.home_prediction == prediction.away_prediction and 
+               score_data.home_score == score_data.away_score)):
+            points = 1
+        
+        prediction.points_earned = points
+        points_updates.append({
+            "user_id": prediction.user_id,
+            "username": prediction.user.username,
+            "prediction": f"{prediction.home_prediction}-{prediction.away_prediction}",
+            "points": points,
+            "exact": points == 3
+        })
+    
+    # Update user statistics
+    for update in [u for u in points_updates if u["user_id"] in fixture_backups[fixture_id]["user_stats"]]:
+        user_stats = db.query(UserStats).filter(
+            UserStats.user_id == update["user_id"],
+            UserStats.season_id == fixture.season_id
+        ).first()
+        
+        if user_stats:
+            # Only update if this was previously not scored
+            if fixture_backups[fixture_id]["predictions"].get(update["user_id"]) is None:
+                user_stats.total_points += update["points"]
+                if update["exact"]:
+                    user_stats.correct_scores += 1
+                elif update["points"] == 1:
+                    user_stats.correct_results += 1
+                
+                # Update streak
+                if update["points"] > 0:
+                    user_stats.current_streak += 1
+                    if user_stats.current_streak > user_stats.best_streak:
+                        user_stats.best_streak = user_stats.current_streak
+                else:
+                    user_stats.current_streak = 0
+                
+                # Update average
+                if user_stats.predictions_made > 0:
+                    user_stats.avg_points_per_game = user_stats.total_points / user_stats.predictions_made
+    
+    db.commit()
+    
+    return {
+        "message": f"TEST MODE: Score simulated for {fixture.home_team} vs {fixture.away_team}",
+        "fixture": {
+            "id": fixture.id,
+            "home_team": fixture.home_team,
+            "away_team": fixture.away_team,
+            "simulated_score": f"{score_data.home_score}-{score_data.away_score}"
+        },
+        "predictions_processed": len(predictions),
+        "results": points_updates,
+        "total_exact_scores": sum(1 for u in points_updates if u["exact"]),
+        "total_correct_results": sum(1 for u in points_updates if u["points"] == 1),
+        "can_undo": True
+    }
+
+@router.post("/test/undo-score/{fixture_id}", response_model=dict)
+async def undo_fixture_score(
+    fixture_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_admin_user)
+):
+    """TEST ENDPOINT: Undo a simulated fixture score"""
+    if fixture_id not in fixture_backups:
+        raise HTTPException(
+            status_code=400, 
+            detail="No backup found for this fixture. Either it wasn't simulated or already undone."
+        )
+    
+    fixture = db.query(Fixture).filter(Fixture.id == fixture_id).first()
+    
+    if not fixture:
+        raise HTTPException(status_code=404, detail="Fixture not found")
+    
+    backup = fixture_backups[fixture_id]
+    
+    # Restore fixture state
+    fixture.home_score = backup["home_score"]
+    fixture.away_score = backup["away_score"]
+    fixture.status = backup["status"]
+    
+    # Restore prediction points
+    for pred_id, points in backup["predictions"].items():
+        prediction = db.query(Prediction).filter(Prediction.id == pred_id).first()
+        if prediction:
+            prediction.points_earned = points
+    
+    # Restore user stats
+    for user_id, stats in backup["user_stats"].items():
+        user_stats = db.query(UserStats).filter(
+            UserStats.user_id == user_id,
+            UserStats.season_id == fixture.season_id
+        ).first()
+        if user_stats:
+            user_stats.total_points = stats["total_points"]
+            user_stats.correct_scores = stats["correct_scores"]
+            user_stats.correct_results = stats["correct_results"]
+            user_stats.current_streak = stats["current_streak"]
+            user_stats.best_streak = stats["best_streak"]
+            user_stats.predictions_made = stats["predictions_made"]
+            user_stats.avg_points_per_game = stats["avg_points_per_game"]
+    
+    db.commit()
+    
+    # Remove the backup
+    del fixture_backups[fixture_id]
+    
+    return {
+        "message": f"TEST MODE: Score simulation undone for {fixture.home_team} vs {fixture.away_team}",
+        "fixture": {
+            "id": fixture.id,
+            "home_team": fixture.home_team,
+            "away_team": fixture.away_team,
+            "status": fixture.status,
+            "home_score": fixture.home_score,
+            "away_score": fixture.away_score
+        }
+    }
