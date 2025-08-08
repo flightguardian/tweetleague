@@ -72,6 +72,13 @@ export default function AuthPage() {
         const response = await api.post('/auth/register', signupData);
         
         if (response.data.access_token) {
+          // Show success message about email verification
+          toast({
+            title: 'Account Created!',
+            description: 'Please check your email to verify your account before logging in.',
+            duration: 10000, // Show for 10 seconds
+          });
+          
           // Auto login after registration
           const result = await signIn('credentials', {
             email: formData.email,
@@ -80,10 +87,7 @@ export default function AuthPage() {
           });
 
           if (result?.ok) {
-            toast({
-              title: 'Welcome!',
-              description: 'Your account has been created successfully.',
-            });
+            // Redirect to home where the verification modal will appear
             router.push('/');
           }
         }
