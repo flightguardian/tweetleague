@@ -257,15 +257,18 @@ async def verify_email(
     
     return {"message": "Email verified successfully"}
 
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
+
 @router.post("/resend-verification")
 async def resend_verification(
-    email: EmailStr,
+    request: ResendVerificationRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
     """Resend verification email"""
     
-    user = db.query(User).filter(User.email == email.lower()).first()
+    user = db.query(User).filter(User.email == request.email.lower()).first()
     
     if not user:
         # Don't reveal if email exists
