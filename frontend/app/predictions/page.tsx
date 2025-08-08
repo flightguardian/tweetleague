@@ -244,16 +244,53 @@ export default function PredictionsPage() {
       </div>
 
       {predictions.length === 0 ? (
-        <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-8 md:p-12 text-center">
-          <div className="text-5xl md:text-6xl mb-4">🎯</div>
-          <p className="text-lg md:text-xl text-gray-700 font-semibold">No predictions yet</p>
-          <p className="text-gray-500 mt-2">Start predicting to climb the leaderboard!</p>
-          <Button 
-            onClick={() => router.push('/')}
-            className="mt-6 bg-[rgb(98,181,229)] hover:bg-[rgb(78,145,183)]"
-          >
-            Go to Next Match
-          </Button>
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-xl overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-50 to-sky-50 p-6 md:p-8">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 text-center">
+              Your Season Journey Starts Here! 
+            </h2>
+          </div>
+          <div className="p-8 md:p-12 text-center">
+            <div className="max-w-md mx-auto">
+              <div className="text-6xl md:text-7xl mb-6">⚽</div>
+              <h3 className="text-lg md:text-xl text-gray-700 font-semibold mb-3">
+                No predictions yet this season
+              </h3>
+              <p className="text-gray-500 mb-8">
+                The 2025/26 season is just beginning! Make your first prediction and start your journey to the top of the leaderboard.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 text-left p-4 bg-blue-50 rounded-lg">
+                  <Trophy className="h-5 w-5 text-yellow-500 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm">Earn Points</p>
+                    <p className="text-xs text-gray-600">3 points for perfect scores, 1 for correct results</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-left p-4 bg-green-50 rounded-lg">
+                  <Target className="h-5 w-5 text-green-500 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm">Make Predictions</p>
+                    <p className="text-xs text-gray-600">Predict every Coventry City match this season</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-left p-4 bg-purple-50 rounded-lg">
+                  <Award className="h-5 w-5 text-purple-500 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-sm">Win Glory</p>
+                    <p className="text-xs text-gray-600">Compete for the season championship</p>
+                  </div>
+                </div>
+              </div>
+              <Button 
+                onClick={() => router.push('/')}
+                className="mt-8 bg-[rgb(98,181,229)] hover:bg-[rgb(78,145,183)] text-white px-8 py-2"
+                size="lg"
+              >
+                Make Your First Prediction
+              </Button>
+            </div>
+          </div>
         </div>
       ) : (
         <div className="space-y-8">

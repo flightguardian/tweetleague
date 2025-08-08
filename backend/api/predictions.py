@@ -129,9 +129,17 @@ def get_my_predictions(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    # Get current season
+    current_season = db.query(Season).filter(Season.is_current == True).first()
+    if not current_season:
+        return []
+    
+    # Only get predictions for the current season
     predictions = db.query(Prediction).filter(
         Prediction.user_id == current_user.id
-    ).join(Fixture).order_by(Fixture.kickoff_time.desc()).all()
+    ).join(Fixture).filter(
+        Fixture.season_id == current_season.id
+    ).order_by(Fixture.kickoff_time.desc()).all()
     
     response = []
     for pred in predictions:

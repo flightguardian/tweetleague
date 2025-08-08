@@ -100,15 +100,46 @@ export default function Home() {
         </div>
       </div>
 
-      {nextFixture && (
-        <div>
-          <h2 className="text-3xl font-bold mb-6 text-gray-800 flex items-center gap-3">
-            <span className="w-1 h-8 bg-[rgb(98,181,229)] rounded-full"></span>
-            Next Match
-          </h2>
+      <div>
+        <h2 className="text-3xl font-bold mb-6 text-gray-800 flex items-center gap-3">
+          <span className="w-1 h-8 bg-[rgb(98,181,229)] rounded-full"></span>
+          Next Match
+        </h2>
+        {loading ? (
+          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100">
+            <div className="animate-pulse">
+              <div className="flex justify-between items-center mb-6">
+                <div className="h-6 bg-gray-200 rounded w-24"></div>
+                <div className="h-6 bg-gray-200 rounded w-32"></div>
+              </div>
+              <div className="flex justify-around items-center mb-8">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-20 mx-auto"></div>
+                </div>
+                <div className="h-8 bg-gray-200 rounded w-12"></div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-20 mx-auto"></div>
+                </div>
+              </div>
+              <div className="flex justify-center gap-4">
+                <div className="h-12 bg-gray-200 rounded w-20"></div>
+                <div className="h-12 bg-gray-200 rounded w-20"></div>
+              </div>
+              <div className="mt-6">
+                <div className="h-10 bg-gray-200 rounded w-full"></div>
+              </div>
+            </div>
+          </div>
+        ) : nextFixture ? (
           <PredictionCard fixture={nextFixture} onPredictionSubmit={fetchNextFixture} />
-        </div>
-      )}
+        ) : (
+          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100 text-center">
+            <p className="text-gray-500">No upcoming fixtures available</p>
+          </div>
+        )}
+      </div>
 
       <div className="grid md:grid-cols-2 gap-8">
         <div>
