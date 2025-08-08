@@ -19,6 +19,7 @@ class EmailService:
         self.frontend_url = os.getenv("FRONTEND_URL", "https://tweetleague.com")
         
         # Log configuration on initialization
+        print(f"[EMAIL INIT] EmailService initialized - Host: {self.smtp_host}, Port: {self.smtp_port}, User: {self.smtp_username if self.smtp_username else 'NOT SET'}")
         logger.info(f"EmailService initialized - Host: {self.smtp_host}, Port: {self.smtp_port}, User: {self.smtp_username if self.smtp_username else 'NOT SET'}")
         
     def send_email(self, to_email: str, subject: str, html_content: str, text_content: Optional[str] = None) -> bool:
@@ -26,6 +27,7 @@ class EmailService:
         try:
             # For development, just log the email
             if not self.smtp_username or not self.smtp_password:
+                print(f"[EMAIL] SMTP credentials not configured. Email would be sent to {to_email}: {subject}")
                 logger.warning(f"SMTP credentials not configured. Email would be sent to {to_email}: {subject}")
                 logger.info(f"SMTP_USERNAME: {self.smtp_username}, SMTP_HOST: {self.smtp_host}")
                 logger.info(f"Content preview: {text_content[:200] if text_content else html_content[:200]}")
@@ -73,8 +75,10 @@ class EmailService:
     
     def send_verification_email(self, to_email: str, username: str, verification_token: str) -> bool:
         """Send email verification link"""
+        print(f"[EMAIL] send_verification_email called for {to_email} (user: {username})")
         logger.info(f"send_verification_email called for {to_email} (user: {username})")
         verification_url = f"{self.frontend_url}/verify-email?token={verification_token}"
+        print(f"[EMAIL] Verification URL: {verification_url}")
         logger.info(f"Verification URL: {verification_url}")
         
         subject = "Welcome to Tweet League - Please confirm your email"

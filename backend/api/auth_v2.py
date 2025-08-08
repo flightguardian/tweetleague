@@ -131,6 +131,7 @@ async def register(
     """Register a new user with email verification"""
     
     # Log registration attempt
+    print(f"=== REGISTRATION ATTEMPT for email: {user_data.email}, username: {user_data.username} ===")
     logger.info(f"=== REGISTRATION ATTEMPT for email: {user_data.email}, username: {user_data.username} ===")
     
     # Check for existing user
@@ -193,10 +194,12 @@ async def register(
     import os
     smtp_user = os.getenv("SMTP_USERNAME")
     smtp_pass = os.getenv("SMTP_PASSWORD")
+    print(f"SMTP config check - Username: {smtp_user}, Password: {'[SET]' if smtp_pass else '[NOT SET]'}")
     logger.info(f"SMTP config check - Username: {smtp_user}, Password: {'[SET]' if smtp_pass else '[NOT SET]'}")
     
     if smtp_user and smtp_pass:
         verification_token = create_verification_token(db, new_user.id)
+        print(f"Created verification token for {new_user.email}: {verification_token[:10]}...")
         logger.info(f"Created verification token for {new_user.email}: {verification_token[:10]}...")
         
         background_tasks.add_task(
@@ -205,11 +208,13 @@ async def register(
             new_user.username,
             verification_token
         )
+        print(f"Verification email task queued for {new_user.email}")
         logger.info(f"Verification email task queued for {new_user.email}")
     else:
         # Auto-verify if email not configured
         new_user.email_verified = True
         db.commit()
+        print(f"Email service not configured - auto-verifying {new_user.email}")
         logger.warning(f"Email service not configured - auto-verifying {new_user.email}")
     
     # Create access token
