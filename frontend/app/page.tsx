@@ -6,6 +6,7 @@ import { api } from '@/lib/api';
 import { PredictionCard } from '@/components/prediction-card';
 import { RecentResults } from '@/components/recent-results';
 import { ManagerOfMonth } from '@/components/manager-of-month';
+import { EmailVerificationModal } from '@/components/email-verification-modal';
 import { Trophy, Users, Target, HelpCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -43,6 +44,9 @@ export default function Home() {
 
   return (
     <div className="space-y-8">
+      {/* Email Verification Modal */}
+      {session && <EmailVerificationModal />}
+      
       <div className="relative overflow-hidden rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl bg-gradient-to-br from-[rgb(98,181,229)] to-[rgb(49,91,115)] text-white">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10 text-center py-6 md:py-12 px-4 md:px-8">
