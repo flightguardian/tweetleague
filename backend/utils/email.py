@@ -22,9 +22,12 @@ class EmailService:
         try:
             # For development, just log the email
             if not self.smtp_username or not self.smtp_password:
-                logger.info(f"Email would be sent to {to_email}: {subject}")
-                logger.info(f"Content: {text_content or html_content}")
+                logger.warning(f"SMTP credentials not configured. Email would be sent to {to_email}: {subject}")
+                logger.info(f"SMTP_USERNAME: {self.smtp_username}, SMTP_HOST: {self.smtp_host}")
+                logger.info(f"Content preview: {text_content[:200] if text_content else html_content[:200]}")
                 return True
+            
+            logger.info(f"Attempting to send email to {to_email} via {self.smtp_host}:{self.smtp_port}")
             
             msg = MIMEMultipart('alternative')
             msg['Subject'] = subject
@@ -41,21 +44,34 @@ class EmailService:
             msg.attach(part2)
             
             # Send email
+            logger.info(f"Connecting to SMTP server {self.smtp_host}:{self.smtp_port}")
             with smtplib.SMTP(self.smtp_host, self.smtp_port) as server:
+                logger.info("Starting TLS...")
                 server.starttls()
+                logger.info(f"Logging in as {self.smtp_username}...")
                 server.login(self.smtp_username, self.smtp_password)
+                logger.info("Sending message...")
                 server.send_message(msg)
                 
             logger.info(f"Email sent successfully to {to_email}")
             return True
             
+        except smtplib.SMTPAuthenticationError as e:
+            logger.error(f"SMTP Authentication failed for {self.smtp_username}: {str(e)}")
+            return False
+        except smtplib.SMTPException as e:
+            logger.error(f"SMTP error sending to {to_email}: {str(e)}")
+            return False
         except Exception as e:
-            logger.error(f"Failed to send email to {to_email}: {str(e)}")
+            logger.error(f"Unexpected error sending email to {to_email}: {str(e)}")
+            logger.exception("Full traceback:")
             return False
     
     def send_verification_email(self, to_email: str, username: str, verification_token: str) -> bool:
         """Send email verification link"""
+        logger.info(f"send_verification_email called for {to_email} (user: {username})")
         verification_url = f"{self.frontend_url}/verify-email?token={verification_token}"
+        logger.info(f"Verification URL: {verification_url}")
         
         subject = "Welcome to Tweet League - Please confirm your email"
         

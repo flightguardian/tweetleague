@@ -188,20 +188,26 @@ async def register(
     
     # Send verification email if SMTP is configured
     import os
-    if os.getenv("SMTP_USERNAME") and os.getenv("SMTP_PASSWORD"):
+    smtp_user = os.getenv("SMTP_USERNAME")
+    smtp_pass = os.getenv("SMTP_PASSWORD")
+    logger.info(f"SMTP config check - Username: {smtp_user}, Password: {'[SET]' if smtp_pass else '[NOT SET]'}")
+    
+    if smtp_user and smtp_pass:
         verification_token = create_verification_token(db, new_user.id)
+        logger.info(f"Created verification token for {new_user.email}: {verification_token[:10]}...")
+        
         background_tasks.add_task(
             email_service.send_verification_email,
             new_user.email,
             new_user.username,
             verification_token
         )
-        logger.info(f"Verification email queued for {new_user.email}")
+        logger.info(f"Verification email task queued for {new_user.email}")
     else:
         # Auto-verify if email not configured
         new_user.email_verified = True
         db.commit()
-        logger.info(f"Email service not configured - auto-verifying {new_user.email}")
+        logger.warning(f"Email service not configured - auto-verifying {new_user.email}")
     
     # Create access token
     access_token = create_access_token(data={"sub": str(new_user.id)})
