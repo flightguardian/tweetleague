@@ -5,7 +5,7 @@ from sqlalchemy import or_
 from datetime import timedelta
 from pydantic import BaseModel, EmailStr
 from database.base import get_db, settings
-from models.models import User, UserStats
+from models.models import User, UserStats, UserProfile, Season
 from utils.auth import verify_password, get_password_hash, create_access_token
 import secrets
 
@@ -22,6 +22,7 @@ class SocialAuth(BaseModel):
     email: EmailStr
     name: str
     avatar_url: str | None = None
+    twitter_handle: str | None = None
 
 class UserResponse(BaseModel):
     id: int
@@ -125,6 +126,18 @@ def social_login(auth_data: SocialAuth, db: Session = Depends(get_db)):
                 user.google_id = auth_data.provider_id
             elif auth_data.provider == "twitter":
                 user.twitter_id = auth_data.provider_id
+                # Update Twitter handle if provided
+                if auth_data.twitter_handle:
+                    # Check if user has a profile
+                    profile = db.query(UserProfile).filter(UserProfile.user_id == user.id).first()
+                    if profile:
+                        profile.twitter_handle = auth_data.twitter_handle.replace('@', '')
+                    else:
+                        profile = UserProfile(
+                            user_id=user.id,
+                            twitter_handle=auth_data.twitter_handle.replace('@', '')
+                        )
+                        db.add(profile)
             
             if auth_data.avatar_url and not user.avatar_url:
                 user.avatar_url = auth_data.avatar_url
@@ -157,12 +170,23 @@ def social_login(auth_data: SocialAuth, db: Session = Depends(get_db)):
             db.commit()
             db.refresh(user)
             
-            # Create user stats
-            user_stats = UserStats(
-                user_id=user.id,
-                season="2025-2026"
-            )
-            db.add(user_stats)
+            # Create user profile with Twitter handle if provided
+            if auth_data.provider == "twitter" and auth_data.twitter_handle:
+                profile = UserProfile(
+                    user_id=user.id,
+                    twitter_handle=auth_data.twitter_handle.replace('@', '')
+                )
+                db.add(profile)
+            
+            # Create user stats for current season
+            current_season = db.query(Season).filter(Season.is_current == True).first()
+            if current_season:
+                user_stats = UserStats(
+                    user_id=user.id,
+                    season_id=current_season.id
+                )
+                db.add(user_stats)
+            
             db.commit()
     
     access_token = create_access_token(data={"sub": str(user.id)})

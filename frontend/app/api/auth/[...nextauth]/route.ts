@@ -78,7 +78,8 @@ const handler = NextAuth({
             provider_id: account.providerAccountId,
             email: email,
             name: name,
-            avatar_url: user.image
+            avatar_url: user.image,
+            twitter_handle: twitterUsername
           });
           
           const response = await api.post('/auth/social', {
@@ -86,7 +87,8 @@ const handler = NextAuth({
             provider_id: account.providerAccountId,
             email: email,
             name: name,
-            avatar_url: user.image
+            avatar_url: user.image,
+            twitter_handle: account.provider === "twitter" ? twitterUsername : undefined
           });
           
           user.id = response.data.user.id.toString();
@@ -124,7 +126,11 @@ const handler = NextAuth({
     error: '/auth',
   },
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   }
 });
 

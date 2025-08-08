@@ -309,6 +309,12 @@ export default function AuthPage() {
               </button>
             </div>
           )}
+          
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+            <p className="text-xs text-center text-gray-600">
+              🔐 You'll stay signed in for 30 days on this device
+            </p>
+          </div>
         </div>
       </div>
     </div>
