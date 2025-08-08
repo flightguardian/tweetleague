@@ -97,17 +97,17 @@ export function EmailVerificationModal() {
             <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 mt-0.5 flex-shrink-0" />
             <div className="text-xs sm:text-sm min-w-0 flex-1">
               <p className="font-semibold text-amber-900 mb-0.5 sm:mb-1 break-words">
-                Email verification required
+                Verify your email to submit predictions
               </p>
               <p className="text-amber-800 break-words leading-relaxed">
-                You won't be able to submit predictions until verified.
+                You can browse the site, but predictions require verification.
               </p>
             </div>
           </div>
 
           <div className="space-y-2 sm:space-y-3">
             <p className="text-xs sm:text-sm text-gray-600 break-words leading-relaxed">
-              We sent a verification email to your registered address. Check your inbox to activate your account.
+              We've sent a verification link to your email address. Click the link to unlock prediction submissions.
             </p>
             
             <div className="p-2.5 sm:p-3 bg-blue-50 rounded-lg">

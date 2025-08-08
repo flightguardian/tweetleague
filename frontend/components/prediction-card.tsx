@@ -116,11 +116,11 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
       // Check if it's an email verification error
       if (error.response?.status === 403 && error.response?.data?.detail?.includes('verify your email')) {
         toast({
-          title: 'Email Verification Required',
+          title: 'Verify Email to Submit',
           description: (
             <div className="space-y-2">
-              <p>{error.response.data.detail}</p>
-              <p className="text-xs font-semibold">📧 Check your junk/spam folder if you don't see it!</p>
+              <p>Please verify your email address to submit predictions.</p>
+              <p className="text-xs font-semibold">📧 Check your junk/spam folder for the verification link!</p>
             </div>
           ) as any,
           variant: 'destructive',

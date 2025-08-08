@@ -74,22 +74,20 @@ export default function AuthPage() {
         if (response.data.access_token) {
           // Show success message about email verification
           toast({
-            title: 'Account Created!',
-            description: 'Please check your email to verify your account before logging in.',
-            duration: 10000, // Show for 10 seconds
+            title: 'Account Created Successfully! 🎉',
+            description: 'Please check your email (including spam folder) to verify your account. You can now log in.',
+            duration: 15000, // Show for 15 seconds
           });
           
-          // Auto login after registration
-          const result = await signIn('credentials', {
-            email: formData.email,
-            password: formData.password,
-            redirect: false,
+          // Switch to login tab instead of auto-login
+          setIsLogin(true);
+          // Clear the form
+          setFormData({
+            email: formData.email, // Keep email for convenience
+            username: '',
+            password: '',
+            twitter_handle: ''
           });
-
-          if (result?.ok) {
-            // Redirect to home where the verification modal will appear
-            router.push('/');
-          }
         }
       }
     } catch (error: any) {
