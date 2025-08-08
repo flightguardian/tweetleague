@@ -136,10 +136,17 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
                     title: 'Verification Email Sent!',
                     description: 'Please check your inbox and junk/spam folder.',
                   });
-                } catch (err) {
+                } catch (err: any) {
+                  // Handle error properly
+                  let errorMessage = 'Please try again from your profile page.';
+                  if (err.response?.data?.detail) {
+                    if (typeof err.response.data.detail === 'string') {
+                      errorMessage = err.response.data.detail;
+                    }
+                  }
                   toast({
                     title: 'Failed to resend',
-                    description: 'Please try again from your profile page.',
+                    description: errorMessage,
                     variant: 'destructive'
                   });
                 }

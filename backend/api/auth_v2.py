@@ -7,7 +7,7 @@ from pydantic import BaseModel, EmailStr, Field, validator
 from database.base import get_db, settings
 from models.models import User, UserStats, Season
 from models.email_verification import EmailVerificationToken, PasswordResetToken
-from utils.auth import verify_password, get_password_hash, create_access_token
+from utils.auth import verify_password, get_password_hash, create_access_token, get_current_user
 from utils.validators import validate_email, validate_password, validate_username
 from utils.email import email_service
 import secrets
@@ -262,11 +262,49 @@ class ResendVerificationRequest(BaseModel):
 
 @router.post("/resend-verification")
 async def resend_verification(
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Resend verification email for authenticated user"""
+    
+    if current_user.email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already verified"
+        )
+    
+    # Invalidate old tokens
+    db.query(EmailVerificationToken).filter(
+        and_(
+            EmailVerificationToken.user_id == current_user.id,
+            EmailVerificationToken.used == False
+        )
+    ).update({"used": True})
+    db.commit()
+    
+    # Create new token
+    verification_token = create_verification_token(db, current_user.id)
+    
+    # Send email
+    background_tasks.add_task(
+        email_service.send_verification_email,
+        current_user.email,
+        current_user.username,
+        verification_token
+    )
+    
+    logger.info(f"Resending verification email to {current_user.email}")
+    
+    return {"message": "Verification email sent"}
+
+@router.post("/resend-verification-public") 
+async def resend_verification_public(
     request: ResendVerificationRequest,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db)
 ):
-    """Resend verification email"""
+    """Resend verification email using email address"""
     
     user = db.query(User).filter(User.email == request.email.lower()).first()
     

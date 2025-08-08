@@ -74,9 +74,18 @@ export default function ProfilePage() {
         description: 'Please check your inbox and junk/spam folder.',
       });
     } catch (error: any) {
+      // Handle error properly - check if it's an object or string
+      let errorMessage = 'Failed to resend verification email';
+      if (error.response?.data?.detail) {
+        if (typeof error.response.data.detail === 'string') {
+          errorMessage = error.response.data.detail;
+        } else if (Array.isArray(error.response.data.detail)) {
+          errorMessage = error.response.data.detail[0]?.msg || errorMessage;
+        }
+      }
       toast({
         title: 'Error',
-        description: error.response?.data?.detail || 'Failed to resend verification email',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

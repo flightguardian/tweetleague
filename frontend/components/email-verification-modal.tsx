@@ -55,9 +55,18 @@ export function EmailVerificationModal() {
       });
       setIsOpen(false);
     } catch (error: any) {
+      // Handle error properly - check if it's an object or string
+      let errorMessage = 'Failed to resend email';
+      if (error.response?.data?.detail) {
+        if (typeof error.response.data.detail === 'string') {
+          errorMessage = error.response.data.detail;
+        } else if (Array.isArray(error.response.data.detail)) {
+          errorMessage = error.response.data.detail[0]?.msg || errorMessage;
+        }
+      }
       toast({
         title: 'Error',
-        description: error.response?.data?.detail || 'Failed to resend email',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -78,6 +87,9 @@ export function EmailVerificationModal() {
             <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-[rgb(98,181,229)] flex-shrink-0" />
             <span className="truncate">Verify Your Email</span>
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Please verify your email address to submit predictions
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-3 sm:space-y-4 mt-3 overflow-y-auto max-h-[60vh]">
