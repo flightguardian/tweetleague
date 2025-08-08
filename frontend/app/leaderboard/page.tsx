@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { api } from '@/lib/api';
-import { Trophy, Medal, Award, User, TrendingUp } from 'lucide-react';
+import { Trophy, Medal, Award, User, TrendingUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Target } from 'lucide-react';
 import Link from 'next/link';
 import { TopLeaderboard } from '@/components/top-leaderboard';
 
@@ -13,12 +13,15 @@ export default function LeaderboardPage() {
   const [userPosition, setUserPosition] = useState<any>(null);
   const [currentSeason, setCurrentSeason] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const usersPerPage = 50;
 
   useEffect(() => {
     // Clear old season selection from localStorage since we removed the selector
     localStorage.removeItem('selectedSeasonId');
     fetchCurrentSeasonAndLeaderboard();
-  }, [session]);
+  }, [session, currentPage]);
 
   const fetchCurrentSeasonAndLeaderboard = async () => {
     try {
@@ -27,18 +30,39 @@ export default function LeaderboardPage() {
       const current = seasonsResponse.data.find((s: any) => s.is_current);
       setCurrentSeason(current);
       
-      // Then fetch leaderboard for current season (API defaults to current if no season_id specified)
-      const response = await api.get('/leaderboard', {
-        params: { limit: 100 }
-      });
-      setLeaderboard(response.data);
+      // Get total count of users in leaderboard
+      const countResponse = await api.get('/leaderboard/count');
+      setTotalUsers(countResponse.data.count);
       
-      // Find the current user's position if logged in
+      // Calculate offset for pagination
+      const offset = (currentPage - 1) * usersPerPage;
+      
+      // Then fetch leaderboard for current season with pagination
+      const response = await api.get('/leaderboard', {
+        params: { 
+          limit: usersPerPage,
+          offset: offset
+        }
+      });
+      
+      // Adjust position numbers based on page
+      const adjustedData = response.data.map((player: any, index: number) => ({
+        ...player,
+        position: offset + index + 1
+      }));
+      
+      setLeaderboard(adjustedData);
+      
+      // Fetch the current user's position separately if logged in
       if (session?.user?.username) {
-        const userEntry = response.data.find((player: any) => 
-          player.username === session.user.username
-        );
-        setUserPosition(userEntry);
+        // Make a separate API call to get user's full stats
+        try {
+          const userStatsResponse = await api.get('/leaderboard/user-position');
+          setUserPosition(userStatsResponse.data);
+        } catch (error) {
+          // User might not have any predictions yet
+          console.log('User position not found');
+        }
       }
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error);
@@ -57,6 +81,22 @@ export default function LeaderboardPage() {
         return <Award className="h-5 w-5 md:h-6 md:w-6 text-orange-600" />;
       default:
         return <span className="text-sm md:text-lg font-medium">{position}</span>;
+    }
+  };
+
+  const totalPages = Math.ceil(totalUsers / usersPerPage);
+  
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+  
+  const jumpToUserPosition = () => {
+    if (userPosition) {
+      const userPage = Math.ceil(userPosition.position / usersPerPage);
+      setCurrentPage(userPage);
     }
   };
 
@@ -142,6 +182,92 @@ export default function LeaderboardPage() {
           <p className="text-xs text-gray-500">← Swipe to see more stats →</p>
         </div>
       </div>
+      
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white rounded-xl p-4 shadow-lg border border-gray-100">
+          <div className="text-sm text-gray-600">
+            Showing {((currentPage - 1) * usersPerPage) + 1}-{Math.min(currentPage * usersPerPage, totalUsers)} of {totalUsers} players
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={currentPage === 1}
+              className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="First page"
+            >
+              <ChevronsLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Previous page"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            
+            <div className="flex items-center gap-1">
+              {/* Show max 5 page numbers */}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`px-3 py-1 rounded ${
+                      currentPage === pageNum
+                        ? 'bg-[rgb(98,181,229)] text-white'
+                        : 'hover:bg-gray-100'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+            
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Next page"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => handlePageChange(totalPages)}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Last page"
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </button>
+          </div>
+          
+          {/* Jump to my position button */}
+          {session && userPosition && Math.ceil(userPosition.position / usersPerPage) !== currentPage && (
+            <button
+              onClick={jumpToUserPosition}
+              className="flex items-center gap-2 px-4 py-2 bg-[rgb(98,181,229)] text-white rounded-lg hover:bg-[rgb(78,145,183)] transition-colors"
+            >
+              <Target className="h-4 w-4" />
+              Jump to My Position
+            </button>
+          )}
+        </div>
+      )}
       
       {/* User Position Section - Only show if user is logged in and has made predictions */}
       {session && userPosition && (

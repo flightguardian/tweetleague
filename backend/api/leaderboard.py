@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from sqlalchemy import desc, or_, and_
 from typing import List
 from pydantic import BaseModel
 from database.base import get_db
 from models.models import UserStats, User, FixtureStatus, Season
+from utils.auth import get_current_user
 
 router = APIRouter()
 
@@ -23,6 +24,7 @@ class LeaderboardEntry(BaseModel):
 def get_leaderboard(
     season_id: int = Query(default=None),
     limit: int = Query(default=50, le=100),
+    offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db)
 ):
     # If no season specified, use current season
@@ -38,7 +40,7 @@ def get_leaderboard(
         desc(UserStats.total_points),
         desc(UserStats.correct_scores),
         desc(UserStats.correct_results)
-    ).limit(limit).all()
+    ).offset(offset).limit(limit).all()
     
     leaderboard = []
     for position, stat in enumerate(stats, 1):
@@ -56,6 +58,77 @@ def get_leaderboard(
         ))
     
     return leaderboard
+
+@router.get("/count")
+def get_leaderboard_count(
+    season_id: int = Query(default=None),
+    db: Session = Depends(get_db)
+):
+    """Get total count of users in leaderboard"""
+    # If no season specified, use current season
+    if not season_id:
+        current_season = db.query(Season).filter(Season.is_current == True).first()
+        if not current_season:
+            return {"count": 0}
+        season_id = current_season.id
+    
+    count = db.query(UserStats).filter(
+        UserStats.season_id == season_id,
+        UserStats.predictions_made > 0  # Only count users who have made predictions
+    ).count()
+    
+    return {"count": count}
+
+@router.get("/user-position", response_model=LeaderboardEntry)
+def get_user_position(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get current user's position in the leaderboard"""
+    
+    # Get current season
+    current_season = db.query(Season).filter(Season.is_current == True).first()
+    if not current_season:
+        raise HTTPException(status_code=404, detail="No current season")
+    
+    # Get user's stats
+    user_stats = db.query(UserStats).filter(
+        UserStats.user_id == current_user.id,
+        UserStats.season_id == current_season.id
+    ).first()
+    
+    if not user_stats or user_stats.predictions_made == 0:
+        raise HTTPException(status_code=404, detail="No predictions found for user")
+    
+    # Calculate position
+    position = db.query(UserStats).filter(
+        UserStats.season_id == current_season.id,
+        UserStats.predictions_made > 0,
+        or_(
+            UserStats.total_points > user_stats.total_points,
+            and_(
+                UserStats.total_points == user_stats.total_points,
+                UserStats.correct_scores > user_stats.correct_scores
+            ),
+            and_(
+                UserStats.total_points == user_stats.total_points,
+                UserStats.correct_scores == user_stats.correct_scores,
+                UserStats.correct_results > user_stats.correct_results
+            )
+        )
+    ).count() + 1
+    
+    return LeaderboardEntry(
+        position=position,
+        username=current_user.username,
+        avatar_url=current_user.avatar_url,
+        total_points=user_stats.total_points,
+        correct_scores=user_stats.correct_scores,
+        correct_results=user_stats.correct_results,
+        predictions_made=user_stats.predictions_made,
+        avg_points_per_game=user_stats.avg_points_per_game,
+        current_streak=user_stats.current_streak
+    )
 
 @router.get("/top", response_model=List[LeaderboardEntry])
 def get_top_players(
