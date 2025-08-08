@@ -66,37 +66,37 @@ export function MatchResultsModal({ fixture, isOpen, onClose }: MatchResultsModa
             </button>
           </div>
           
-          <div className="flex items-center justify-center mt-6 mb-4">
-            <div className="text-center flex-1">
+          <div className="flex items-center justify-center mt-6 mb-4 gap-2 md:gap-4">
+            <div className="text-center flex-1 min-w-0">
               <Image 
                 src={getTeamLogo(fixture.home_team)} 
                 alt={fixture.home_team}
                 width={60}
                 height={60}
-                className="mx-auto mb-2"
+                className="mx-auto mb-2 w-10 h-10 md:w-[60px] md:h-[60px]"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
                 }}
               />
-              <p className="font-semibold">{fixture.home_team}</p>
+              <p className="font-semibold text-xs md:text-base truncate px-1">{fixture.home_team}</p>
             </div>
-            <div className="mx-8">
-              <div className="text-5xl font-bold">
+            <div className="flex-shrink-0 px-2 md:px-8">
+              <div className="text-2xl md:text-5xl font-bold whitespace-nowrap">
                 {fixture.home_score} - {fixture.away_score}
               </div>
             </div>
-            <div className="text-center flex-1">
+            <div className="text-center flex-1 min-w-0">
               <Image 
                 src={getTeamLogo(fixture.away_team)} 
                 alt={fixture.away_team}
                 width={60}
                 height={60}
-                className="mx-auto mb-2"
+                className="mx-auto mb-2 w-10 h-10 md:w-[60px] md:h-[60px]"
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';
                 }}
               />
-              <p className="font-semibold">{fixture.away_team}</p>
+              <p className="font-semibold text-xs md:text-base truncate px-1">{fixture.away_team}</p>
             </div>
           </div>
         </div>

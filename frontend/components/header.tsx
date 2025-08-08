@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Trophy, LogOut, User, Shield, Menu, X } from 'lucide-react';
-import { SeasonSelector } from './season-selector';
 
 export function Header() {
   const { data: session, status } = useSession();
@@ -39,9 +38,6 @@ export function Header() {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <div className="bg-white/10 backdrop-blur rounded-lg">
-              <SeasonSelector />
-            </div>
             <Link href="/leaderboard" className="hover:text-sky-200 transition-colors">
               Leaderboard
             </Link>

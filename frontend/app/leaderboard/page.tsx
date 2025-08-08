@@ -1,18 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { api } from '@/lib/api';
-import { Trophy, Medal, Award } from 'lucide-react';
+import { Trophy, Medal, Award, User, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { getSeasonParams } from '@/lib/season-context';
+import { TopLeaderboard } from '@/components/top-leaderboard';
 
 export default function LeaderboardPage() {
+  const { data: session } = useSession();
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [userPosition, setUserPosition] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchLeaderboard();
-  }, []);
+  }, [session]);
 
   const fetchLeaderboard = async () => {
     try {
@@ -21,6 +25,14 @@ export default function LeaderboardPage() {
         params: { limit: 100, ...seasonParams }
       });
       setLeaderboard(response.data);
+      
+      // Find the current user's position if logged in
+      if (session?.user?.username) {
+        const userEntry = response.data.find((player: any) => 
+          player.username === session.user.username
+        );
+        setUserPosition(userEntry);
+      }
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error);
     } finally {
@@ -122,6 +134,70 @@ export default function LeaderboardPage() {
         </div>
       </div>
       
+      {/* User Position Section - Only show if user is logged in and has made predictions */}
+      {session && userPosition && (
+        <div className="mt-6 bg-gradient-to-r from-[rgb(98,181,229)]/10 to-[rgb(78,145,183)]/10 rounded-xl md:rounded-2xl shadow-lg md:shadow-xl border-2 border-[rgb(98,181,229)]/30 overflow-hidden">
+          <div className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(78,145,183)] text-white px-4 md:px-6 py-3 md:py-4">
+            <h2 className="font-bold text-base md:text-lg flex items-center gap-2">
+              <User className="h-4 w-4 md:h-5 md:w-5" />
+              Your Position
+            </h2>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[500px]">
+              <tbody>
+                <tr className="bg-white">
+                  <td className="px-2 md:px-4 py-3 md:py-4 sticky left-0 bg-white">
+                    <div className="flex items-center justify-center w-6 md:w-auto">
+                      {getPositionIcon(userPosition.position)}
+                    </div>
+                  </td>
+                  <td className="px-2 md:px-4 py-3 md:py-4 font-medium sticky left-8 md:left-12 bg-white">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs md:text-sm truncate block max-w-[100px] md:max-w-none">
+                        {userPosition.username}
+                      </span>
+                      <span className="text-xs bg-[rgb(98,181,229)] text-white px-2 py-0.5 rounded-full">You</span>
+                    </div>
+                  </td>
+                  <td className="px-2 md:px-4 py-3 md:py-4 text-center font-bold text-sm md:text-lg text-[rgb(98,181,229)]">
+                    {userPosition.total_points}
+                  </td>
+                  <td className="px-2 md:px-4 py-3 md:py-4 text-center text-xs md:text-sm">
+                    {userPosition.correct_scores}
+                  </td>
+                  <td className="px-2 md:px-4 py-3 md:py-4 text-center text-xs md:text-sm">
+                    {userPosition.correct_results}
+                  </td>
+                  <td className="px-2 md:px-4 py-3 md:py-4 text-center text-xs md:text-sm">
+                    {userPosition.predictions_made}
+                  </td>
+                  <td className="px-2 md:px-4 py-3 md:py-4 text-center text-xs md:text-sm">
+                    {userPosition.avg_points_per_game.toFixed(2)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Position context */}
+          <div className="px-4 md:px-6 py-3 bg-white/50 text-center">
+            <p className="text-xs md:text-sm text-gray-700">
+              {userPosition.position === 1 ? (
+                <span className="font-bold text-yellow-600">🎉 You're in first place!</span>
+              ) : userPosition.position <= 3 ? (
+                <span className="font-bold text-green-600">You're on the podium!</span>
+              ) : userPosition.position <= 10 ? (
+                <span className="font-bold text-blue-600">You're in the top 10!</span>
+              ) : (
+                <span>You're ranked #{userPosition.position} out of {leaderboard.length} players</span>
+              )}
+            </p>
+          </div>
+        </div>
+      )}
+      
       {/* Scoring System - Mobile Responsive */}
       <div className="mt-6 bg-white rounded-xl md:rounded-2xl shadow-lg md:shadow-xl p-4 md:p-6 border border-gray-100">
         <h2 className="font-bold text-base md:text-lg mb-4 flex items-center gap-2">
@@ -140,6 +216,15 @@ export default function LeaderboardPage() {
             <div className="text-xl md:text-2xl font-bold text-blue-600">1 point</div>
           </div>
         </div>
+      </div>
+      
+      {/* Hot Players Section - Form Table */}
+      <div className="mt-6">
+        <h2 className="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3">
+          <TrendingUp className="h-6 w-6 text-orange-500" />
+          Hot Players 🔥
+        </h2>
+        <TopLeaderboard />
       </div>
     </div>
   );

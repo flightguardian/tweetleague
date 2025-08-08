@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { api } from '@/lib/api';
 import { PredictionCard } from '@/components/prediction-card';
 import { RecentResults } from '@/components/recent-results';
-import { TopLeaderboard } from '@/components/top-leaderboard';
+import { ManagerOfMonth } from '@/components/manager-of-month';
 import { Trophy, Users, Target } from 'lucide-react';
 
 export default function Home() {
@@ -98,9 +98,9 @@ export default function Home() {
         <div>
           <h2 className="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3">
             <span className="w-1 h-6 bg-[rgb(98,181,229)] rounded-full"></span>
-            Hot Players 🔥
+            Manager of the Month 🏆
           </h2>
-          <TopLeaderboard />
+          <ManagerOfMonth />
         </div>
       </div>
     </div>
