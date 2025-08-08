@@ -1,0 +1,13 @@
+# Email Configuration (GoDaddy)
+SMTP_HOST=smtpout.secureserver.net
+SMTP_PORT=587
+SMTP_USERNAME=noreply@yourdomain.com
+SMTP_PASSWORD=your_email_password
+FROM_EMAIL=noreply@yourdomain.com
+FROM_NAME=CCFC Tweet League
+
+# Frontend URL for email links
+FRONTEND_URL=https://tweetleague-frontend.onrender.com
+
+# Database (already configured on Render)
+DATABASE_URL=postgresql://...
