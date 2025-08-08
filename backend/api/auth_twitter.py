@@ -221,12 +221,23 @@ async def twitter_callback(
     
     twitter_user = response.json()
     
-    # Log the Twitter user data for debugging
+    # Log ALL Twitter user data for debugging
+    logger.info(f"Full Twitter API response keys: {twitter_user.keys()}")
     logger.info(f"Twitter user data: name={twitter_user.get('name')}, screen_name={twitter_user.get('screen_name')}, id={user_id}")
     
-    # Extract the actual Twitter handle (screen_name from API response)
-    twitter_handle = twitter_user.get("screen_name", screen_name)  # This is the @username
-    display_name = twitter_user.get("name", screen_name)  # This is the display name
+    # The screen_name from OAuth token response is what we want for the handle
+    # This is what created the email correctly as InvestorGav@twitter.local
+    twitter_handle = screen_name  # Use the OAuth screen_name which we know is correct
+    
+    # Get display name from API response, fallback to screen_name
+    display_name = twitter_user.get("name", screen_name)
+    
+    # Debug logging
+    logger.info(f"OAuth screen_name (using for handle): {screen_name}")
+    logger.info(f"API name (display name): {twitter_user.get('name')}")
+    logger.info(f"API screen_name: {twitter_user.get('screen_name')}")
+    logger.info(f"Final twitter_handle to save: {twitter_handle}")
+    print(f"[TWITTER AUTH] Using OAuth screen_name for handle: {twitter_handle}, display_name: {display_name}")
     
     # Check if user exists
     user = db.query(User).filter(User.twitter_id == user_id).first()
@@ -252,6 +263,9 @@ async def twitter_callback(
             # Create new user
             # Use display name for username if available, otherwise use Twitter handle
             username = display_name[:20] if display_name else twitter_handle
+            
+            print(f"[TWITTER AUTH] Creating user - username: {username}, twitter_handle: {twitter_handle}, email: {email}")
+            
             user = User(
                 email=email,
                 username=username,  # Use display name for username
@@ -264,6 +278,8 @@ async def twitter_callback(
             db.add(user)
             db.commit()
             db.refresh(user)
+            
+            print(f"[TWITTER AUTH] User created with ID: {user.id}, twitter_handle: {user.twitter_handle}")
             
             # Create user stats for current season
             current_season = db.query(Season).filter(Season.is_current == True).first()
