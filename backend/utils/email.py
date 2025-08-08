@@ -18,6 +18,9 @@ class EmailService:
         self.from_name = os.getenv("FROM_NAME", "Tweet League")
         self.frontend_url = os.getenv("FRONTEND_URL", "https://tweetleague.com")
         
+        # Log configuration on initialization
+        logger.info(f"EmailService initialized - Host: {self.smtp_host}, Port: {self.smtp_port}, User: {self.smtp_username if self.smtp_username else 'NOT SET'}")
+        
     def send_email(self, to_email: str, subject: str, html_content: str, text_content: Optional[str] = None) -> bool:
         """Send an email using SMTP"""
         try:

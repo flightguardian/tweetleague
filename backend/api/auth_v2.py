@@ -130,6 +130,9 @@ async def register(
 ):
     """Register a new user with email verification"""
     
+    # Log registration attempt
+    logger.info(f"=== REGISTRATION ATTEMPT for email: {user_data.email}, username: {user_data.username} ===")
+    
     # Check for existing user
     existing_user = db.query(User).filter(
         or_(
@@ -418,6 +421,19 @@ async def reset_password(
     db.commit()
     
     return {"message": "Password reset successfully"}
+
+@router.get("/test-email-config")
+async def test_email_config():
+    """Test endpoint to check email configuration"""
+    import os
+    return {
+        "smtp_host": os.getenv("SMTP_HOST", "NOT SET"),
+        "smtp_port": os.getenv("SMTP_PORT", "NOT SET"),
+        "smtp_username": os.getenv("SMTP_USERNAME", "NOT SET"),
+        "smtp_password": "SET" if os.getenv("SMTP_PASSWORD") else "NOT SET",
+        "from_email": os.getenv("FROM_EMAIL", "NOT SET"),
+        "frontend_url": os.getenv("FRONTEND_URL", "NOT SET")
+    }
 
 @router.post("/login", response_model=TokenResponse)
 async def login(
