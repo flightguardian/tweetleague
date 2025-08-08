@@ -128,8 +128,22 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
             <Button 
               variant="outline" 
               size="sm" 
-              className="border-white text-white hover:bg-white hover:text-red-600"
-              onClick={() => window.location.href = '/resend-verification'}
+              className="!border-white !text-white !bg-transparent hover:!bg-white hover:!text-red-600"
+              onClick={async () => {
+                try {
+                  await api.post('/auth/resend-verification');
+                  toast({
+                    title: 'Verification Email Sent!',
+                    description: 'Please check your inbox and junk/spam folder.',
+                  });
+                } catch (err) {
+                  toast({
+                    title: 'Failed to resend',
+                    description: 'Please try again from your profile page.',
+                    variant: 'destructive'
+                  });
+                }
+              }}
             >
               Resend Email
             </Button>

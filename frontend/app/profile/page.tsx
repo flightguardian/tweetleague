@@ -65,6 +65,25 @@ export default function ProfilePage() {
     }
   };
 
+  const handleResendVerification = async () => {
+    setSaving(true);
+    try {
+      await api.post('/auth/resend-verification');
+      toast({
+        title: 'Verification Email Sent',
+        description: 'Please check your inbox and junk/spam folder.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.response?.data?.detail || 'Failed to resend verification email',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleUpdateProfile = async () => {
     setSaving(true);
     try {
@@ -261,6 +280,27 @@ export default function ProfilePage() {
                         <Mail className="mr-2 h-4 w-4 text-gray-500" />
                         {userStats?.email}
                       </p>
+                      {userStats?.email_verified ? (
+                        <p className="text-xs text-green-600 mt-1 flex items-center">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Email verified
+                        </p>
+                      ) : (
+                        <div className="mt-2">
+                          <p className="text-xs text-amber-600 mb-2">
+                            ⚠️ Email not verified - You won't be able to submit predictions
+                          </p>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleResendVerification}
+                            disabled={saving}
+                            className="text-xs"
+                          >
+                            Resend Verification Email
+                          </Button>
+                        </div>
+                      )}
                       {editMode && session.user?.provider && session.user?.provider !== 'local' && (
                         <p className="text-xs text-gray-500 mt-1">
                           Email managed by {session.user.provider}
