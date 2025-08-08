@@ -9,7 +9,9 @@ import { FixtureManager } from '@/components/admin/fixture-manager';
 import { ScoreUpdater } from '@/components/admin/score-updater';
 import { AdminStats } from '@/components/admin/admin-stats';
 import { SeasonManager } from '@/components/admin/season-manager';
-import { Shield } from 'lucide-react';
+import { Shield, FlaskConical } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -74,11 +76,21 @@ export default function AdminPage() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-800 mb-3 flex items-center gap-3">
-          <Shield className="h-10 w-10 text-[rgb(98,181,229)]" />
-          Admin Panel
-        </h1>
-        <p className="text-gray-600">Manage fixtures, update scores, and view system statistics</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-800 mb-3 flex items-center gap-3">
+              <Shield className="h-10 w-10 text-[rgb(98,181,229)]" />
+              Admin Panel
+            </h1>
+            <p className="text-gray-600">Manage fixtures, update scores, and view system statistics</p>
+          </div>
+          <Link href="/admin/test-scores">
+            <Button variant="outline" className="flex items-center gap-2">
+              <FlaskConical className="h-4 w-4" />
+              Test Scores
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="mb-6">
