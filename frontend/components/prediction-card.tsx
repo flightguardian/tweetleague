@@ -6,7 +6,8 @@ import { format } from 'date-fns';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { Clock, MapPin, Calendar } from 'lucide-react';
+import { Clock, MapPin, Calendar, Users } from 'lucide-react';
+import Link from 'next/link';
 import { getTeamLogo } from '@/lib/team-logos';
 import Image from 'next/image';
 
@@ -285,16 +286,24 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
       
       {/* Footer with prediction count */}
       <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t border-gray-100 text-center">
-        <p className="text-xs md:text-sm text-gray-500">
-          {fixture.predictions_count === 0 
-            ? "Be the first to predict!" 
-            : fixture.predictions_count === 1
-            ? "1 player has predicted"
-            : `${fixture.predictions_count} players predicted`}
-        </p>
+        {fixture.predictions_count === 0 ? (
+          <p className="text-xs md:text-sm text-gray-500">Be the first to predict!</p>
+        ) : (
+          <Link 
+            href={`/predictions/fixture/${fixture.id}`}
+            className="group inline-flex items-center gap-2 text-xs md:text-sm text-[rgb(98,181,229)] hover:text-[rgb(78,145,183)] transition-colors"
+          >
+            <Users className="h-4 w-4" />
+            <span className="underline">
+              {fixture.predictions_count === 1
+                ? "1 player has predicted"
+                : `${fixture.predictions_count} players predicted`}
+            </span>
+          </Link>
+        )}
         {fixture.predictions_count > 0 && !fixture.can_predict && (
           <p className="text-xs text-gray-400 mt-1">
-            Predictions revealed after deadline
+            View all predictions and stats
           </p>
         )}
       </div>

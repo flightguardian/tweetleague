@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 from pydantic import BaseModel, Field, validator
 from database.base import get_db
-from models.models import Prediction, Fixture, User, FixtureStatus
+from models.models import Prediction, Fixture, User, FixtureStatus, Season, UserStats
 from utils.auth import get_current_user
 import pytz
 
@@ -183,5 +183,88 @@ def get_fixture_predictions(
             away_prediction=pred.away_prediction,
             points_earned=pred.points_earned
         ))
+    
+    return response
+
+@router.get("/fixture/{fixture_id}/detailed")
+def get_fixture_predictions_detailed(
+    fixture_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get predictions for a fixture with detailed user stats"""
+    from sqlalchemy import func, and_, desc, or_
+    
+    fixture = db.query(Fixture).filter(Fixture.id == fixture_id).first()
+    
+    if not fixture:
+        raise HTTPException(status_code=404, detail="Fixture not found")
+    
+    # Get current season
+    current_season = db.query(Season).filter(Season.is_current == True).first()
+    if not current_season:
+        raise HTTPException(status_code=404, detail="No current season")
+    
+    # Don't check deadline for detailed view - let everyone see after match starts
+    predictions = db.query(Prediction).filter(
+        Prediction.fixture_id == fixture_id
+    ).join(User).all()
+    
+    response = []
+    for pred in predictions:
+        # Get user's current position in leaderboard
+        user_stats = db.query(UserStats).filter(
+            UserStats.user_id == pred.user_id,
+            UserStats.season_id == current_season.id
+        ).first()
+        
+        user_position = None
+        user_total_points = 0
+        user_avg_points = 0.0
+        
+        if user_stats and user_stats.predictions_made > 0:
+            # Calculate position
+            user_position = db.query(UserStats).filter(
+                UserStats.season_id == current_season.id,
+                UserStats.predictions_made > 0,
+                or_(
+                    UserStats.total_points > user_stats.total_points,
+                    and_(
+                        UserStats.total_points == user_stats.total_points,
+                        UserStats.correct_scores > user_stats.correct_scores
+                    )
+                )
+            ).count() + 1
+            
+            user_total_points = user_stats.total_points
+            user_avg_points = user_stats.avg_points_per_game
+        
+        # Get user's last 5 predictions for form
+        recent_preds = db.query(Prediction).join(Fixture).filter(
+            Prediction.user_id == pred.user_id,
+            Fixture.status == FixtureStatus.FINISHED,
+            Fixture.season_id == current_season.id
+        ).order_by(desc(Fixture.kickoff_time)).limit(5).all()
+        
+        user_form = ""
+        for rp in reversed(recent_preds):
+            if rp.points_earned == 3:
+                user_form += "W"
+            elif rp.points_earned == 1:
+                user_form += "D"
+            else:
+                user_form += "L"
+        
+        response.append({
+            "id": pred.id,
+            "username": pred.user.username,
+            "home_prediction": pred.home_prediction,
+            "away_prediction": pred.away_prediction,
+            "points_earned": pred.points_earned,
+            "created_at": pred.created_at.isoformat(),
+            "user_position": user_position,
+            "user_total_points": user_total_points,
+            "user_form": user_form,
+            "user_avg_points": user_avg_points
+        })
     
     return response
