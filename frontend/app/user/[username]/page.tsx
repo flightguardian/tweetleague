@@ -113,90 +113,97 @@ export default function UserProfilePage() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Header Section */}
-      <div className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(49,91,115)] rounded-2xl shadow-xl p-8 text-white mb-8">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
+      {/* Header Section - Mobile Optimized */}
+      <div className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(49,91,115)] rounded-xl md:rounded-2xl shadow-xl p-4 md:p-8 text-white mb-6 md:mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          {/* Profile Info */}
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 text-center md:text-left">
+            {/* Avatar */}
             {profile.avatar_url ? (
               <img 
                 src={profile.avatar_url} 
                 alt={profile.username}
-                className="w-24 h-24 rounded-full border-4 border-white/30"
+                className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-white/30"
               />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center">
-                <User className="h-12 w-12 text-white/80" />
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-white/20 flex items-center justify-center">
+                <User className="h-10 w-10 md:h-12 md:w-12 text-white/80" />
               </div>
             )}
-            <div>
-              <h1 className="text-4xl font-bold mb-2">{profile.username}</h1>
-              <div className="flex items-center gap-4">
+            
+            {/* User Details */}
+            <div className="flex-1">
+              <h1 className="text-2xl md:text-4xl font-bold mb-2">{profile.username}</h1>
+              <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 md:gap-4">
                 {profile.position && (
                   <div className="flex items-center gap-2">
-                    <Trophy className="h-5 w-5" />
-                    <span className="text-xl font-semibold">#{profile.position}</span>
+                    <Trophy className="h-4 w-4 md:h-5 md:w-5" />
+                    <span className="text-lg md:text-xl font-semibold">#{profile.position}</span>
                   </div>
                 )}
                 {getPositionBadge(profile.position)}
               </div>
-              <p className="text-white/80 mt-2 flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Member since {format(new Date(profile.created_at), 'MMMM yyyy')}
+              <p className="text-white/80 mt-2 flex items-center justify-center md:justify-start gap-2 text-sm md:text-base">
+                <Calendar className="h-3 w-3 md:h-4 md:w-4" />
+                <span className="hidden md:inline">Member since {format(new Date(profile.created_at), 'MMMM yyyy')}</span>
+                <span className="md:hidden">Since {format(new Date(profile.created_at), 'MMM yyyy')}</span>
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-5xl font-bold">{profile.total_points}</div>
-            <div className="text-white/80">Total Points</div>
+          
+          {/* Points Display */}
+          <div className="text-center md:text-right mt-4 md:mt-0">
+            <div className="text-3xl md:text-5xl font-bold">{profile.total_points}</div>
+            <div className="text-white/80 text-sm md:text-base">Total Points</div>
           </div>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+      {/* Stats Grid - Mobile Optimized */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
+        <div className="bg-white rounded-lg md:rounded-xl shadow-lg p-4 md:p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-2">
-            <Star className="h-8 w-8 text-yellow-500" />
-            <span className="text-3xl font-bold text-gray-800">{profile.correct_scores}</span>
+            <Star className="h-6 w-6 md:h-8 md:w-8 text-yellow-500" />
+            <span className="text-2xl md:text-3xl font-bold text-gray-800">{profile.correct_scores}</span>
           </div>
-          <p className="text-gray-600">Perfect Predictions</p>
-          <p className="text-xs text-gray-500 mt-1">3 points each</p>
+          <p className="text-sm md:text-base text-gray-600">Perfect</p>
+          <p className="text-xs text-gray-500 mt-1">3 pts each</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+        <div className="bg-white rounded-lg md:rounded-xl shadow-lg p-4 md:p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-2">
-            <CheckCircle className="h-8 w-8 text-green-500" />
-            <span className="text-3xl font-bold text-gray-800">{profile.correct_results}</span>
+            <CheckCircle className="h-6 w-6 md:h-8 md:w-8 text-green-500" />
+            <span className="text-2xl md:text-3xl font-bold text-gray-800">{profile.correct_results}</span>
           </div>
-          <p className="text-gray-600">Correct Results</p>
-          <p className="text-xs text-gray-500 mt-1">1 point each</p>
+          <p className="text-sm md:text-base text-gray-600">Correct</p>
+          <p className="text-xs text-gray-500 mt-1">1 pt each</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+        <div className="bg-white rounded-lg md:rounded-xl shadow-lg p-4 md:p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-2">
-            <Activity className="h-8 w-8 text-orange-500" />
-            <span className="text-3xl font-bold text-gray-800">{profile.current_streak}</span>
+            <Activity className="h-6 w-6 md:h-8 md:w-8 text-orange-500" />
+            <span className="text-2xl md:text-3xl font-bold text-gray-800">{profile.current_streak}</span>
           </div>
-          <p className="text-gray-600">Current Streak</p>
-          <p className="text-xs text-gray-500 mt-1">Best: {profile.best_streak} games</p>
+          <p className="text-sm md:text-base text-gray-600">Streak</p>
+          <p className="text-xs text-gray-500 mt-1">Best: {profile.best_streak}</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+        <div className="bg-white rounded-lg md:rounded-xl shadow-lg p-4 md:p-6 border border-gray-100">
           <div className="flex items-center justify-between mb-2">
-            <BarChart3 className="h-8 w-8 text-[rgb(98,181,229)]" />
-            <span className="text-3xl font-bold text-gray-800">{successRate}%</span>
+            <BarChart3 className="h-6 w-6 md:h-8 md:w-8 text-[rgb(98,181,229)]" />
+            <span className="text-2xl md:text-3xl font-bold text-gray-800">{successRate}%</span>
           </div>
-          <p className="text-gray-600">Success Rate</p>
-          <p className="text-xs text-gray-500 mt-1">{profile.predictions_made} predictions</p>
+          <p className="text-sm md:text-base text-gray-600">Success</p>
+          <p className="text-xs text-gray-500 mt-1">{profile.predictions_made} total</p>
         </div>
       </div>
 
       {/* Performance Breakdown */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          <h2 className="text-xl font-bold mb-6 flex items-center gap-3">
-            <div className="bg-purple-100 p-2 rounded-lg">
-              <Target className="h-5 w-5 text-purple-600" />
+      <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-8 border border-gray-100">
+          <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 flex items-center gap-3">
+            <div className="bg-purple-100 p-1.5 md:p-2 rounded-lg">
+              <Target className="h-4 w-4 md:h-5 md:w-5 text-purple-600" />
             </div>
             Prediction Breakdown
           </h2>
@@ -248,26 +255,26 @@ export default function UserProfilePage() {
             </div>
           </div>
 
-          <div className="mt-6 pt-6 border-t">
+          <div className="mt-4 md:mt-6 pt-4 md:pt-6 border-t">
             <div className="grid grid-cols-2 gap-4 text-center">
               <div>
-                <p className="text-2xl font-bold text-[rgb(98,181,229)]">
+                <p className="text-xl md:text-2xl font-bold text-[rgb(98,181,229)]">
                   {profile.predictions_made > 0 ? (profile.total_points / profile.predictions_made).toFixed(1) : '0'}
                 </p>
-                <p className="text-sm text-gray-600">Avg Points/Game</p>
+                <p className="text-xs md:text-sm text-gray-600">Avg Points/Game</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-purple-600">{profile.predictions_made}</p>
-                <p className="text-sm text-gray-600">Total Games</p>
+                <p className="text-xl md:text-2xl font-bold text-purple-600">{profile.predictions_made}</p>
+                <p className="text-xs md:text-sm text-gray-600">Total Games</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          <h2 className="text-xl font-bold mb-6 flex items-center gap-3">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <TrendingUp className="h-5 w-5 text-blue-600" />
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-8 border border-gray-100">
+          <h2 className="text-lg md:text-xl font-bold mb-4 md:mb-6 flex items-center gap-3">
+            <div className="bg-blue-100 p-1.5 md:p-2 rounded-lg">
+              <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-blue-600" />
             </div>
             Recent Predictions
           </h2>
