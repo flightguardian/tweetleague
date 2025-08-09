@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { api } from '@/lib/api';
 import { format } from 'date-fns';
 import { getTeamLogo } from '@/lib/team-logos';
@@ -34,47 +35,74 @@ interface Fixture {
   predictions_count: number;
 }
 
+interface MiniLeague {
+  id: number;
+  name: string;
+  member_count: number;
+}
+
 export default function FixturePredictionsPage() {
   const params = useParams();
+  const { data: session } = useSession();
   const fixtureId = params.id;
   const [fixture, setFixture] = useState<Fixture | null>(null);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<'time' | 'points' | 'position'>('points');
+  const [switchingLeague, setSwitchingLeague] = useState(false);
+  const [miniLeagues, setMiniLeagues] = useState<MiniLeague[]>([]);
+  const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
+  // Removed sorting - showing latest predictions first
+
+  useEffect(() => {
+    if (session?.accessToken) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${session.accessToken}`;
+      fetchMiniLeagues();
+    }
+  }, [session]);
 
   useEffect(() => {
     if (fixtureId) {
       fetchData();
     }
-  }, [fixtureId]);
+  }, [fixtureId, selectedLeague]);
 
   const fetchData = async () => {
+    // Don't set loading on league switch, use switchingLeague instead
+    if (!loading) {
+      setSwitchingLeague(true);
+    }
+    
     try {
-      // Fetch fixture details
-      const fixtureResponse = await api.get(`/fixtures/${fixtureId}`);
-      setFixture(fixtureResponse.data);
+      // Fetch fixture details (only on first load)
+      if (!fixture) {
+        const fixtureResponse = await api.get(`/fixtures/${fixtureId}`);
+        setFixture(fixtureResponse.data);
+      }
 
-      // Fetch predictions with user stats
-      const predictionsResponse = await api.get(`/predictions/fixture/${fixtureId}/detailed`);
+      // Fetch predictions with user stats, optionally filtered by mini league
+      const params = selectedLeague ? { mini_league_id: selectedLeague } : {};
+      const predictionsResponse = await api.get(`/predictions/fixture/${fixtureId}/detailed`, { params });
       setPredictions(predictionsResponse.data);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
       setLoading(false);
+      setSwitchingLeague(false);
     }
   };
 
-  const sortPredictions = (preds: Prediction[]) => {
-    switch (sortBy) {
-      case 'points':
-        return [...preds].sort((a, b) => b.points_earned - a.points_earned);
-      case 'position':
-        return [...preds].sort((a, b) => (a.user_position || 999) - (b.user_position || 999));
-      case 'time':
-        return [...preds].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-      default:
-        return preds;
+  const fetchMiniLeagues = async () => {
+    try {
+      const response = await api.get('/mini-leagues/my-leagues');
+      setMiniLeagues(response.data);
+    } catch (error) {
+      console.error('Failed to fetch mini leagues:', error);
     }
+  };
+
+  // Show latest predictions first
+  const sortPredictions = (preds: Prediction[]) => {
+    return [...preds].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   };
 
   const getFormIcon = (result: string) => {
@@ -152,8 +180,6 @@ export default function FixturePredictionsPage() {
   }
 
   const sortedPredictions = sortPredictions(predictions);
-  const perfectPredictions = predictions.filter(p => p.points_earned === 3);
-  const correctResults = predictions.filter(p => p.points_earned === 1);
   const averageHomeScore = predictions.length > 0 
     ? (predictions.reduce((sum, p) => sum + p.home_prediction, 0) / predictions.length).toFixed(1)
     : '0';
@@ -224,80 +250,83 @@ export default function FixturePredictionsPage() {
         </div>
       </div>
 
-      {/* Stats Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100">
+      {/* Mini League Tabs - Only show if user is logged in and has mini leagues */}
+      {session && miniLeagues.length > 0 && (
+        <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border border-gray-100">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setSelectedLeague(null)}
+              className={`px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
+                selectedLeague === null
+                  ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              All Predictions
+            </button>
+            {miniLeagues.map((league) => (
+              <button
+                key={league.id}
+                onClick={() => setSelectedLeague(league.id)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
+                  selectedLeague === league.id
+                    ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {league.name}
+                <span className="ml-2 text-xs opacity-75">({league.member_count})</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Stats Summary - Mobile First */}
+      <div className="mb-6">
+        {/* Total Predictions - Full Width on Mobile */}
+        <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100 mb-4">
           <Users className="h-8 w-8 text-[rgb(98,181,229)] mx-auto mb-2" />
           <p className="text-2xl font-bold">{predictions.length}</p>
           <p className="text-xs text-gray-600">Total Predictions</p>
         </div>
         
-        <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100">
-          <Trophy className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
-          <p className="text-2xl font-bold">{perfectPredictions.length}</p>
-          <p className="text-xs text-gray-600">Perfect Scores</p>
-        </div>
-        
-        <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100">
-          <Target className="h-8 w-8 text-green-500 mx-auto mb-2" />
-          <p className="text-2xl font-bold">{correctResults.length}</p>
-          <p className="text-xs text-gray-600">Correct Results</p>
-        </div>
-        
-        <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100">
-          <div className="text-3xl mb-2">⚽</div>
-          <p className="text-xl font-bold">{averageHomeScore}</p>
-          <p className="text-xs text-gray-600">Avg Home Score</p>
-        </div>
-        
-        <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100">
-          <div className="text-3xl mb-2">⚽</div>
-          <p className="text-xl font-bold">{averageAwayScore}</p>
-          <p className="text-xs text-gray-600">Avg Away Score</p>
+        {/* Average Scores - Side by Side */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100">
+            <div className="text-3xl mb-2">⚽</div>
+            <p className="text-xl font-bold">{averageHomeScore}</p>
+            <p className="text-xs text-gray-600">Avg Home Score</p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100">
+            <div className="text-3xl mb-2">⚽</div>
+            <p className="text-xl font-bold">{averageAwayScore}</p>
+            <p className="text-xs text-gray-600">Avg Away Score</p>
+          </div>
         </div>
       </div>
 
-      {/* Sort Options */}
-      <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border border-gray-100">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-gray-700">Sort by:</span>
-          <button
-            onClick={() => setSortBy('points')}
-            className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-              sortBy === 'points'
-                ? 'bg-[rgb(98,181,229)] text-white'
-                : 'bg-gray-100 hover:bg-gray-200'
-            }`}
-          >
-            Points Earned
-          </button>
-          <button
-            onClick={() => setSortBy('position')}
-            className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-              sortBy === 'position'
-                ? 'bg-[rgb(98,181,229)] text-white'
-                : 'bg-gray-100 hover:bg-gray-200'
-            }`}
-          >
-            League Position
-          </button>
-          <button
-            onClick={() => setSortBy('time')}
-            className={`px-3 py-1 rounded-lg text-sm transition-colors ${
-              sortBy === 'time'
-                ? 'bg-[rgb(98,181,229)] text-white'
-                : 'bg-gray-100 hover:bg-gray-200'
-            }`}
-          >
-            Prediction Time
-          </button>
-        </div>
-      </div>
 
       {/* Predictions List */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden relative">
+        {/* Loading Overlay for League Switching */}
+        {switchingLeague && (
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-30 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[rgb(98,181,229)]"></div>
+              <p className="text-sm text-gray-600 font-medium">Loading predictions...</p>
+            </div>
+          </div>
+        )}
+        
         <div className="p-4 bg-gray-50 border-b">
-          <h2 className="font-bold text-lg">All Predictions</h2>
+          <h2 className="font-bold text-lg">
+            {selectedLeague 
+              ? `${miniLeagues.find(l => l.id === selectedLeague)?.name || 'League'} Predictions`
+              : 'Latest Predictions'
+            }
+          </h2>
         </div>
         
         <div className="divide-y divide-gray-200">

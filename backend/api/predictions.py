@@ -189,10 +189,12 @@ def get_fixture_predictions(
 @router.get("/fixture/{fixture_id}/detailed")
 def get_fixture_predictions_detailed(
     fixture_id: int,
+    mini_league_id: Optional[int] = None,
     db: Session = Depends(get_db)
 ):
-    """Get predictions for a fixture with detailed user stats"""
+    """Get predictions for a fixture with detailed user stats, optionally filtered by mini league"""
     from sqlalchemy import func, and_, desc, or_
+    from models.mini_leagues import MiniLeagueMember
     
     fixture = db.query(Fixture).filter(Fixture.id == fixture_id).first()
     
@@ -204,10 +206,21 @@ def get_fixture_predictions_detailed(
     if not current_season:
         raise HTTPException(status_code=404, detail="No current season")
     
-    # Don't check deadline for detailed view - let everyone see after match starts
-    predictions = db.query(Prediction).filter(
+    # Build query for predictions
+    query = db.query(Prediction).filter(
         Prediction.fixture_id == fixture_id
-    ).join(User).all()
+    ).join(User)
+    
+    # Filter by mini league if specified
+    if mini_league_id:
+        # Get members of the mini league
+        member_ids = db.query(MiniLeagueMember.user_id).filter(
+            MiniLeagueMember.mini_league_id == mini_league_id
+        ).subquery()
+        
+        query = query.filter(Prediction.user_id.in_(member_ids))
+    
+    predictions = query.all()
     
     response = []
     for pred in predictions:
