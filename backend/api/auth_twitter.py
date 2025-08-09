@@ -261,16 +261,16 @@ async def twitter_callback(
             user = existing_user
         else:
             # Create new user
-            # Use display name for username if available, otherwise use Twitter handle
-            username = display_name[:20] if display_name else twitter_handle
+            # Use Twitter handle for username (it's unique), not display name
+            username = twitter_handle  # Use Twitter handle which is guaranteed unique
             
             print(f"[TWITTER AUTH] Creating user - username: {username}, twitter_handle: {twitter_handle}, email: {email}")
             
             user = User(
                 email=email,
-                username=username,  # Use display name for username
+                username=username,  # Use Twitter handle for username (unique)
                 twitter_id=user_id,
-                twitter_handle=twitter_handle,  # Save actual Twitter handle
+                twitter_handle=twitter_handle,  # Also save in twitter_handle field
                 provider="twitter",
                 email_verified=True,  # Twitter accounts are pre-verified
                 avatar_url=twitter_user.get("profile_image_url_https")
