@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Header } from "@/components/header";
 import { Toaster } from "@/components/ui/toaster";
+import { TawkChat } from "@/components/tawk-chat";
 import { FaXTwitter } from 'react-icons/fa6';
 
 const inter = Inter({ subsets: ["latin"] });
@@ -67,6 +68,7 @@ export default function RootLayout({
             </footer>
           </div>
           <Toaster />
+          <TawkChat />
         </Providers>
       </body>
     </html>
