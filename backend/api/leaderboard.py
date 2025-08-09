@@ -23,6 +23,7 @@ class LeaderboardEntry(BaseModel):
 @router.get("/", response_model=List[LeaderboardEntry])
 def get_leaderboard(
     season_id: int = Query(default=None),
+    mini_league_id: int = Query(default=None),
     limit: int = Query(default=50, le=100),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db)
@@ -34,9 +35,23 @@ def get_leaderboard(
             return []
         season_id = current_season.id
     
-    stats = db.query(UserStats).filter(
-        UserStats.season_id == season_id
-    ).order_by(
+    # Base query for user stats
+    query = db.query(UserStats).filter(UserStats.season_id == season_id)
+    
+    # If mini_league_id is provided, filter by league members
+    if mini_league_id:
+        from models.mini_leagues import MiniLeagueMember
+        
+        # Get member user IDs for this league
+        member_ids = db.query(MiniLeagueMember.user_id).filter(
+            MiniLeagueMember.mini_league_id == mini_league_id
+        ).subquery()
+        
+        # Filter stats to only league members
+        query = query.filter(UserStats.user_id.in_(member_ids))
+    
+    # Order and paginate
+    stats = query.order_by(
         desc(UserStats.total_points),
         desc(UserStats.correct_scores),
         desc(UserStats.correct_results)

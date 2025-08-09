@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import uvicorn
 from database.base import engine, Base
-from api import auth_v2 as auth, auth_twitter, fixtures, predictions, admin, users, leaderboard, seasons
+from api import auth_v2 as auth, auth_twitter, fixtures, predictions, admin, users, leaderboard, seasons, mini_leagues
 import os
 from dotenv import load_dotenv
 
@@ -46,6 +46,7 @@ app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(leaderboard.router, prefix="/api/leaderboard", tags=["leaderboard"])
 app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 app.include_router(seasons.router, prefix="/api/seasons", tags=["seasons"])
+app.include_router(mini_leagues.router, prefix="/api/mini-leagues", tags=["mini-leagues"])
 
 @app.get("/")
 def read_root():

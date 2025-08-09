@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { api } from '@/lib/api';
-import { Trophy, Medal, Award, User, TrendingUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Target } from 'lucide-react';
+import { Trophy, Medal, Award, User, TrendingUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Target, Plus, Users as UsersIcon } from 'lucide-react';
 import Link from 'next/link';
 import { TopLeaderboard } from '@/components/top-leaderboard';
+import { MiniLeagueModal } from '@/components/mini-league-modal';
 
 export default function LeaderboardPage() {
   const { data: session } = useSession();
@@ -15,13 +16,20 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [miniLeagues, setMiniLeagues] = useState<any[]>([]);
+  const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
+  const [showLeagueModal, setShowLeagueModal] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'join'>('create');
   const usersPerPage = 50;
 
   useEffect(() => {
     // Clear old season selection from localStorage since we removed the selector
     localStorage.removeItem('selectedSeasonId');
+    if (session) {
+      fetchMiniLeagues();
+    }
     fetchCurrentSeasonAndLeaderboard();
-  }, [session, currentPage]);
+  }, [session, currentPage, selectedLeague]);
 
   const fetchCurrentSeasonAndLeaderboard = async () => {
     try {
@@ -41,7 +49,8 @@ export default function LeaderboardPage() {
       const response = await api.get('/leaderboard', {
         params: { 
           limit: usersPerPage,
-          offset: offset
+          offset: offset,
+          mini_league_id: selectedLeague
         }
       });
       
@@ -69,6 +78,25 @@ export default function LeaderboardPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchMiniLeagues = async () => {
+    try {
+      const response = await api.get('/mini-leagues/my-leagues');
+      setMiniLeagues(response.data);
+    } catch (error) {
+      console.error('Failed to fetch mini leagues:', error);
+    }
+  };
+
+  const handleLeagueChange = (leagueId: number | null) => {
+    setSelectedLeague(leagueId);
+    setCurrentPage(1);
+  };
+
+  const openModal = (mode: 'create' | 'join') => {
+    setModalMode(mode);
+    setShowLeagueModal(true);
   };
 
   const getPositionIcon = (position: number) => {
@@ -112,6 +140,57 @@ export default function LeaderboardPage() {
         </h1>
         <p className="text-gray-600 text-sm md:text-base">Track the best predictors in the Sky Blues community</p>
       </div>
+      
+      {/* Mini League Tabs */}
+      {session && (
+        <div className="mb-4 md:mb-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => handleLeagueChange(null)}
+              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                selectedLeague === null
+                  ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
+                  : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+              }`}
+            >
+              <UsersIcon className="inline-block w-4 h-4 mr-2" />
+              Main League
+            </button>
+            
+            {miniLeagues.map((league) => (
+              <button
+                key={league.id}
+                onClick={() => handleLeagueChange(league.id)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  selectedLeague === league.id
+                    ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                }`}
+              >
+                {league.name}
+                <span className="ml-2 text-xs opacity-75">({league.member_count})</span>
+              </button>
+            ))}
+            
+            <div className="flex gap-2 ml-auto">
+              <button
+                onClick={() => openModal('join')}
+                className="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 font-medium transition-all"
+              >
+                <Plus className="inline-block w-4 h-4 mr-1" />
+                Join League
+              </button>
+              <button
+                onClick={() => openModal('create')}
+                className="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 font-medium transition-all shadow-lg"
+              >
+                <Plus className="inline-block w-4 h-4 mr-1" />
+                Create League
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Table with horizontal scroll and sticky header */}
       <div className="bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl border border-gray-100 overflow-hidden">
@@ -361,6 +440,19 @@ export default function LeaderboardPage() {
         </h2>
         <TopLeaderboard />
       </div>
+      
+      {/* Mini League Modal */}
+      {showLeagueModal && (
+        <MiniLeagueModal
+          isOpen={showLeagueModal}
+          onClose={() => setShowLeagueModal(false)}
+          mode={modalMode}
+          onSuccess={() => {
+            setShowLeagueModal(false);
+            fetchMiniLeagues();
+          }}
+        />
+      )}
     </div>
   );
 }
