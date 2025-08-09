@@ -513,33 +513,45 @@ async def simulate_fixture_score(
             "exact": points == 3
         })
     
-    # Update user statistics
-    for update in [u for u in points_updates if u["user_id"] in fixture_backups[fixture_id]["user_stats"]]:
+    # Update user statistics (same logic as real score submission)
+    for update in points_updates:
+        # Get the correct season from the fixture
+        if not fixture.season_id:
+            # If fixture has no season, skip stats update
+            continue
+            
         user_stats = db.query(UserStats).filter(
             UserStats.user_id == update["user_id"],
             UserStats.season_id == fixture.season_id
         ).first()
         
-        if user_stats:
-            # Only update if this was previously not scored
-            if fixture_backups[fixture_id]["predictions"].get(update["user_id"]) is None:
-                user_stats.total_points += update["points"]
-                if update["exact"]:
-                    user_stats.correct_scores += 1
-                elif update["points"] == 1:
-                    user_stats.correct_results += 1
-                
-                # Update streak
-                if update["points"] > 0:
-                    user_stats.current_streak += 1
-                    if user_stats.current_streak > user_stats.best_streak:
-                        user_stats.best_streak = user_stats.current_streak
-                else:
-                    user_stats.current_streak = 0
-                
-                # Update average
-                if user_stats.predictions_made > 0:
-                    user_stats.avg_points_per_game = user_stats.total_points / user_stats.predictions_made
+        if not user_stats:
+            user_stats = UserStats(
+                user_id=update["user_id"],
+                season_id=fixture.season_id
+            )
+            db.add(user_stats)
+        
+        user_stats.total_points += update["points"]
+        if update["exact"]:
+            user_stats.correct_scores += 1
+        elif update["points"] == 1:
+            user_stats.correct_results += 1
+        
+        # Update predictions made count (same as real score submission)
+        user_stats.predictions_made += 1
+        
+        # Update streak
+        if update["points"] > 0:
+            user_stats.current_streak += 1
+            if user_stats.current_streak > user_stats.best_streak:
+                user_stats.best_streak = user_stats.current_streak
+        else:
+            user_stats.current_streak = 0
+        
+        # Update average
+        if user_stats.predictions_made > 0:
+            user_stats.avg_points_per_game = user_stats.total_points / user_stats.predictions_made
     
     db.commit()
     
