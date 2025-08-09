@@ -53,7 +53,9 @@ export default function FixturePredictionsPage() {
   const [miniLeagues, setMiniLeagues] = useState<MiniLeague[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
   const [showLeagueSelector, setShowLeagueSelector] = useState(false);
-  // Removed sorting - showing latest predictions first
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPredictions, setTotalPredictions] = useState(0);
+  const predictionsPerPage = 50;
 
   useEffect(() => {
     if (session?.accessToken) {
@@ -66,7 +68,12 @@ export default function FixturePredictionsPage() {
     if (fixtureId) {
       fetchData();
     }
-  }, [fixtureId, selectedLeague]);
+  }, [fixtureId, selectedLeague, currentPage]);
+
+  const handleLeagueChange = (leagueId: number | null) => {
+    setSelectedLeague(leagueId);
+    setCurrentPage(1); // Reset to first page when changing leagues
+  };
 
   const fetchData = async () => {
     // Don't set loading on league switch, use switchingLeague instead
