@@ -177,11 +177,14 @@ export default function LeaderboardPage() {
               <p className="text-xs text-gray-500 font-medium">VIEWING LEAGUE TABLE FOR:</p>
             </div>
             {/* Current League Display */}
-            <div className="bg-white rounded-lg border-2 border-[rgb(98,181,229)]/30 p-3 mb-3">
+            <button
+              onClick={() => setShowLeagueSelector(!showLeagueSelector)}
+              className="w-full bg-white rounded-lg border-2 border-[rgb(98,181,229)]/30 p-3 mb-3 hover:bg-gray-50 transition-colors"
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <UsersIcon className="w-4 h-4 text-[rgb(98,181,229)]" />
-                  <div>
+                  <div className="text-left">
                     <span className="font-semibold text-gray-800">
                       {selectedLeague ? miniLeagues.find(l => l.id === selectedLeague)?.name : 'Everyone'}
                     </span>
@@ -196,84 +199,79 @@ export default function LeaderboardPage() {
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={() => setShowLeagueSelector(!showLeagueSelector)}
-                  className="text-[rgb(98,181,229)] p-1"
-                >
-                  <ChevronDown className={`w-5 h-5 transition-transform ${showLeagueSelector ? 'rotate-180' : ''}`} />
-                </button>
+                <ChevronDown className={`w-5 h-5 text-[rgb(98,181,229)] transition-transform ${showLeagueSelector ? 'rotate-180' : ''}`} />
               </div>
-              
-              {/* Dropdown Menu */}
-              {showLeagueSelector && (
-                <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
-                  <p className="text-xs text-gray-500 mb-2">Select league to view:</p>
-                  {/* Main League - with border */}
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+            </button>
+            
+            {/* Dropdown Menu */}
+            {showLeagueSelector && (
+              <div className="mt-3 p-3 bg-white rounded-lg border border-gray-200 space-y-2">
+                <p className="text-xs text-gray-500 mb-2">Select league to view:</p>
+                {/* Main League - with border */}
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <button
+                    onClick={() => {
+                      handleLeagueChange(null);
+                      setShowLeagueSelector(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 transition-all ${
+                      selectedLeague === null
+                        ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
+                        : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span>🌍 Everyone</span>
+                      <span className="text-xs text-gray-500">Main league</span>
+                    </div>
+                  </button>
+                </div>
+                
+                {miniLeagues.length > 0 && (
+                  <div className="text-xs text-gray-500 mt-2 mb-1">Your mini leagues:</div>
+                )}
+                {/* Mini Leagues - each with their own border */}
+                {miniLeagues.map((league) => (
+                  <div key={league.id} className="border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => {
-                        handleLeagueChange(null);
+                        handleLeagueChange(league.id);
                         setShowLeagueSelector(false);
                       }}
                       className={`w-full text-left px-3 py-2 transition-all ${
-                        selectedLeague === null
+                        selectedLeague === league.id
                           ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
                           : 'hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex justify-between items-center">
-                        <span>🌍 Everyone</span>
-                        <span className="text-xs text-gray-500">Main league</span>
+                        <span>👥 {league.name}</span>
+                        <span className="text-xs text-gray-500">{league.member_count} members</span>
                       </div>
                     </button>
+                    {league.is_admin && (
+                      <div className="border-t border-gray-200 bg-gray-50 px-3 py-2 flex items-center gap-2 text-xs text-gray-600">
+                        <span className="font-medium">Invite:</span>
+                        <code className="bg-white px-2 py-0.5 rounded border border-gray-200">{league.invite_code}</code>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            copyInviteCode(league.invite_code, league.name);
+                          }}
+                          className="p-1 hover:bg-gray-200 rounded transition-colors"
+                        >
+                          {copiedCode === league.invite_code ? (
+                            <Check className="w-3 h-3 text-green-600" />
+                          ) : (
+                            <Copy className="w-3 h-3" />
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  
-                  {miniLeagues.length > 0 && (
-                    <div className="text-xs text-gray-500 mt-2 mb-1">Your mini leagues:</div>
-                  )}
-                  {/* Mini Leagues - each with their own border */}
-                  {miniLeagues.map((league) => (
-                    <div key={league.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                      <button
-                        onClick={() => {
-                          handleLeagueChange(league.id);
-                          setShowLeagueSelector(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 transition-all ${
-                          selectedLeague === league.id
-                            ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
-                            : 'hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex justify-between items-center">
-                          <span>👥 {league.name}</span>
-                          <span className="text-xs text-gray-500">{league.member_count} members</span>
-                        </div>
-                      </button>
-                      {league.is_admin && (
-                        <div className="border-t border-gray-200 bg-gray-50 px-3 py-2 flex items-center gap-2 text-xs text-gray-600">
-                          <span className="font-medium">Invite:</span>
-                          <code className="bg-white px-2 py-0.5 rounded border border-gray-200">{league.invite_code}</code>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              copyInviteCode(league.invite_code, league.name);
-                            }}
-                            className="p-1 hover:bg-gray-200 rounded transition-colors"
-                          >
-                            {copiedCode === league.invite_code ? (
-                              <Check className="w-3 h-3 text-green-600" />
-                            ) : (
-                              <Copy className="w-3 h-3" />
-                            )}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            )}
             
           </div>
           

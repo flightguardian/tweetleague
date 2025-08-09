@@ -259,11 +259,14 @@ export default function FixturePredictionsPage() {
             <div className="mb-2">
               <p className="text-xs text-gray-500 font-medium">FILTER PREDICTIONS BY:</p>
             </div>
-            <div className="bg-white rounded-lg border-2 border-[rgb(98,181,229)]/30 p-3">
+            <button
+              onClick={() => setShowLeagueSelector(!showLeagueSelector)}
+              className="w-full bg-white rounded-lg border-2 border-[rgb(98,181,229)]/30 p-3 hover:bg-gray-50 transition-colors"
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-[rgb(98,181,229)]" />
-                  <div>
+                  <div className="text-left">
                     <span className="font-semibold text-gray-800 text-sm">
                       {selectedLeague ? miniLeagues.find(l => l.id === selectedLeague)?.name : 'Everyone'}
                     </span>
@@ -278,63 +281,58 @@ export default function FixturePredictionsPage() {
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={() => setShowLeagueSelector(!showLeagueSelector)}
-                  className="text-[rgb(98,181,229)] p-1"
-                >
-                  <ChevronDown className={`w-5 h-5 transition-transform ${showLeagueSelector ? 'rotate-180' : ''}`} />
-                </button>
+                <ChevronDown className={`w-5 h-5 text-[rgb(98,181,229)] transition-transform ${showLeagueSelector ? 'rotate-180' : ''}`} />
               </div>
-              
-              {/* Dropdown Menu */}
-              {showLeagueSelector && (
-                <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
-                  <p className="text-xs text-gray-500 mb-2">Select who to view:</p>
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+            </button>
+            
+            {/* Dropdown Menu */}
+            {showLeagueSelector && (
+              <div className="mt-3 p-3 bg-white rounded-lg border border-gray-200 space-y-2">
+                <p className="text-xs text-gray-500 mb-2">Select who to view:</p>
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <button
+                    onClick={() => {
+                      setSelectedLeague(null);
+                      setShowLeagueSelector(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 transition-all text-sm ${
+                      selectedLeague === null
+                        ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
+                        : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span>🌍 Everyone</span>
+                      <span className="text-xs text-gray-500">All predictions</span>
+                    </div>
+                  </button>
+                </div>
+                
+                {miniLeagues.length > 0 && (
+                  <div className="text-xs text-gray-500 mt-2 mb-1">Your mini leagues:</div>
+                )}
+                {miniLeagues.map((league) => (
+                  <div key={league.id} className="border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => {
-                        setSelectedLeague(null);
+                        setSelectedLeague(league.id);
                         setShowLeagueSelector(false);
                       }}
                       className={`w-full text-left px-3 py-2 transition-all text-sm ${
-                        selectedLeague === null
+                        selectedLeague === league.id
                           ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
                           : 'hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex justify-between items-center">
-                        <span>🌍 Everyone</span>
-                        <span className="text-xs text-gray-500">All predictions</span>
+                        <span>👥 {league.name}</span>
+                        <span className="text-xs text-gray-500">{league.member_count} members</span>
                       </div>
                     </button>
                   </div>
-                  
-                  {miniLeagues.length > 0 && (
-                    <div className="text-xs text-gray-500 mt-2 mb-1">Your mini leagues:</div>
-                  )}
-                  {miniLeagues.map((league) => (
-                    <div key={league.id} className="border border-gray-200 rounded-lg overflow-hidden">
-                      <button
-                        onClick={() => {
-                          setSelectedLeague(league.id);
-                          setShowLeagueSelector(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 transition-all text-sm ${
-                          selectedLeague === league.id
-                            ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
-                            : 'hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="flex justify-between items-center">
-                          <span>👥 {league.name}</span>
-                          <span className="text-xs text-gray-500">{league.member_count} members</span>
-                        </div>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Desktop Buttons */}
