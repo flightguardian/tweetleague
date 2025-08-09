@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { Trophy, Twitter, Mail, Eye, EyeOff } from 'lucide-react';
+import { Trophy, Twitter, Mail, Eye, EyeOff, Info, X } from 'lucide-react';
 import { api } from '@/lib/api';
 
 export default function AuthPage() {
@@ -23,12 +23,26 @@ export default function AuthPage() {
     password: '',
     twitter_handle: ''
   });
+  const [showImportAlert, setShowImportAlert] = useState(false);
 
   useEffect(() => {
     if (status === 'authenticated') {
       router.push('/');
     }
   }, [status, router]);
+
+  useEffect(() => {
+    // Check if user hasn't dismissed the import alert
+    const dismissed = localStorage.getItem('dismissedImportAlert');
+    if (!dismissed && !isLogin) {
+      setShowImportAlert(true);
+    }
+  }, [isLogin]);
+
+  const dismissImportAlert = () => {
+    setShowImportAlert(false);
+    localStorage.setItem('dismissedImportAlert', 'true');
+  };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,6 +184,35 @@ export default function AuthPage() {
 
         {/* Form */}
         <div className="p-6">
+          {/* Import Alert for Sign Up */}
+          {!isLogin && showImportAlert && (
+            <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg relative">
+              <button
+                onClick={dismissImportAlert}
+                className="absolute top-2 right-2 text-amber-600 hover:text-amber-800 transition-colors"
+                aria-label="Dismiss alert"
+              >
+                <X className="h-4 w-4" />
+              </button>
+              <div className="flex gap-3 pr-6">
+                <Info className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-amber-800">
+                    Already predicted Coventry vs Hull on Twitter?
+                  </p>
+                  <p className="text-xs text-amber-700">
+                    If you made a prediction for the Coventry vs Hull match on Twitter, please add your Twitter/X handle below when signing up. We'll import your prediction automatically!
+                  </p>
+                  <button
+                    onClick={dismissImportAlert}
+                    className="text-xs text-amber-600 hover:text-amber-800 underline mt-2"
+                  >
+                    Don't show this again
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           <form onSubmit={handleEmailAuth} className="space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>
@@ -204,10 +247,13 @@ export default function AuthPage() {
                   </p>
                 </div>
 
-                <div>
+                <div className={showImportAlert ? 'ring-2 ring-amber-400 rounded-lg p-3 -m-1' : ''}>
                   <Label htmlFor="twitter_handle">
                     Twitter/X Handle 
                     <span className="text-gray-400 font-normal ml-1">(optional)</span>
+                    {showImportAlert && (
+                      <span className="text-amber-600 font-normal ml-1">- Important for Hull match import!</span>
+                    )}
                   </Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">@</span>
