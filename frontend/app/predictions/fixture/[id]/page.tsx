@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 import { getTeamLogo } from '@/lib/team-logos';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Trophy, Target, TrendingUp, TrendingDown, Minus, Award, Users, ArrowLeft, Zap, Medal } from 'lucide-react';
+import { Trophy, Target, TrendingUp, TrendingDown, Minus, Award, Users, ArrowLeft, Zap, Medal, ChevronDown } from 'lucide-react';
 
 interface Prediction {
   id: number;
@@ -51,6 +51,7 @@ export default function FixturePredictionsPage() {
   const [switchingLeague, setSwitchingLeague] = useState(false);
   const [miniLeagues, setMiniLeagues] = useState<MiniLeague[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
+  const [showLeagueSelector, setShowLeagueSelector] = useState(false);
   // Removed sorting - showing latest predictions first
 
   useEffect(() => {
@@ -250,36 +251,106 @@ export default function FixturePredictionsPage() {
         </div>
       </div>
 
-      {/* Mini League Tabs - Only show if user is logged in and has mini leagues */}
+      {/* Mini League Selector - Dropdown on Mobile, Buttons on Desktop */}
       {session && miniLeagues.length > 0 && (
-        <div className="bg-white rounded-xl shadow-lg p-4 mb-6 border border-gray-100">
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setSelectedLeague(null)}
-              className={`px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
-                selectedLeague === null
-                  ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              All Predictions
-            </button>
-            {miniLeagues.map((league) => (
+        <>
+          {/* Mobile Dropdown */}
+          <div className="md:hidden bg-white rounded-xl shadow-lg p-4 mb-6 border border-gray-100">
+            <div className="bg-white rounded-lg border-2 border-[rgb(98,181,229)]/30 p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-[rgb(98,181,229)]" />
+                  <span className="font-semibold text-gray-800 text-sm">
+                    {selectedLeague ? miniLeagues.find(l => l.id === selectedLeague)?.name : 'All Predictions'}
+                  </span>
+                  {selectedLeague && (
+                    <span className="text-xs text-gray-500">
+                      ({miniLeagues.find(l => l.id === selectedLeague)?.member_count})
+                    </span>
+                  )}
+                </div>
+                <button
+                  onClick={() => setShowLeagueSelector(!showLeagueSelector)}
+                  className="text-[rgb(98,181,229)] p-1"
+                >
+                  <ChevronDown className={`w-5 h-5 transition-transform ${showLeagueSelector ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+              
+              {/* Dropdown Menu */}
+              {showLeagueSelector && (
+                <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => {
+                        setSelectedLeague(null);
+                        setShowLeagueSelector(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 transition-all text-sm ${
+                        selectedLeague === null
+                          ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
+                          : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      All Predictions
+                    </button>
+                  </div>
+                  
+                  {miniLeagues.map((league) => (
+                    <div key={league.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                      <button
+                        onClick={() => {
+                          setSelectedLeague(league.id);
+                          setShowLeagueSelector(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 transition-all text-sm ${
+                          selectedLeague === league.id
+                            ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
+                            : 'hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span>{league.name}</span>
+                          <span className="text-xs text-gray-500">({league.member_count})</span>
+                        </div>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Desktop Buttons */}
+          <div className="hidden md:block bg-white rounded-xl shadow-lg p-4 mb-6 border border-gray-100">
+            <div className="flex flex-wrap gap-2">
               <button
-                key={league.id}
-                onClick={() => setSelectedLeague(league.id)}
+                onClick={() => setSelectedLeague(null)}
                 className={`px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
-                  selectedLeague === league.id
+                  selectedLeague === null
                     ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                {league.name}
-                <span className="ml-2 text-xs opacity-75">({league.member_count})</span>
+                All Predictions
               </button>
-            ))}
+              {miniLeagues.map((league) => (
+                <button
+                  key={league.id}
+                  onClick={() => setSelectedLeague(league.id)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
+                    selectedLeague === league.id
+                      ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {league.name}
+                  <span className="ml-2 text-xs opacity-75">({league.member_count})</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Stats Summary - Mobile First */}
@@ -353,60 +424,91 @@ export default function FixturePredictionsPage() {
         
         <div className="divide-y divide-gray-200">
           {sortedPredictions.map((prediction, index) => (
-            <div key={prediction.id} className="p-4 hover:bg-gray-50 transition-colors">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                {/* User Info */}
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="text-center">
-                    <div className="text-xs text-gray-500 mb-1">Rank</div>
-                    {getPositionBadge(prediction.user_position)}
+            <div key={prediction.id} className="p-3 hover:bg-gray-50 transition-colors">
+              {/* Compact Mobile Layout */}
+              <div className="flex items-center justify-between gap-3">
+                {/* Left: User Info - Compact */}
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  {/* Position Badge - Smaller */}
+                  <div className="flex-shrink-0">
+                    {prediction.user_position && prediction.user_position <= 3 ? (
+                      getPositionBadge(prediction.user_position)
+                    ) : (
+                      <span className="text-xs font-semibold text-gray-500">
+                        #{prediction.user_position || '-'}
+                      </span>
+                    )}
                   </div>
                   
-                  <div className="flex-1">
+                  {/* Username - Truncated */}
+                  <div className="min-w-0 flex-1">
                     <Link 
                       href={`/user/${prediction.username}`}
-                      className="font-medium text-sm md:text-base hover:text-[rgb(98,181,229)] transition-colors"
+                      className="font-medium text-sm hover:text-[rgb(98,181,229)] transition-colors truncate block"
                     >
-                      {prediction.username}
+                      {prediction.username.length > 15 
+                        ? prediction.username.substring(0, 15) + '...' 
+                        : prediction.username}
                     </Link>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-gray-500">
-                        {prediction.user_total_points || 0} pts total
-                      </span>
+                    <div className="text-xs text-gray-500">
+                      {prediction.user_total_points || 0} pts
                       {prediction.user_avg_points && (
-                        <span className="text-xs text-gray-500">
-                          • {prediction.user_avg_points.toFixed(1)} avg
-                        </span>
+                        <span> • {prediction.user_avg_points.toFixed(1)} avg</span>
                       )}
                     </div>
                   </div>
                 </div>
 
-                {/* Prediction */}
-                <div className="flex items-center gap-4">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold">
-                      {prediction.home_prediction} - {prediction.away_prediction}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {format(new Date(prediction.created_at), 'MMM d, h:mm a')}
-                    </p>
+                {/* Center: Prediction Score */}
+                <div className="flex-shrink-0 text-center">
+                  <div className="text-xl font-bold">
+                    {prediction.home_prediction} - {prediction.away_prediction}
                   </div>
-                  
-                  {fixture.home_score !== null && fixture.away_score !== null && (
-                    <div>{getPointsBadge(prediction.points_earned)}</div>
-                  )}
+                  <div className="text-xs text-gray-400">
+                    {format(new Date(prediction.created_at), 'h:mm a')}
+                  </div>
                 </div>
 
-                {/* User Form */}
-                {prediction.user_form && (
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-gray-500 mr-2">Form:</span>
-                    {prediction.user_form.split('').slice(-5).map((result, i) => (
-                      <div key={i}>{getFormIcon(result)}</div>
-                    ))}
-                  </div>
-                )}
+                {/* Right: Points Badge or Form (Mobile) */}
+                <div className="flex-shrink-0">
+                  {fixture.home_score !== null && fixture.away_score !== null ? (
+                    <div className="text-center">
+                      {prediction.points_earned === 3 ? (
+                        <div className="flex flex-col items-center">
+                          <Zap className="h-5 w-5 text-yellow-500" />
+                          <span className="text-xs font-bold text-yellow-600">3pts</span>
+                        </div>
+                      ) : prediction.points_earned === 1 ? (
+                        <div className="flex flex-col items-center">
+                          <Target className="h-5 w-5 text-green-500" />
+                          <span className="text-xs font-bold text-green-600">1pt</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center">
+                          <Minus className="h-5 w-5 text-gray-400" />
+                          <span className="text-xs text-gray-400">0pts</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* Show compact form on mobile if available */
+                    prediction.user_form && prediction.user_form.length > 0 && (
+                      <div className="flex gap-0.5">
+                        {prediction.user_form.split('').slice(-3).map((result, i) => (
+                          <div key={i} className="w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold bg-gray-100">
+                            {result === 'W' ? (
+                              <span className="text-green-600">W</span>
+                            ) : result === 'D' ? (
+                              <span className="text-yellow-600">D</span>
+                            ) : (
+                              <span className="text-gray-400">L</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  )}
+                </div>
               </div>
             </div>
           ))}
