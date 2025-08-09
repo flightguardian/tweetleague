@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from database.base import get_db
 from models.models import User, Prediction, UserStats, Notification
 from models.mini_leagues import MiniLeague, MiniLeagueMember
-from api.auth import get_current_user
+from utils.auth import get_current_user
 from pydantic import BaseModel
 from typing import Optional
 
