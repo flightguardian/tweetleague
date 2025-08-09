@@ -279,7 +279,11 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
                 </div>
               </div>
               <p className="text-xs text-green-600 mt-3 text-center">
-                ⏰ You can update until {format(new Date(fixture.kickoff_time), 'h:mm a')} (5 mins before kickoff)
+                ⏰ You can update until {(() => {
+                  const deadline = new Date(fixture.kickoff_time);
+                  deadline.setMinutes(deadline.getMinutes() - 5);
+                  return format(deadline, 'h:mm a');
+                })()} (5 mins before kickoff)
               </p>
               <button
                 type="button"
