@@ -291,20 +291,42 @@ export default function FixturePredictionsPage() {
           <p className="text-xs text-gray-600">Total Predictions</p>
         </div>
         
-        {/* Average Scores - Side by Side */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100">
-            <div className="text-3xl mb-2">⚽</div>
-            <p className="text-xl font-bold">{averageHomeScore}</p>
-            <p className="text-xs text-gray-600">Avg Home Score</p>
+        {/* Average Scores - Side by Side with Team Info */}
+        {fixture && (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100">
+              <Image 
+                src={getTeamLogo(fixture.home_team)} 
+                alt={fixture.home_team}
+                width={40}
+                height={40}
+                className="mx-auto mb-2"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+              <p className="text-xl font-bold">{averageHomeScore}</p>
+              <p className="text-xs text-gray-600 font-medium">{fixture.home_team}</p>
+              <p className="text-xs text-gray-500">Avg Prediction</p>
+            </div>
+            
+            <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100">
+              <Image 
+                src={getTeamLogo(fixture.away_team)} 
+                alt={fixture.away_team}
+                width={40}
+                height={40}
+                className="mx-auto mb-2"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+              <p className="text-xl font-bold">{averageAwayScore}</p>
+              <p className="text-xs text-gray-600 font-medium">{fixture.away_team}</p>
+              <p className="text-xs text-gray-500">Avg Prediction</p>
+            </div>
           </div>
-          
-          <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100">
-            <div className="text-3xl mb-2">⚽</div>
-            <p className="text-xl font-bold">{averageAwayScore}</p>
-            <p className="text-xs text-gray-600">Avg Away Score</p>
-          </div>
-        </div>
+        )}
       </div>
 
 
