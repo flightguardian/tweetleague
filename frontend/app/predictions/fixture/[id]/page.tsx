@@ -182,7 +182,7 @@ export default function FixturePredictionsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(98,181,229)] mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading predictions...</p>
@@ -193,7 +193,7 @@ export default function FixturePredictionsPage() {
 
   if (!fixture) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto">
         <div className="text-center">
           <p className="text-gray-600">Fixture not found</p>
         </div>
@@ -210,11 +210,11 @@ export default function FixturePredictionsPage() {
     : '0';
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className="max-w-6xl mx-auto">
       {/* Back button */}
       <Link 
         href="/"
-        className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-[rgb(98,181,229)] mb-6 transition-colors"
+        className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-[rgb(98,181,229)] mb-4 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Home
@@ -227,47 +227,55 @@ export default function FixturePredictionsPage() {
           <p className="text-sm opacity-90">{format(new Date(fixture.kickoff_time), 'PPP p')}</p>
         </div>
         
-        <div className="flex items-center justify-center gap-4 md:gap-8">
-          <div className="text-center flex-1">
-            <Image 
-              src={getTeamLogo(fixture.home_team)} 
-              alt={fixture.home_team}
-              width={80}
-              height={80}
-              className="mx-auto mb-2"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-            <p className="font-semibold text-sm md:text-base">{fixture.home_team}</p>
+        <div className="flex items-start justify-center gap-4 md:gap-8">
+          <div className="text-center flex-1 flex flex-col">
+            <div className="flex-grow flex items-end justify-center">
+              <Image 
+                src={getTeamLogo(fixture.home_team)} 
+                alt={fixture.home_team}
+                width={80}
+                height={80}
+                className="mb-2"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
+            <p className="font-semibold text-sm md:text-base min-h-[2.5rem] flex items-center justify-center">{fixture.home_team}</p>
           </div>
           
           {fixture.home_score !== null && fixture.away_score !== null ? (
-            <div className="text-center">
-              <p className="text-4xl md:text-5xl font-bold">
-                {fixture.home_score} - {fixture.away_score}
-              </p>
-              <p className="text-xs mt-2 opacity-90">Final Score</p>
+            <div className="text-center flex items-center">
+              <div>
+                <p className="text-4xl md:text-5xl font-bold">
+                  {fixture.home_score} - {fixture.away_score}
+                </p>
+                <p className="text-xs mt-2 opacity-90">Final Score</p>
+              </div>
             </div>
           ) : (
-            <div className="text-center">
-              <p className="text-2xl md:text-3xl font-bold">vs</p>
-              <p className="text-xs mt-2 opacity-90">Upcoming</p>
+            <div className="text-center flex items-center">
+              <div>
+                <p className="text-2xl md:text-3xl font-bold">vs</p>
+                <p className="text-xs mt-2 opacity-90">Upcoming</p>
+              </div>
             </div>
           )}
           
-          <div className="text-center flex-1">
-            <Image 
-              src={getTeamLogo(fixture.away_team)} 
-              alt={fixture.away_team}
-              width={80}
-              height={80}
-              className="mx-auto mb-2"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-            <p className="font-semibold text-sm md:text-base">{fixture.away_team}</p>
+          <div className="text-center flex-1 flex flex-col">
+            <div className="flex-grow flex items-end justify-center">
+              <Image 
+                src={getTeamLogo(fixture.away_team)} 
+                alt={fixture.away_team}
+                width={80}
+                height={80}
+                className="mb-2"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
+            <p className="font-semibold text-sm md:text-base min-h-[2.5rem] flex items-center justify-center">{fixture.away_team}</p>
           </div>
         </div>
       </div>

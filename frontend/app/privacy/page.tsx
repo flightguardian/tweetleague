@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-[rgb(98,181,229)]/10 rounded-full mb-4">
@@ -439,10 +439,10 @@ export default function PrivacyPolicyPage() {
         </section>
 
         {/* Footer Links */}
-        <div className="text-center py-8">
+        <div className="text-center pt-8">
           <div className="flex flex-wrap justify-center gap-4 text-sm">
             <Link href="/" className="text-[rgb(98,181,229)] hover:underline">
-              Back to Home
+              ← Back to Home
             </Link>
             <span className="text-gray-400">•</span>
             <Link href="/how-it-works" className="text-[rgb(98,181,229)] hover:underline">
