@@ -170,15 +170,7 @@ def get_fixture_predictions(
     if not fixture:
         raise HTTPException(status_code=404, detail="Fixture not found")
     
-    now = datetime.now(pytz.UTC)
-    kickoff = fixture.kickoff_time
-    if kickoff.tzinfo is None:
-        kickoff = pytz.UTC.localize(kickoff)
-    deadline = kickoff - timedelta(minutes=5)
-    
-    if now < deadline:
-        raise HTTPException(status_code=400, detail="Predictions are not visible until after the deadline")
-    
+    # No deadline check - predictions are viewable once match appears in results
     predictions = db.query(Prediction).filter(
         Prediction.fixture_id == fixture_id
     ).join(User).all()
