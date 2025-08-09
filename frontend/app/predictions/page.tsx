@@ -304,44 +304,62 @@ export default function PredictionsPage() {
                   {categorizedPredictions.upcoming.length}
                 </span>
               </h2>
-              <div className="bg-white rounded-xl shadow-lg divide-y divide-gray-200">
+              <div className="space-y-4">
                 {categorizedPredictions.upcoming.map((pred) => (
-                  <div key={pred.id} className="p-3 hover:bg-gray-50 transition-colors">
-                    {/* Mobile Compact Header */}
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="text-xs text-gray-600">
-                        <div>{format(new Date(pred.fixture_kickoff), 'EEE, MMM d')}</div>
-                        <div className="font-medium">{format(new Date(pred.fixture_kickoff), 'h:mm a')}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs font-medium text-blue-600">
-                          {getTimeUntilKickoff(pred.fixture_kickoff)}
+                  <div key={pred.id} className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 border border-gray-100">
+                    {/* Header with date and countdown - matching homepage style */}
+                    <div className="flex justify-between items-start mb-4 pb-3 border-b border-gray-100">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                        <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+                          <Calendar className="h-3 w-3 md:h-4 md:w-4 text-[rgb(98,181,229)]" />
+                          <span>{format(new Date(pred.fixture_kickoff), 'EEE, d MMM')}</span>
                         </div>
-                        {canEdit(pred) && editingId !== pred.fixture_id && (
-                          <button
-                            onClick={() => handleEdit(pred)}
-                            className="text-xs text-blue-600 hover:text-blue-700 mt-1"
-                          >
-                            <Edit2 className="h-3 w-3 inline mr-1" />
-                            Edit
-                          </button>
-                        )}
+                        <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600 mt-1 sm:mt-0">
+                          <Clock className="h-3 w-3 md:h-4 md:w-4 text-[rgb(98,181,229)]" />
+                          <span>{format(new Date(pred.fixture_kickoff), 'h:mm a')}</span>
+                        </div>
+                      </div>
+                      <div className="text-xs md:text-sm font-bold px-2 md:px-3 py-1 rounded-full bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)]">
+                        {getTimeUntilKickoff(pred.fixture_kickoff)}
+                      </div>
+                    </div>
+                    
+                    {/* Teams Display */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-center flex-1">
+                        <Image 
+                          src={getTeamLogo(pred.fixture_home_team)} 
+                          alt={pred.fixture_home_team}
+                          width={60}
+                          height={60}
+                          className="mb-2 mx-auto md:w-16 md:h-16"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <h3 className="font-bold text-sm md:text-base">{pred.fixture_home_team}</h3>
+                        <p className="text-xs text-gray-600">Home</p>
+                      </div>
+                      <div className="px-2 md:px-4">
+                        <p className="text-lg md:text-xl font-bold text-gray-400">VS</p>
+                      </div>
+                      <div className="text-center flex-1">
+                        <Image 
+                          src={getTeamLogo(pred.fixture_away_team)} 
+                          alt={pred.fixture_away_team}
+                          width={60}
+                          height={60}
+                          className="mb-2 mx-auto md:w-16 md:h-16"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <h3 className="font-bold text-sm md:text-base">{pred.fixture_away_team}</h3>
+                        <p className="text-xs text-gray-600">Away</p>
                       </div>
                     </div>
                     
                     {editingId === pred.fixture_id ? (
                       <div className="space-y-4">
-                        <div className="flex items-center justify-between gap-2 md:gap-4">
-                          <div className="flex-1 text-center">
-                            <Image 
-                              src={getTeamLogo(pred.fixture_home_team)} 
-                              alt={pred.fixture_home_team}
-                              width={40}
-                              height={40}
-                              className="mx-auto mb-1 md:mb-2 w-10 h-10 md:w-12 md:h-12"
-                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                            />
-                            <p className="text-xs md:text-sm font-medium mb-1 md:mb-2">{pred.fixture_home_team}</p>
+                        <div className="flex items-center justify-center gap-4 md:gap-12">
+                          <div className="text-center">
+                            <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Home</label>
                             <Input
                               type="number"
                               min="0"
@@ -352,17 +370,11 @@ export default function PredictionsPage() {
                               disabled={saving}
                             />
                           </div>
-                          <div className="text-xl md:text-2xl font-bold text-gray-400">-</div>
-                          <div className="flex-1 text-center">
-                            <Image 
-                              src={getTeamLogo(pred.fixture_away_team)} 
-                              alt={pred.fixture_away_team}
-                              width={40}
-                              height={40}
-                              className="mx-auto mb-1 md:mb-2 w-10 h-10 md:w-12 md:h-12"
-                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                            />
-                            <p className="text-xs md:text-sm font-medium mb-1 md:mb-2">{pred.fixture_away_team}</p>
+                          <div className="flex items-center">
+                            <div className="text-xl md:text-2xl font-bold text-gray-400 pb-2">-</div>
+                          </div>
+                          <div className="text-center">
+                            <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2">Away</label>
                             <Input
                               type="number"
                               min="0"
@@ -397,17 +409,30 @@ export default function PredictionsPage() {
                         </div>
                       </div>
                     ) : (
-                      /* Compact Prediction Display */
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex-1 text-center">
-                          <p className="text-xs font-medium text-gray-600 truncate">{pred.fixture_home_team}</p>
-                          <p className="text-lg font-bold">{pred.home_prediction}</p>
+                      /* Your Prediction Display */
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <p className="font-semibold text-green-800 text-sm">Your Prediction</p>
                         </div>
-                        <div className="text-gray-400 font-bold">-</div>
-                        <div className="flex-1 text-center">
-                          <p className="text-xs font-medium text-gray-600 truncate">{pred.fixture_away_team}</p>
-                          <p className="text-lg font-bold">{pred.away_prediction}</p>
+                        <div className="flex items-center justify-center gap-4">
+                          <div className="text-2xl md:text-3xl font-bold text-green-700">
+                            {pred.home_prediction}
+                          </div>
+                          <span className="text-xl font-bold text-gray-400">-</span>
+                          <div className="text-2xl md:text-3xl font-bold text-green-700">
+                            {pred.away_prediction}
+                          </div>
                         </div>
+                        {canEdit(pred) && (
+                          <button
+                            onClick={() => handleEdit(pred)}
+                            className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 bg-white border border-green-300 text-green-700 rounded-lg hover:bg-green-50 transition-colors text-sm font-medium"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                            Change Prediction
+                          </button>
+                        )}
                       </div>
                     )}
                     
@@ -432,28 +457,72 @@ export default function PredictionsPage() {
                   {categorizedPredictions.live.length}
                 </span>
               </h2>
-              <div className="bg-white rounded-xl shadow-lg divide-y divide-gray-200">
+              <div className="space-y-4">
                 {categorizedPredictions.live.map((pred) => (
-                  <div key={pred.id} className="p-3 bg-orange-50/50 hover:bg-orange-50 transition-colors">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-                        LIVE
-                      </span>
-                      <span className="text-xs text-gray-500">Locked</span>
+                  <div key={pred.id} className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 border border-gray-100">
+                    {/* Live Status Header */}
+                    <div className="flex justify-between items-start mb-4 pb-3 border-b border-gray-100">
+                      <div className="flex items-center gap-3">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs md:text-sm font-bold">
+                          <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                          LIVE
+                        </span>
+                        <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+                          <Clock className="h-3 w-3 md:h-4 md:w-4 text-orange-500" />
+                          <span>Match in progress</span>
+                        </div>
+                      </div>
                     </div>
                     
-                    {/* Compact Score Display */}
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex-1 text-center">
-                        <p className="text-xs font-medium text-gray-600 truncate">{pred.fixture_home_team}</p>
-                        <p className="text-lg font-bold">{pred.home_prediction}</p>
+                    {/* Teams Display */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-center flex-1">
+                        <Image 
+                          src={getTeamLogo(pred.fixture_home_team)} 
+                          alt={pred.fixture_home_team}
+                          width={50}
+                          height={50}
+                          className="mb-2 mx-auto md:w-14 md:h-14"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <h3 className="font-bold text-sm md:text-base">{pred.fixture_home_team}</h3>
+                        <p className="text-xs text-gray-600">Home</p>
                       </div>
-                      <div className="text-gray-400 font-bold">-</div>
-                      <div className="flex-1 text-center">
-                        <p className="text-xs font-medium text-gray-600 truncate">{pred.fixture_away_team}</p>
-                        <p className="text-lg font-bold">{pred.away_prediction}</p>
+                      <div className="px-2 md:px-4">
+                        <p className="text-lg md:text-xl font-bold text-gray-400">VS</p>
                       </div>
+                      <div className="text-center flex-1">
+                        <Image 
+                          src={getTeamLogo(pred.fixture_away_team)} 
+                          alt={pred.fixture_away_team}
+                          width={50}
+                          height={50}
+                          className="mb-2 mx-auto md:w-14 md:h-14"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <h3 className="font-bold text-sm md:text-base">{pred.fixture_away_team}</h3>
+                        <p className="text-xs text-gray-600">Away</p>
+                      </div>
+                    </div>
+                    
+                    {/* Your Prediction - Locked */}
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Timer className="h-4 w-4 text-orange-600" />
+                        <p className="font-semibold text-orange-800 text-sm">Your Prediction (Locked)</p>
+                      </div>
+                      <div className="flex items-center justify-center gap-4">
+                        <div className="text-2xl md:text-3xl font-bold text-orange-700">
+                          {pred.home_prediction}
+                        </div>
+                        <span className="text-xl font-bold text-gray-400">-</span>
+                        <div className="text-2xl md:text-3xl font-bold text-orange-700">
+                          {pred.away_prediction}
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 text-center mt-2">
+                        Waiting for final result
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -471,46 +540,82 @@ export default function PredictionsPage() {
                   {categorizedPredictions.completed.length}
                 </span>
               </h2>
-              <div className="bg-white rounded-xl shadow-lg divide-y divide-gray-200">
+              <div className="space-y-4">
                 {categorizedPredictions.completed.map((pred) => (
-                  <div key={pred.id} className="p-3 hover:bg-gray-50 transition-colors">
-                    {/* Compact Header with Date and Points */}
-                    <div className="flex justify-between items-center mb-2">
-                      <div className="text-xs text-gray-600">
-                        {format(new Date(pred.fixture_kickoff), 'MMM d')}
+                  <div key={pred.id} className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 border border-gray-100">
+                    {/* Header with date and result */}
+                    <div className="flex justify-between items-start mb-4 pb-3 border-b border-gray-100">
+                      <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+                        <Calendar className="h-3 w-3 md:h-4 md:w-4 text-gray-400" />
+                        <span>{format(new Date(pred.fixture_kickoff), 'EEE, d MMM')}</span>
                       </div>
                       <div>
-                        {pred.points_earned === 3 ? (
-                          <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                            Perfect +3
-                          </span>
-                        ) : pred.points_earned === 1 ? (
-                          <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
-                            Correct +1
-                          </span>
-                        ) : (
-                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                            0 pts
-                          </span>
-                        )}
+                        {getPointsBadge(pred.points_earned)}
                       </div>
                     </div>
                     
-                    {/* Compact Score Display */}
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex-1 text-center">
-                        <p className="text-xs font-medium text-gray-600 truncate">{pred.fixture_home_team}</p>
-                        <div className="flex items-center justify-center gap-1">
-                          <span className="text-lg font-bold">{pred.home_prediction}</span>
-                          <span className="text-xs text-gray-500">({pred.fixture_home_score})</span>
-                        </div>
+                    {/* Teams and Final Score Display */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-center flex-1">
+                        <Image 
+                          src={getTeamLogo(pred.fixture_home_team)} 
+                          alt={pred.fixture_home_team}
+                          width={50}
+                          height={50}
+                          className="mb-2 mx-auto md:w-14 md:h-14 opacity-70"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <h3 className="font-bold text-sm md:text-base text-gray-700">{pred.fixture_home_team}</h3>
+                        <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">{pred.fixture_home_score}</p>
                       </div>
-                      <div className="text-gray-400 font-bold">-</div>
-                      <div className="flex-1 text-center">
-                        <p className="text-xs font-medium text-gray-600 truncate">{pred.fixture_away_team}</p>
-                        <div className="flex items-center justify-center gap-1">
-                          <span className="text-lg font-bold">{pred.away_prediction}</span>
-                          <span className="text-xs text-gray-500">({pred.fixture_away_score})</span>
+                      <div className="px-2 md:px-4">
+                        <p className="text-xs text-gray-500 mb-1">FINAL</p>
+                        <p className="text-lg md:text-xl font-bold text-gray-400">-</p>
+                      </div>
+                      <div className="text-center flex-1">
+                        <Image 
+                          src={getTeamLogo(pred.fixture_away_team)} 
+                          alt={pred.fixture_away_team}
+                          width={50}
+                          height={50}
+                          className="mb-2 mx-auto md:w-14 md:h-14 opacity-70"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                        <h3 className="font-bold text-sm md:text-base text-gray-700">{pred.fixture_away_team}</h3>
+                        <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">{pred.fixture_away_score}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Your Prediction vs Result */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">YOUR PREDICTION</p>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl md:text-2xl font-bold text-gray-700">
+                              {pred.home_prediction} - {pred.away_prediction}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          {pred.points_earned === 3 && (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full">
+                              <Trophy className="h-4 w-4" />
+                              <span className="text-xs font-bold">Perfect!</span>
+                            </div>
+                          )}
+                          {pred.points_earned === 1 && (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                              <Target className="h-4 w-4" />
+                              <span className="text-xs font-bold">Correct</span>
+                            </div>
+                          )}
+                          {pred.points_earned === 0 && (
+                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                              <X className="h-4 w-4" />
+                              <span className="text-xs">Missed</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
