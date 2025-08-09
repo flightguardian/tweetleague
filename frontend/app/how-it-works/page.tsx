@@ -6,7 +6,7 @@ import {
   Trophy, Target, Users, Calendar, Award, ArrowRight, 
   CheckCircle, Star, TrendingUp, Clock, Mail, Twitter,
   Shield, Zap, ChevronDown, ChevronUp, Home, HelpCircle,
-  Smartphone, Globe, Bell, Gift
+  Smartphone, Globe, Bell, Gift, UserPlus, Lock, Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -22,7 +22,7 @@ export default function HowItWorksPage() {
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-          How Tweet League Works
+          How Coventry City Tweet League Works
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Your guide to predicting Coventry City matches and competing with fellow Sky Blues fans
@@ -65,7 +65,7 @@ export default function HowItWorksPage() {
           </div>
         </div>
         <div className="mt-6 flex flex-wrap gap-4">
-          <Link href="/register">
+          <Link href="/auth">
             <Button size="lg" variant="secondary" className="bg-white text-[rgb(98,181,229)] hover:bg-gray-100">
               Get Started Now
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -96,8 +96,8 @@ export default function HowItWorksPage() {
               <div>
                 <h3 className="font-semibold mb-1">Create Your Account</h3>
                 <p className="text-gray-600">
-                  Sign up using your email address or quickly join with your Twitter account. 
-                  It's completely free and takes less than a minute!
+                  Sign up using your email address, Twitter/X account, or Google account. 
+                  It's completely free and takes less than a minute! Twitter users get instant verification.
                 </p>
               </div>
             </div>
@@ -106,18 +106,18 @@ export default function HowItWorksPage() {
               <div>
                 <h3 className="font-semibold mb-1">Verify Your Email</h3>
                 <p className="text-gray-600">
-                  Check your inbox for a verification link. This helps us keep the league secure and enables 
-                  you to receive match reminders (if you want them).
+                  Email users need to verify their address to make predictions. Check your inbox (and spam folder) 
+                  for the verification link. Twitter/Google users are automatically verified!
                 </p>
               </div>
             </div>
             <div className="flex items-start">
               <Twitter className="h-5 w-5 text-[rgb(98,181,229)] mr-3 mt-1 flex-shrink-0" />
               <div>
-                <h3 className="font-semibold mb-1">Optional: Add Your Twitter Handle</h3>
+                <h3 className="font-semibold mb-1">Complete Your Profile</h3>
                 <p className="text-gray-600">
-                  Connect your Twitter handle in your profile to import any historical predictions and 
-                  share your successes with the Sky Blues community.
+                  Add your Twitter handle if you want to connect with the community. 
+                  Your username (3-20 characters) will be displayed on leaderboards.
                 </p>
               </div>
             </div>
@@ -192,6 +192,75 @@ export default function HowItWorksPage() {
           </div>
         </div>
 
+        {/* Mini Leagues */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+          <div className="p-6 bg-gradient-to-r from-indigo-50 to-purple-50">
+            <h2 className="text-2xl font-bold flex items-center">
+              <UserPlus className="mr-3 h-6 w-6 text-indigo-600" />
+              Mini Leagues
+            </h2>
+          </div>
+          <div className="p-6">
+            <p className="text-gray-600 mb-6">
+              Create or join private leagues with friends, colleagues, or fellow fans! 
+              Compete in smaller groups while still participating in the main league.
+            </p>
+            
+            <div className="grid md:grid-cols-2 gap-6 mb-6">
+              <div className="border border-gray-200 rounded-lg p-4">
+                <h3 className="font-semibold text-lg mb-3 text-indigo-600">Creating a League</h3>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li className="flex items-start">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                    Create up to 5 mini leagues
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                    Get a unique 8-letter invite code
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                    Manage members as admin
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                    Up to 100 members per league
+                  </li>
+                </ul>
+              </div>
+              
+              <div className="border border-gray-200 rounded-lg p-4">
+                <h3 className="font-semibold text-lg mb-3 text-purple-600">Joining a League</h3>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li className="flex items-start">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                    Enter the 8-letter invite code
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                    Join up to 5 mini leagues
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                    View league-specific standings
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-4 w-4 text-green-500 mr-2 mt-0.5" />
+                    Same scoring as main league
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="bg-indigo-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-700">
+                <strong className="text-indigo-800">💡 Note:</strong> Your predictions count for both the main league 
+                and all your mini leagues simultaneously. One prediction, multiple competitions!
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Scoring System */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
           <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50">
@@ -248,12 +317,29 @@ export default function HowItWorksPage() {
             <div className="bg-blue-50 p-4 rounded-lg">
               <h4 className="font-semibold mb-2 flex items-center">
                 <TrendingUp className="mr-2 h-5 w-5 text-blue-600" />
-                League Position
+                League Rankings & Stats
               </h4>
-              <p className="text-gray-700 text-sm">
-                Your position is determined by total points. In case of a tie, the player with more 
-                perfect predictions (3-pointers) ranks higher. Keep predicting to climb the table!
+              <p className="text-gray-700 text-sm mb-3">
+                Your position is determined by total points. Tiebreakers: 1) Perfect predictions, 2) Correct results.
               </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
+                <div className="text-center">
+                  <div className="text-xs text-gray-600">Tracked Stats</div>
+                  <div className="text-xs font-semibold">Avg Points</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-gray-600">Hot Players</div>
+                  <div className="text-xs font-semibold">Last 5 Form</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-gray-600">Streaks</div>
+                  <div className="text-xs font-semibold">Win Runs</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-xs text-gray-600">Monthly</div>
+                  <div className="text-xs font-semibold">Top Performers</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -272,27 +358,27 @@ export default function HowItWorksPage() {
                 <div className="flex items-start">
                   <Globe className="h-5 w-5 text-blue-500 mr-3 mt-1" />
                   <div>
-                    <h4 className="font-semibold">Global Community</h4>
+                    <h4 className="font-semibold">Live Community Features</h4>
                     <p className="text-sm text-gray-600">
-                      Connect with Sky Blues fans worldwide
+                      See other predictions, user profiles, and form guides
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start">
                   <Bell className="h-5 w-5 text-green-500 mr-3 mt-1" />
                   <div>
-                    <h4 className="font-semibold">Match Reminders</h4>
+                    <h4 className="font-semibold">My Predictions Page</h4>
                     <p className="text-sm text-gray-600">
-                      Optional email alerts so you never miss a prediction
+                      Track all your predictions, points earned, and history
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start">
                   <Award className="h-5 w-5 text-purple-500 mr-3 mt-1" />
                   <div>
-                    <h4 className="font-semibold">Monthly Champions</h4>
+                    <h4 className="font-semibold">Mini Leagues</h4>
                     <p className="text-sm text-gray-600">
-                      Special recognition for top monthly performers
+                      Create private competitions with friends and colleagues
                     </p>
                   </div>
                 </div>
@@ -319,9 +405,9 @@ export default function HowItWorksPage() {
                 <div className="flex items-start">
                   <Trophy className="h-5 w-5 text-yellow-500 mr-3 mt-1" />
                   <div>
-                    <h4 className="font-semibold">Season Championships</h4>
+                    <h4 className="font-semibold">Detailed Statistics</h4>
                     <p className="text-sm text-gray-600">
-                      Compete for the ultimate season crown
+                      Track streaks, averages, and performance metrics
                     </p>
                   </div>
                 </div>
@@ -354,7 +440,11 @@ export default function HowItWorksPage() {
               },
               {
                 q: "Can I see other people's predictions?",
-                a: "Yes! On the homepage, you'll see how many players have predicted for each match (e.g., '5 players predicted'). Click this link to see what other players have predicted for that match. You can see their usernames, predictions, and current league positions."
+                a: "Yes! Once you've made your prediction, you can click on the prediction count to view all predictions for that fixture. You'll see usernames, their predictions, current league positions, and even filter by mini leagues."
+              },
+              {
+                q: "How do mini leagues work?",
+                a: "Mini leagues are private competitions within Tweet League. Create your own league and share the 8-letter invite code with friends, or join existing leagues. You can be in up to 5 mini leagues while still competing in the main league."
               },
               {
                 q: "How do I get match reminders?",
@@ -363,6 +453,14 @@ export default function HowItWorksPage() {
               {
                 q: "What competitions are included?",
                 a: "All Coventry City matches including Championship, FA Cup, League Cup, and playoff games are included in Tweet League."
+              },
+              {
+                q: "Why can I only predict one match at a time?",
+                a: "You can only predict the next upcoming fixture to keep the competition fair and engaging. This prevents users from bulk-predicting and ensures everyone stays engaged throughout the season."
+              },
+              {
+                q: "What do the leaderboard stats mean?",
+                a: "Pts = Total Points, Perf = Perfect Scores (3 pts), Corr = Correct Results (1 pt), Plyd = Games Predicted, Avg = Average Points Per Game. Your form shows W/D/L for your last 5 predictions."
               }
             ].map((faq, index) => (
               <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
@@ -410,7 +508,7 @@ export default function HowItWorksPage() {
             Join the Tweet League community and show off your Sky Blues knowledge!
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/register">
+            <Link href="/auth">
               <Button size="lg" className="bg-[rgb(98,181,229)] hover:bg-[rgb(78,145,183)]">
                 Sign Up Now
                 <ArrowRight className="ml-2 h-5 w-5" />

@@ -31,7 +31,7 @@ export function Header() {
               <Trophy className="h-6 w-6 md:h-8 md:w-8" />
             </div>
             <div>
-              <span className="text-xl md:text-2xl font-bold block">COV</span>
+              <span className="text-xl md:text-2xl font-bold block">Coventry City</span>
               <span className="text-xs md:text-sm opacity-90">Tweet League</span>
             </div>
           </Link>
