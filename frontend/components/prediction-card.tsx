@@ -335,7 +335,9 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
                   />
                 </div>
                 
-                <div className="text-xl md:text-3xl font-bold text-gray-300 mt-6 md:mt-8">-</div>
+                <div className="flex items-center">
+                  <div className="text-xl md:text-3xl font-bold text-gray-400 pb-2">-</div>
+                </div>
                 
                 <div className="text-center">
                   <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-2 md:mb-3">
