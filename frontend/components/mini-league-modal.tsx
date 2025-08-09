@@ -123,8 +123,8 @@ export function MiniLeagueModal({ isOpen, onClose, mode, onSuccess }: MiniLeague
               </h2>
               <p className="text-white/80 text-sm">
                 {mode === 'create' 
-                  ? 'Create your own league and invite friends'
-                  : 'Enter an invite code to join a league'}
+                  ? 'Create your own mini league and invite friends'
+                  : 'Enter an invite code to join a mini league'}
               </p>
             </div>
             <button
@@ -143,14 +143,14 @@ export function MiniLeagueModal({ isOpen, onClose, mode, onSuccess }: MiniLeague
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      League Name *
+                      Mini League Name *
                     </label>
                     <input
                       type="text"
                       value={leagueName}
                       onChange={(e) => setLeagueName(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(98,181,229)]"
-                      placeholder="e.g., Work League 2025"
+                      placeholder="e.g., Work Friends 2025"
                       maxLength={100}
                     />
                   </div>
@@ -163,7 +163,7 @@ export function MiniLeagueModal({ isOpen, onClose, mode, onSuccess }: MiniLeague
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(98,181,229)]"
-                      placeholder="Describe your league..."
+                      placeholder="Describe your mini league..."
                       rows={3}
                     />
                   </div>
@@ -189,7 +189,7 @@ export function MiniLeagueModal({ isOpen, onClose, mode, onSuccess }: MiniLeague
                     disabled={loading || !leagueName.trim()}
                     className="w-full bg-[rgb(98,181,229)] text-white py-3 rounded-lg font-medium hover:bg-[rgb(78,145,183)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? 'Creating...' : 'Create League'}
+                    {loading ? 'Creating...' : 'Create Mini League'}
                   </button>
                 </div>
               ) : (
@@ -207,7 +207,7 @@ export function MiniLeagueModal({ isOpen, onClose, mode, onSuccess }: MiniLeague
                       maxLength={8}
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Get the invite code from your league creator
+                      Get the invite code from your mini league creator
                     </p>
                   </div>
 
@@ -216,7 +216,7 @@ export function MiniLeagueModal({ isOpen, onClose, mode, onSuccess }: MiniLeague
                     disabled={loading || !inviteCode.trim()}
                     className="w-full bg-[rgb(98,181,229)] text-white py-3 rounded-lg font-medium hover:bg-[rgb(78,145,183)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? 'Joining...' : 'Join League'}
+                    {loading ? 'Joining...' : 'Join Mini League'}
                   </button>
                 </div>
               )}
@@ -228,7 +228,7 @@ export function MiniLeagueModal({ isOpen, onClose, mode, onSuccess }: MiniLeague
                   <Trophy className="h-8 w-8 text-green-600" />
                   <div>
                     <h3 className="font-bold text-lg">{createdLeague.name}</h3>
-                    <p className="text-sm text-gray-600">League created successfully!</p>
+                    <p className="text-sm text-gray-600">Mini league created successfully!</p>
                   </div>
                 </div>
               </div>
@@ -247,7 +247,7 @@ export function MiniLeagueModal({ isOpen, onClose, mode, onSuccess }: MiniLeague
                   </button>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  Share this code with friends to invite them to your league
+                  Share this code with friends to invite them to your mini league
                 </p>
               </div>
 

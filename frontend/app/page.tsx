@@ -146,6 +146,36 @@ export default function Home() {
         )}
       </div>
 
+      {/* League Table Section */}
+      <div className="bg-gradient-to-r from-[rgb(98,181,229)]/10 to-[rgb(78,145,183)]/10 rounded-xl md:rounded-2xl p-6 md:p-8 border-2 border-[rgb(98,181,229)]/30">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+              League Table
+            </h2>
+            <p className="text-gray-600">
+              View the main league standings or create your own Mini League to compete with friends!
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <Link href="/leaderboard" className="flex-1 sm:flex-none">
+              <Button className="w-full bg-[rgb(98,181,229)] hover:bg-[rgb(78,145,183)] text-white font-semibold">
+                <Trophy className="mr-2 h-4 w-4" />
+                View League Table
+              </Button>
+            </Link>
+            {session && (
+              <Link href="/leaderboard" className="flex-1 sm:flex-none">
+                <Button variant="outline" className="w-full border-[rgb(98,181,229)] text-[rgb(98,181,229)] hover:bg-[rgb(98,181,229)]/10 font-semibold">
+                  <Users className="mr-2 h-4 w-4" />
+                  Create Mini League
+                </Button>
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="grid md:grid-cols-2 gap-8">
         <div>
           <h2 className="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-3">

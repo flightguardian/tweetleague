@@ -39,7 +39,7 @@ export function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             <Link href="/leaderboard" className="hover:text-sky-200 transition-colors">
-              Leaderboard
+              League Table
             </Link>
             <Link href="/how-it-works" className="hover:text-sky-200 transition-colors">
               How It Works
@@ -104,7 +104,7 @@ export function Header() {
                 className="py-2 px-3 rounded hover:bg-white/10 transition-colors"
                 onClick={closeMobileMenu}
               >
-                Leaderboard
+                League Table
               </Link>
               <Link 
                 href="/how-it-works" 

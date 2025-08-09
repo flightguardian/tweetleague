@@ -136,24 +136,25 @@ export default function LeaderboardPage() {
     <div className="max-w-5xl mx-auto px-4 md:px-6">
       <div className="mb-6 md:mb-8">
         <h1 className="text-2xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-3">
-          {currentSeason ? `${currentSeason.name} League Standings` : 'League Standings'}
+          {currentSeason ? `${currentSeason.name} League Table` : 'League Table'}
         </h1>
         <p className="text-gray-600 text-sm md:text-base">Track the best predictors in the Sky Blues community</p>
       </div>
       
-      {/* Mini League Tabs */}
+      {/* Mini Leagues Section */}
       {session && (
         <div className="mb-4 md:mb-6">
-          <div className="flex flex-wrap items-center gap-2">
+          {/* League Selector Pills */}
+          <div className="flex flex-wrap gap-2 mb-3">
             <button
               onClick={() => handleLeagueChange(null)}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-medium text-sm md:text-base transition-all ${
                 selectedLeague === null
                   ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
                   : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
               }`}
             >
-              <UsersIcon className="inline-block w-4 h-4 mr-2" />
+              <UsersIcon className="inline-block w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
               Main League
             </button>
             
@@ -161,33 +162,34 @@ export default function LeaderboardPage() {
               <button
                 key={league.id}
                 onClick={() => handleLeagueChange(league.id)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg font-medium text-sm md:text-base transition-all ${
                   selectedLeague === league.id
                     ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
                     : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                 }`}
               >
-                {league.name}
-                <span className="ml-2 text-xs opacity-75">({league.member_count})</span>
+                <span className="truncate max-w-[100px] md:max-w-none inline-block">{league.name}</span>
+                <span className="ml-1 text-xs opacity-75">({league.member_count})</span>
               </button>
             ))}
-            
-            <div className="flex gap-2 ml-auto">
-              <button
-                onClick={() => openModal('join')}
-                className="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 font-medium transition-all"
-              >
-                <Plus className="inline-block w-4 h-4 mr-1" />
-                Join League
-              </button>
-              <button
-                onClick={() => openModal('create')}
-                className="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 font-medium transition-all shadow-lg"
-              >
-                <Plus className="inline-block w-4 h-4 mr-1" />
-                Create League
-              </button>
-            </div>
+          </div>
+          
+          {/* Action Buttons - Separate Row on Mobile */}
+          <div className="flex gap-2 justify-center md:justify-start">
+            <button
+              onClick={() => openModal('join')}
+              className="flex-1 md:flex-none px-3 md:px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 font-medium text-sm md:text-base transition-all"
+            >
+              <Plus className="inline-block w-3 h-3 md:w-4 md:h-4 mr-1" />
+              Join Mini League
+            </button>
+            <button
+              onClick={() => openModal('create')}
+              className="flex-1 md:flex-none px-3 md:px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 font-medium text-sm md:text-base transition-all shadow-lg"
+            >
+              <Plus className="inline-block w-3 h-3 md:w-4 md:h-4 mr-1" />
+              Create Mini League
+            </button>
           </div>
         </div>
       )}
