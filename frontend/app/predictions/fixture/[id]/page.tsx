@@ -464,7 +464,7 @@ export default function FixturePredictionsPage() {
                 <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold">Player</th>
                 <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Prediction</th>
                 <th className="px-1 md:px-3 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Pts</th>
-                <th className="hidden md:table-cell px-3 py-3 text-center text-sm font-semibold">Time</th>
+                <th className="hidden md:table-cell px-3 py-3 text-center text-sm font-semibold">Submitted</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -493,7 +493,7 @@ export default function FixturePredictionsPage() {
                         {prediction.username}
                       </div>
                       <div className="text-xs text-gray-500 md:hidden">
-                        {format(new Date(prediction.created_at), 'h:mm a')}
+                        {format(new Date(prediction.created_at), 'MMM d, h:mm a')}
                       </div>
                     </Link>
                   </td>
@@ -505,8 +505,9 @@ export default function FixturePredictionsPage() {
                   <td className="px-1 md:px-3 py-2 md:py-3 text-center font-bold text-sm md:text-base text-[rgb(98,181,229)]">
                     {prediction.user_total_points || 0}
                   </td>
-                  <td className="hidden md:table-cell px-3 py-3 text-center text-sm text-gray-500">
-                    {format(new Date(prediction.created_at), 'h:mm a')}
+                  <td className="hidden md:table-cell px-3 py-3 text-center text-xs md:text-sm text-gray-500">
+                    <div>{format(new Date(prediction.created_at), 'MMM d')}</div>
+                    <div>{format(new Date(prediction.created_at), 'h:mm a')}</div>
                   </td>
                 </tr>
               ))}
