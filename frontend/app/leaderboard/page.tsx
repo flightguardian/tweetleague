@@ -23,6 +23,7 @@ export default function LeaderboardPage() {
   const [modalMode, setModalMode] = useState<'create' | 'join'>('create');
   const [showLeagueSelector, setShowLeagueSelector] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [switchingLeague, setSwitchingLeague] = useState(false);
   const usersPerPage = 50;
 
   useEffect(() => {
@@ -35,6 +36,11 @@ export default function LeaderboardPage() {
   }, [session, currentPage, selectedLeague]);
 
   const fetchCurrentSeasonAndLeaderboard = async () => {
+    // Don't set loading on league switch, use switchingLeague instead
+    if (!loading) {
+      setSwitchingLeague(true);
+    }
+    
     try {
       // First get the current season
       const seasonsResponse = await api.get('/seasons/');
@@ -80,6 +86,7 @@ export default function LeaderboardPage() {
       console.error('Failed to fetch leaderboard:', error);
     } finally {
       setLoading(false);
+      setSwitchingLeague(false);
     }
   };
 
@@ -336,7 +343,17 @@ export default function LeaderboardPage() {
       )}
       
       {/* Table with horizontal scroll and sticky header */}
-      <div className="bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl border border-gray-100 overflow-hidden relative">
+        {/* Loading Overlay for League Switching */}
+        {switchingLeague && (
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-30 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-[rgb(98,181,229)]"></div>
+              <p className="text-sm text-gray-600 font-medium">Loading league data...</p>
+            </div>
+          </div>
+        )}
+        
         {/* Wrapper for horizontal scroll */}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[500px]">
