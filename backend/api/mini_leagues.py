@@ -42,8 +42,8 @@ class MiniLeagueMemberResponse(BaseModel):
     position: int
 
 def generate_invite_code():
-    """Generate a unique 8-character invite code"""
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+    """Generate a unique 8-character invite code using only letters"""
+    return ''.join(random.choices(string.ascii_uppercase, k=8))
 
 @router.post("/create", response_model=MiniLeagueResponse)
 async def create_mini_league(

@@ -201,9 +201,13 @@ export function MiniLeagueModal({ isOpen, onClose, mode, onSuccess }: MiniLeague
                     <input
                       type="text"
                       value={inviteCode}
-                      onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                      onChange={(e) => {
+                        // Only allow letters
+                        const filtered = e.target.value.toUpperCase().replace(/[^A-Z]/g, '');
+                        setInviteCode(filtered);
+                      }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[rgb(98,181,229)] text-center text-xl font-mono uppercase"
-                      placeholder="ABCD1234"
+                      placeholder="ABCDEFGH"
                       maxLength={8}
                     />
                     <p className="text-xs text-gray-500 mt-1">
