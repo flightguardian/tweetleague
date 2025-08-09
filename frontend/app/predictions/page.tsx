@@ -147,21 +147,45 @@ export default function PredictionsPage() {
     }
   };
 
-  const getTimeUntilKickoff = (kickoffTime: string) => {
-    const kickoff = new Date(kickoffTime);
-    const now = new Date();
-    const diff = kickoff.getTime() - now.getTime();
-    
-    if (diff <= 0) return 'In Progress';
-    
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
-    if (days > 0) return `${days}d ${hours}h`;
-    if (hours > 0) return `${hours}h ${minutes}m`;
-    return `${minutes}m`;
-  };
+  const [timers, setTimers] = useState<{ [key: number]: string }>({});
+
+  useEffect(() => {
+    const updateTimers = () => {
+      const newTimers: { [key: number]: string } = {};
+      
+      categorizedPredictions.upcoming.forEach((pred) => {
+        const deadline = new Date(pred.fixture_kickoff);
+        deadline.setMinutes(deadline.getMinutes() - 5); // 5 minutes before kickoff
+        const now = new Date();
+        const diff = deadline.getTime() - now.getTime();
+        
+        if (diff <= 0) {
+          newTimers[pred.id] = 'Entries Closed';
+        } else {
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          
+          if (days > 0) {
+            newTimers[pred.id] = `Closes in ${days}d ${hours}h ${minutes}m`;
+          } else if (hours > 0) {
+            newTimers[pred.id] = `Closes in ${hours}h ${minutes}m ${seconds}s`;
+          } else if (minutes > 0) {
+            newTimers[pred.id] = `Closes in ${minutes}m ${seconds}s`;
+          } else {
+            newTimers[pred.id] = `Closes in ${seconds}s`;
+          }
+        }
+      });
+      
+      setTimers(newTimers);
+    };
+
+    updateTimers();
+    const interval = setInterval(updateTimers, 1000);
+    return () => clearInterval(interval);
+  }, [categorizedPredictions.upcoming]);
 
   const getPointsBadge = (points: number) => {
     if (points === 3) {
@@ -320,7 +344,7 @@ export default function PredictionsPage() {
                         </div>
                       </div>
                       <div className="text-xs md:text-sm font-bold px-2 md:px-3 py-1 rounded-full bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)]">
-                        {getTimeUntilKickoff(pred.fixture_kickoff)}
+                        {timers[pred.id] || 'Loading...'}
                       </div>
                     </div>
                     
