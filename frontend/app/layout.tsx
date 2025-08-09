@@ -63,6 +63,15 @@ export default function RootLayout({
                     <span className="text-sm">@covtweetleague</span>
                   </a>
                 </div>
+                <div className="flex items-center justify-center gap-4 mt-3">
+                  <a href="/privacy" className="text-xs opacity-75 hover:text-[rgb(98,181,229)] transition-colors">
+                    Privacy Policy
+                  </a>
+                  <span className="text-xs opacity-50">•</span>
+                  <a href="/how-it-works" className="text-xs opacity-75 hover:text-[rgb(98,181,229)] transition-colors">
+                    How It Works
+                  </a>
+                </div>
                 <p className="text-xs mt-3 opacity-50">Unofficial Coventry City fan site</p>
               </div>
             </footer>

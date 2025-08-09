@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   User, Mail, Trophy, Target, Calendar, Shield, 
   Edit2, Save, X, Lock, Bell, BellOff, CheckCircle,
-  TrendingUp, Award, Star, Twitter
+  TrendingUp, Award, Star, Twitter, Trash2, AlertTriangle
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -32,6 +32,11 @@ export default function ProfilePage() {
     new_password: '',
     confirm_password: ''
   });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [deletionPreview, setDeletionPreview] = useState<any>(null);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -621,9 +626,184 @@ export default function ProfilePage() {
                   : 'Signed in with email and password'}
               </p>
             </div>
+            
+            {/* Account Deletion Section */}
+            <div className="mt-8 pt-8 border-t">
+              <h3 className="font-semibold mb-3 text-red-600">Danger Zone</h3>
+              <div className="p-4 border-2 border-red-200 rounded-lg bg-red-50">
+                <h4 className="font-medium text-red-800 mb-2">Delete Account</h4>
+                <p className="text-sm text-red-700 mb-4">
+                  Permanently delete your account and all associated data. This action cannot be undone.
+                </p>
+                <Button
+                  variant="destructive"
+                  onClick={async () => {
+                    // Fetch deletion preview first
+                    try {
+                      const response = await api.get('/account/deletion-preview');
+                      setDeletionPreview(response.data);
+                      setShowDeleteModal(true);
+                    } catch (error) {
+                      toast({
+                        title: 'Error',
+                        description: 'Failed to load deletion preview',
+                        variant: 'destructive'
+                      });
+                    }
+                  }}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete My Account
+                </Button>
+              </div>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b">
+              <h2 className="text-2xl font-bold text-red-600 flex items-center gap-2">
+                <AlertTriangle className="h-6 w-6" />
+                Delete Account Permanently
+              </h2>
+            </div>
+            
+            <div className="p-6">
+              {deletionPreview && (
+                <div className="mb-6">
+                  <h3 className="font-semibold mb-3">This will permanently delete:</h3>
+                  <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Predictions:</span>
+                      <span className="font-medium">{deletionPreview.data_to_be_deleted.predictions}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Statistics:</span>
+                      <span className="font-medium">{deletionPreview.data_to_be_deleted.user_stats}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Notifications:</span>
+                      <span className="font-medium">{deletionPreview.data_to_be_deleted.notifications}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Mini League Memberships:</span>
+                      <span className="font-medium">{deletionPreview.data_to_be_deleted.mini_league_memberships}</span>
+                    </div>
+                    {deletionPreview.data_to_be_deleted.mini_leagues_you_admin?.length > 0 && (
+                      <div className="pt-2 border-t">
+                        <p className="text-sm text-orange-600 font-medium mb-1">Mini Leagues You Admin:</p>
+                        {deletionPreview.data_to_be_deleted.mini_leagues_you_admin.map((league: any, idx: number) => (
+                          <p key={idx} className="text-xs text-gray-600 ml-2">
+                            • {league.name} ({league.member_count} members)
+                            {league.will_be_deleted ? ' - Will be deleted' : ' - Will transfer to another member'}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-red-800 font-medium mb-2">
+                  ⚠️ This action is permanent and cannot be undone!
+                </p>
+                <p className="text-xs text-red-700">
+                  All your data will be permanently deleted in compliance with GDPR.
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Type "DELETE" to confirm
+                  </label>
+                  <Input
+                    value={deleteConfirmation}
+                    onChange={(e) => setDeleteConfirmation(e.target.value)}
+                    placeholder="Type DELETE"
+                    className="border-red-300 focus:border-red-500"
+                  />
+                </div>
+                
+                {showPasswordSection && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Enter your password to confirm
+                    </label>
+                    <Input
+                      type="password"
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                      placeholder="Enter your password"
+                      className="border-red-300 focus:border-red-500"
+                    />
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex gap-3 mt-6">
+                <Button
+                  variant="destructive"
+                  onClick={async () => {
+                    if (deleteConfirmation !== 'DELETE') {
+                      toast({
+                        title: 'Error',
+                        description: 'Please type DELETE to confirm',
+                        variant: 'destructive'
+                      });
+                      return;
+                    }
+                    
+                    setDeleting(true);
+                    try {
+                      await api.delete('/account/delete', {
+                        data: {
+                          confirmation: deleteConfirmation,
+                          password: showPasswordSection ? deletePassword : undefined
+                        }
+                      });
+                      
+                      // Sign out and redirect
+                      const { signOut } = await import('next-auth/react');
+                      await signOut({ callbackUrl: '/' });
+                    } catch (error: any) {
+                      toast({
+                        title: 'Error',
+                        description: error.response?.data?.detail || 'Failed to delete account',
+                        variant: 'destructive'
+                      });
+                      setDeleting(false);
+                    }
+                  }}
+                  disabled={deleting || deleteConfirmation !== 'DELETE' || (showPasswordSection && !deletePassword)}
+                  className="flex-1 bg-red-600 hover:bg-red-700"
+                >
+                  {deleting ? 'Deleting...' : 'Delete My Account'}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setDeleteConfirmation('');
+                    setDeletePassword('');
+                    setDeletionPreview(null);
+                  }}
+                  disabled={deleting}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
