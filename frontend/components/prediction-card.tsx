@@ -263,21 +263,33 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
                   Your Prediction Submitted!
                 </p>
               </div>
-              <div className="flex items-center justify-center gap-3 py-2">
-                <div className="text-center">
-                  <p className="text-xs text-gray-600 mb-1">{fixture.home_team}</p>
-                  <div className="text-2xl md:text-3xl font-bold text-green-700">
-                    {homePrediction}
+              
+              {/* Prediction Display - Rebuilt for better alignment */}
+              <div className="bg-white/50 rounded-lg py-3 px-4">
+                <div className="flex items-center justify-center gap-4 md:gap-6">
+                  {/* Home Team */}
+                  <div className="flex-1 text-center">
+                    <p className="text-xs text-gray-600 mb-1">{fixture.home_team}</p>
+                    <div className="text-2xl md:text-3xl font-bold text-green-700">
+                      {homePrediction}
+                    </div>
                   </div>
-                </div>
-                <div className="text-lg md:text-xl font-bold text-gray-400">-</div>
-                <div className="text-center">
-                  <p className="text-xs text-gray-600 mb-1">{fixture.away_team}</p>
-                  <div className="text-2xl md:text-3xl font-bold text-green-700">
-                    {awayPrediction}
+                  
+                  {/* Dash - Properly centered */}
+                  <div className="flex items-center justify-center">
+                    <span className="text-xl md:text-2xl font-bold text-gray-400">-</span>
+                  </div>
+                  
+                  {/* Away Team */}
+                  <div className="flex-1 text-center">
+                    <p className="text-xs text-gray-600 mb-1">{fixture.away_team}</p>
+                    <div className="text-2xl md:text-3xl font-bold text-green-700">
+                      {awayPrediction}
+                    </div>
                   </div>
                 </div>
               </div>
+              
               <p className="text-xs text-green-600 mt-3 text-center">
                 ⏰ You can update until {(() => {
                   const deadline = new Date(fixture.kickoff_time);
