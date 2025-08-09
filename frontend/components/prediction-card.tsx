@@ -257,32 +257,30 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
           {/* Show existing prediction message if user has already predicted */}
           {session && hasExistingPrediction && !isEditing && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-3 md:p-4">
-              <div className="flex items-start gap-2 md:gap-3">
-                <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-green-600 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-semibold text-green-800 text-sm md:text-base">
-                    Your Prediction Submitted!
-                  </p>
-                  <div className="mt-3 flex items-center justify-center gap-3 py-2">
-                    <div className="text-center">
-                      <p className="text-xs text-gray-600 mb-1">{fixture.home_team}</p>
-                      <div className="text-2xl md:text-3xl font-bold text-green-700">
-                        {homePrediction}
-                      </div>
-                    </div>
-                    <div className="text-lg md:text-xl font-bold text-gray-400">-</div>
-                    <div className="text-center">
-                      <p className="text-xs text-gray-600 mb-1">{fixture.away_team}</p>
-                      <div className="text-2xl md:text-3xl font-bold text-green-700">
-                        {awayPrediction}
-                      </div>
-                    </div>
+              <div className="flex items-center gap-2 md:gap-3 mb-3">
+                <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-green-600 flex-shrink-0" />
+                <p className="font-semibold text-green-800 text-sm md:text-base">
+                  Your Prediction Submitted!
+                </p>
+              </div>
+              <div className="flex items-center justify-center gap-3 py-2">
+                <div className="text-center">
+                  <p className="text-xs text-gray-600 mb-1">{fixture.home_team}</p>
+                  <div className="text-2xl md:text-3xl font-bold text-green-700">
+                    {homePrediction}
                   </div>
-                  <p className="text-xs text-green-600 mt-3 text-center">
-                    ⏰ You can update until {format(new Date(fixture.kickoff_time), 'h:mm a')} (5 mins before kickoff)
-                  </p>
+                </div>
+                <div className="text-lg md:text-xl font-bold text-gray-400">-</div>
+                <div className="text-center">
+                  <p className="text-xs text-gray-600 mb-1">{fixture.away_team}</p>
+                  <div className="text-2xl md:text-3xl font-bold text-green-700">
+                    {awayPrediction}
+                  </div>
                 </div>
               </div>
+              <p className="text-xs text-green-600 mt-3 text-center">
+                ⏰ You can update until {format(new Date(fixture.kickoff_time), 'h:mm a')} (5 mins before kickoff)
+              </p>
               <button
                 type="button"
                 onClick={() => setIsEditing(true)}
@@ -410,22 +408,22 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
         {fixture.predictions_count === 0 ? (
           <p className="text-xs md:text-sm text-gray-500">Be the first to predict!</p>
         ) : (
-          <Link 
-            href={`/predictions/fixture/${fixture.id}`}
-            className="group inline-flex items-center gap-2 text-xs md:text-sm text-[rgb(98,181,229)] hover:text-[rgb(78,145,183)] transition-colors"
-          >
-            <Users className="h-4 w-4" />
-            <span className="underline">
-              {fixture.predictions_count === 1
-                ? "1 player has predicted"
-                : `${fixture.predictions_count} players predicted`}
-            </span>
-          </Link>
-        )}
-        {fixture.predictions_count > 0 && !fixture.can_predict && (
-          <p className="text-xs text-gray-400 mt-1">
-            View all predictions and stats
-          </p>
+          <div>
+            <Link 
+              href={`/predictions/fixture/${fixture.id}`}
+              className="group inline-flex items-center gap-2 text-xs md:text-sm text-[rgb(98,181,229)] hover:text-[rgb(78,145,183)] transition-colors"
+            >
+              <Users className="h-4 w-4" />
+              <span className="underline">
+                {fixture.predictions_count === 1
+                  ? "1 player has predicted"
+                  : `${fixture.predictions_count} players predicted`}
+              </span>
+            </Link>
+            <p className="text-xs text-gray-400 mt-1">
+              Click to view all predictions{!fixture.can_predict && ' and stats'}
+            </p>
+          </div>
         )}
       </div>
     </div>

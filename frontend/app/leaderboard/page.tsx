@@ -191,27 +191,32 @@ export default function LeaderboardPage() {
               {/* Dropdown Menu */}
               {showLeagueSelector && (
                 <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
-                  <button
-                    onClick={() => {
-                      handleLeagueChange(null);
-                      setShowLeagueSelector(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                      selectedLeague === null
-                        ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
-                        : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    Main League
-                  </button>
+                  {/* Main League - with border */}
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => {
+                        handleLeagueChange(null);
+                        setShowLeagueSelector(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 transition-all ${
+                        selectedLeague === null
+                          ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
+                          : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      Main League
+                    </button>
+                  </div>
+                  
+                  {/* Mini Leagues - each with their own border */}
                   {miniLeagues.map((league) => (
-                    <div key={league.id} className="space-y-1">
+                    <div key={league.id} className="border border-gray-200 rounded-lg overflow-hidden">
                       <button
                         onClick={() => {
                           handleLeagueChange(league.id);
                           setShowLeagueSelector(false);
                         }}
-                        className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
+                        className={`w-full text-left px-3 py-2 transition-all ${
                           selectedLeague === league.id
                             ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
                             : 'hover:bg-gray-50'
@@ -223,15 +228,15 @@ export default function LeaderboardPage() {
                         </div>
                       </button>
                       {league.is_admin && (
-                        <div className="ml-3 flex items-center gap-2 text-xs text-gray-600">
+                        <div className="border-t border-gray-200 bg-gray-50 px-3 py-2 flex items-center gap-2 text-xs text-gray-600">
                           <span className="font-medium">Invite:</span>
-                          <code className="bg-gray-100 px-2 py-0.5 rounded">{league.invite_code}</code>
+                          <code className="bg-white px-2 py-0.5 rounded border border-gray-200">{league.invite_code}</code>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               copyInviteCode(league.invite_code, league.name);
                             }}
-                            className="p-1 hover:bg-gray-100 rounded"
+                            className="p-1 hover:bg-gray-200 rounded transition-colors"
                           >
                             {copiedCode === league.invite_code ? (
                               <Check className="w-3 h-3 text-green-600" />
