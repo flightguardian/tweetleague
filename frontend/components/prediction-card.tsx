@@ -446,7 +446,10 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
                 </span>
               </div>
               <p className="text-xs text-gray-500 mt-0.5">
-                View all predictions{!fixture.can_predict && ' and stats'}
+                {session 
+                  ? `View all predictions • Filter by your leagues`
+                  : `View all predictions${!fixture.can_predict ? ' and stats' : ''}`
+                }
               </p>
             </button>
           </Link>
