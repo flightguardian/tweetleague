@@ -256,18 +256,27 @@ export default function FixturePredictionsPage() {
         <>
           {/* Mobile Dropdown */}
           <div className="md:hidden bg-white rounded-xl shadow-lg p-4 mb-6 border border-gray-100">
+            <div className="mb-2">
+              <p className="text-xs text-gray-500 font-medium">FILTER PREDICTIONS BY:</p>
+            </div>
             <div className="bg-white rounded-lg border-2 border-[rgb(98,181,229)]/30 p-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-[rgb(98,181,229)]" />
-                  <span className="font-semibold text-gray-800 text-sm">
-                    {selectedLeague ? miniLeagues.find(l => l.id === selectedLeague)?.name : 'All Predictions'}
-                  </span>
-                  {selectedLeague && (
-                    <span className="text-xs text-gray-500">
-                      ({miniLeagues.find(l => l.id === selectedLeague)?.member_count})
+                  <div>
+                    <span className="font-semibold text-gray-800 text-sm">
+                      {selectedLeague ? miniLeagues.find(l => l.id === selectedLeague)?.name : 'Everyone'}
                     </span>
-                  )}
+                    {selectedLeague ? (
+                      <span className="text-xs text-gray-500 ml-1">
+                        ({miniLeagues.find(l => l.id === selectedLeague)?.member_count} members)
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-500 ml-1">
+                        (All {predictions.length} predictions)
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={() => setShowLeagueSelector(!showLeagueSelector)}
@@ -280,6 +289,7 @@ export default function FixturePredictionsPage() {
               {/* Dropdown Menu */}
               {showLeagueSelector && (
                 <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
+                  <p className="text-xs text-gray-500 mb-2">Select who to view:</p>
                   <div className="border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => {
@@ -292,10 +302,16 @@ export default function FixturePredictionsPage() {
                           : 'hover:bg-gray-50'
                       }`}
                     >
-                      All Predictions
+                      <div className="flex justify-between items-center">
+                        <span>🌍 Everyone</span>
+                        <span className="text-xs text-gray-500">All predictions</span>
+                      </div>
                     </button>
                   </div>
                   
+                  {miniLeagues.length > 0 && (
+                    <div className="text-xs text-gray-500 mt-2 mb-1">Your mini leagues:</div>
+                  )}
                   {miniLeagues.map((league) => (
                     <div key={league.id} className="border border-gray-200 rounded-lg overflow-hidden">
                       <button
@@ -310,8 +326,8 @@ export default function FixturePredictionsPage() {
                         }`}
                       >
                         <div className="flex justify-between items-center">
-                          <span>{league.name}</span>
-                          <span className="text-xs text-gray-500">({league.member_count})</span>
+                          <span>👥 {league.name}</span>
+                          <span className="text-xs text-gray-500">{league.member_count} members</span>
                         </div>
                       </button>
                     </div>
@@ -323,6 +339,9 @@ export default function FixturePredictionsPage() {
 
           {/* Desktop Buttons */}
           <div className="hidden md:block bg-white rounded-xl shadow-lg p-4 mb-6 border border-gray-100">
+            <div className="mb-3">
+              <p className="text-sm text-gray-600 font-medium">Filter predictions by group:</p>
+            </div>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setSelectedLeague(null)}
@@ -332,7 +351,8 @@ export default function FixturePredictionsPage() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                All Predictions
+                🌍 Everyone
+                <span className="ml-2 text-xs opacity-75">({predictions.length})</span>
               </button>
               {miniLeagues.map((league) => (
                 <button
@@ -344,13 +364,22 @@ export default function FixturePredictionsPage() {
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {league.name}
+                  👥 {league.name}
                   <span className="ml-2 text-xs opacity-75">({league.member_count})</span>
                 </button>
               ))}
             </div>
           </div>
         </>
+      )}
+
+      {/* Info box for non-logged in users */}
+      {!session && predictions.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+          <p className="text-sm text-blue-800">
+            <span className="font-semibold">Viewing all predictions</span> - Sign in to filter by your mini leagues
+          </p>
+        </div>
       )}
 
       {/* Stats Summary - Mobile First */}
@@ -420,64 +449,58 @@ export default function FixturePredictionsPage() {
               : 'Latest Predictions'
             }
           </h2>
+          <p className="text-xs text-gray-600 mt-1">
+            Pos = Current league position • Prediction • Season points total
+          </p>
         </div>
         
         <div className="divide-y divide-gray-200">
           {sortedPredictions.map((prediction, index) => (
             <div key={prediction.id} className="p-3 hover:bg-gray-50 transition-colors">
               {/* Compact Mobile Layout */}
-              <div className="flex items-center justify-between gap-3">
-                {/* Left: User Info - Compact */}
+              <div className="flex items-center justify-between gap-2">
+                {/* Left: Position and User */}
                 <div className="flex items-center gap-2 flex-1 min-w-0">
-                  {/* Position Badge - Smaller */}
-                  <div className="flex-shrink-0">
+                  {/* Position Badge */}
+                  <div className="flex-shrink-0 w-10 text-center">
                     {prediction.user_position && prediction.user_position <= 3 ? (
-                      getPositionBadge(prediction.user_position)
+                      <div>
+                        {getPositionBadge(prediction.user_position)}
+                      </div>
                     ) : (
-                      <span className="text-xs font-semibold text-gray-500">
-                        #{prediction.user_position || '-'}
-                      </span>
+                      <div className="bg-gray-100 rounded px-1 py-0.5">
+                        <span className="text-xs font-bold text-gray-600">
+                          #{prediction.user_position || '-'}
+                        </span>
+                      </div>
                     )}
                   </div>
                   
-                  {/* Username - Truncated */}
+                  {/* Username */}
                   <div className="min-w-0 flex-1">
                     <Link 
                       href={`/user/${prediction.username}`}
                       className="font-medium text-sm hover:text-[rgb(98,181,229)] transition-colors truncate block"
                     >
-                      {prediction.username.length > 15 
-                        ? prediction.username.substring(0, 15) + '...' 
-                        : prediction.username}
+                      {prediction.username}
                     </Link>
-                    <div className="text-xs text-gray-500">
-                      {prediction.user_total_points || 0} pts
-                      {prediction.user_avg_points && (
-                        <span> • {prediction.user_avg_points.toFixed(1)} avg</span>
-                      )}
-                    </div>
                   </div>
                 </div>
 
                 {/* Center: Prediction Score */}
-                <div className="flex-shrink-0 text-center">
-                  <div className="text-xl font-bold">
+                <div className="flex-shrink-0 bg-white border border-gray-200 rounded-lg px-3 py-1">
+                  <div className="text-lg font-bold text-center">
                     {prediction.home_prediction} - {prediction.away_prediction}
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    {format(new Date(prediction.created_at), 'h:mm a')}
                   </div>
                 </div>
 
-                {/* Right: Total Points */}
-                <div className="flex-shrink-0">
-                  {/* Show user's current total points */}
-                  <div className="text-center bg-gray-50 rounded-lg px-2 py-1">
-                    <div className="text-xs text-gray-500">Total</div>
-                    <div className="text-lg font-bold text-[rgb(98,181,229)]">
-                      {prediction.user_total_points || 0}
-                    </div>
-                    <div className="text-xs text-gray-500">pts</div>
+                {/* Right: Points Info */}
+                <div className="flex-shrink-0 text-right">
+                  <div className="text-sm font-semibold text-gray-700">
+                    {prediction.user_total_points || 0} pts
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {format(new Date(prediction.created_at), 'h:mm a')}
                   </div>
                 </div>
               </div>
