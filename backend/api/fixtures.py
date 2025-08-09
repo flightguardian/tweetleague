@@ -6,7 +6,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from database.base import get_db
 from models.models import Fixture, FixtureStatus, CompetitionType, User, Season
-from utils.auth import get_current_user
+from utils.auth import get_current_user, get_current_user_optional
 import pytz
 
 router = APIRouter()
@@ -24,6 +24,7 @@ class FixtureResponse(BaseModel):
     round: Optional[str] = None
     can_predict: bool = False
     predictions_count: int = 0
+    user_prediction: Optional[dict] = None
 
 @router.get("/", response_model=List[FixtureResponse])
 def get_all_fixtures(
@@ -72,7 +73,8 @@ def get_all_fixtures(
 
 @router.get("/next", response_model=FixtureResponse)
 def get_next_fixture(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     now = datetime.now(pytz.UTC)
     
@@ -102,6 +104,25 @@ def get_next_fixture(
     
     predictions_count = len(next_fixture.predictions)
     
+    # Get user's prediction if they're logged in
+    user_prediction = None
+    if current_user:
+        from models.models import Prediction
+        existing_prediction = db.query(Prediction).filter(
+            and_(
+                Prediction.user_id == current_user.id,
+                Prediction.fixture_id == next_fixture.id
+            )
+        ).first()
+        
+        if existing_prediction:
+            user_prediction = {
+                "home_prediction": existing_prediction.home_prediction,
+                "away_prediction": existing_prediction.away_prediction,
+                "created_at": existing_prediction.created_at,
+                "updated_at": existing_prediction.updated_at
+            }
+    
     return FixtureResponse(
         id=next_fixture.id,
         home_team=next_fixture.home_team,
@@ -114,7 +135,8 @@ def get_next_fixture(
         season=next_fixture.season.name if next_fixture.season else "Unknown",
         round=next_fixture.round,
         can_predict=can_predict,
-        predictions_count=predictions_count
+        predictions_count=predictions_count,
+        user_prediction=user_prediction
     )
 
 @router.get("/upcoming", response_model=List[FixtureResponse])

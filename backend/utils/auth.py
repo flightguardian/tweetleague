@@ -10,6 +10,7 @@ from models.models import User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/api/auth/token", auto_error=False)
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -53,6 +54,28 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         print(f"User with ID {user_id} not found in database")
         raise credentials_exception
     print(f"User authenticated: {user.email}")
+    return user
+
+async def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme_optional), db: Session = Depends(get_db)):
+    """
+    Similar to get_current_user but returns None if no token is provided
+    instead of raising an exception. Used for endpoints that work with
+    or without authentication.
+    """
+    if not token:
+        return None
+    
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id is None:
+            return None
+        # Convert to int if it's a string
+        user_id = int(user_id) if isinstance(user_id, str) else user_id
+    except (JWTError, ValueError):
+        return None
+    
+    user = db.query(User).filter(User.id == user_id).first()
     return user
 
 async def get_current_admin_user(current_user: User = Depends(get_current_user)):
