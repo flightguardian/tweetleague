@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { api } from '@/lib/api';
-import { Trophy, Medal, Award, User, TrendingUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Target, Plus, Users as UsersIcon, ChevronDown } from 'lucide-react';
+import { Trophy, Medal, Award, User, TrendingUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Target, Plus, Users as UsersIcon, ChevronDown, Info, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
 import { TopLeaderboard } from '@/components/top-leaderboard';
 import { MiniLeagueModal } from '@/components/mini-league-modal';
+import { toast } from '@/hooks/use-toast';
 
 export default function LeaderboardPage() {
   const { data: session } = useSession();
@@ -21,6 +22,7 @@ export default function LeaderboardPage() {
   const [showLeagueModal, setShowLeagueModal] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'join'>('create');
   const [showLeagueSelector, setShowLeagueSelector] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const usersPerPage = 50;
 
   useEffect(() => {
@@ -98,6 +100,16 @@ export default function LeaderboardPage() {
   const openModal = (mode: 'create' | 'join') => {
     setModalMode(mode);
     setShowLeagueModal(true);
+  };
+
+  const copyInviteCode = (code: string, leagueName: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    toast({
+      title: 'Invite Code Copied!',
+      description: `Code for ${leagueName}: ${code}`,
+    });
+    setTimeout(() => setCopiedCode(null), 2000);
   };
 
   const getPositionIcon = (position: number) => {
@@ -186,23 +198,43 @@ export default function LeaderboardPage() {
                     Main League
                   </button>
                   {miniLeagues.map((league) => (
-                    <button
-                      key={league.id}
-                      onClick={() => {
-                        handleLeagueChange(league.id);
-                        setShowLeagueSelector(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
-                        selectedLeague === league.id
-                          ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
-                          : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span>{league.name}</span>
-                        <span className="text-xs text-gray-500">({league.member_count})</span>
-                      </div>
-                    </button>
+                    <div key={league.id} className="space-y-1">
+                      <button
+                        onClick={() => {
+                          handleLeagueChange(league.id);
+                          setShowLeagueSelector(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
+                          selectedLeague === league.id
+                            ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
+                            : 'hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span>{league.name}</span>
+                          <span className="text-xs text-gray-500">({league.member_count})</span>
+                        </div>
+                      </button>
+                      {league.is_admin && (
+                        <div className="ml-3 flex items-center gap-2 text-xs text-gray-600">
+                          <span className="font-medium">Invite:</span>
+                          <code className="bg-gray-100 px-2 py-0.5 rounded">{league.invite_code}</code>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyInviteCode(league.invite_code, league.name);
+                            }}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            {copiedCode === league.invite_code ? (
+                              <Check className="w-3 h-3 text-green-600" />
+                            ) : (
+                              <Copy className="w-3 h-3" />
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
@@ -243,18 +275,43 @@ export default function LeaderboardPage() {
               </button>
               
               {miniLeagues.map((league) => (
-                <button
-                  key={league.id}
-                  onClick={() => handleLeagueChange(league.id)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    selectedLeague === league.id
-                      ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
-                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-                  }`}
-                >
-                  {league.name}
-                  <span className="ml-2 text-xs opacity-75">({league.member_count})</span>
-                </button>
+                <div key={league.id} className="relative group">
+                  <button
+                    onClick={() => handleLeagueChange(league.id)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      selectedLeague === league.id
+                        ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
+                        : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                    }`}
+                  >
+                    {league.name}
+                    <span className="ml-2 text-xs opacity-75">({league.member_count})</span>
+                    {league.is_admin && (
+                      <Info className="inline-block w-3 h-3 ml-2 opacity-60" />
+                    )}
+                  </button>
+                  {league.is_admin && (
+                    <div className="absolute top-full left-0 mt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-20 whitespace-nowrap">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="font-medium text-gray-700">Invite Code:</span>
+                        <code className="bg-gray-100 px-2 py-1 rounded font-mono">{league.invite_code}</code>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            copyInviteCode(league.invite_code, league.name);
+                          }}
+                          className="p-1 hover:bg-gray-100 rounded transition-colors"
+                        >
+                          {copiedCode === league.invite_code ? (
+                            <Check className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <Copy className="w-4 h-4 text-gray-600" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
             
