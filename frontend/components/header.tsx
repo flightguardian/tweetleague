@@ -26,7 +26,11 @@ export function Header() {
       <div className="container mx-auto px-4 py-4 md:py-5">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 md:space-x-3 group" onClick={closeMobileMenu}>
+          <Link 
+            href="/" 
+            className="flex items-center space-x-2 md:space-x-3 group relative z-10 -ml-2 pl-2 -my-2 py-2" 
+            onClick={closeMobileMenu}
+          >
             <div className="bg-white/20 p-1.5 md:p-2 rounded-lg group-hover:bg-white/30 transition-colors">
               <Trophy className="h-6 w-6 md:h-8 md:w-8" />
             </div>
@@ -84,7 +88,7 @@ export function Header() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors relative z-10 -mr-2"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (

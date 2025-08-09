@@ -153,7 +153,11 @@ export default function PredictionsPage() {
     const updateTimers = () => {
       const newTimers: { [key: number]: string } = {};
       
-      categorizedPredictions.upcoming.forEach((pred) => {
+      // Use predictions directly instead of categorizedPredictions to avoid recreating dependency
+      predictions.filter(p => 
+        p.fixture_home_score === null && 
+        new Date(p.fixture_kickoff) > new Date()
+      ).forEach((pred) => {
         const deadline = new Date(pred.fixture_kickoff);
         deadline.setMinutes(deadline.getMinutes() - 5); // 5 minutes before kickoff
         const now = new Date();
@@ -182,10 +186,12 @@ export default function PredictionsPage() {
       setTimers(newTimers);
     };
 
-    updateTimers();
-    const interval = setInterval(updateTimers, 1000);
-    return () => clearInterval(interval);
-  }, [categorizedPredictions.upcoming]);
+    if (predictions.length > 0) {
+      updateTimers();
+      const interval = setInterval(updateTimers, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [predictions]);
 
   const getPointsBadge = (points: number) => {
     if (points === 3) {
