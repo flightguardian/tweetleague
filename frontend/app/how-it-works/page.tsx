@@ -96,7 +96,7 @@ export default function HowItWorksPage() {
               <div>
                 <h3 className="font-semibold mb-1">Create Your Account</h3>
                 <p className="text-gray-600">
-                  Sign up using your email address, Twitter/X account, or Google account. 
+                  Sign up using your email address or Twitter/X account. 
                   It's completely free and takes less than a minute! Twitter users get instant verification.
                 </p>
               </div>
@@ -107,7 +107,7 @@ export default function HowItWorksPage() {
                 <h3 className="font-semibold mb-1">Verify Your Email</h3>
                 <p className="text-gray-600">
                   Email users need to verify their address to make predictions. Check your inbox (and spam folder) 
-                  for the verification link. Twitter/Google users are automatically verified!
+                  for the verification link. Twitter users are automatically verified!
                 </p>
               </div>
             </div>

@@ -149,7 +149,14 @@ export default function LeaderboardPage() {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading leaderboard...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[rgb(98,181,229)] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading league table...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
