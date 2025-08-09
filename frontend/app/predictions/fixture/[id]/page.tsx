@@ -81,10 +81,19 @@ export default function FixturePredictionsPage() {
         setFixture(fixtureResponse.data);
       }
 
-      // Fetch predictions with user stats, optionally filtered by mini league
-      const params = selectedLeague ? { mini_league_id: selectedLeague } : {};
+      // Fetch predictions with user stats, optionally filtered by mini league, with pagination
+      const offset = (currentPage - 1) * predictionsPerPage;
+      const params: any = { 
+        limit: predictionsPerPage,
+        offset: offset
+      };
+      if (selectedLeague) {
+        params.mini_league_id = selectedLeague;
+      }
+      
       const predictionsResponse = await api.get(`/predictions/fixture/${fixtureId}/detailed`, { params });
-      setPredictions(predictionsResponse.data);
+      setPredictions(predictionsResponse.data.predictions || []);
+      setTotalPredictions(predictionsResponse.data.total || 0);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
