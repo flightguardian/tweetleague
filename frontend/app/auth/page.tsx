@@ -186,30 +186,35 @@ export default function AuthPage() {
         <div className="p-6">
           {/* Import Alert for Sign Up */}
           {!isLogin && showImportAlert && (
-            <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg relative">
+            <div className="mb-4 p-3 md:p-4 bg-amber-50 border border-amber-200 rounded-lg relative">
               <button
                 onClick={dismissImportAlert}
-                className="absolute top-2 right-2 text-amber-600 hover:text-amber-800 transition-colors"
+                className="absolute top-2 right-2 text-amber-600 hover:text-amber-800 transition-colors p-1"
                 aria-label="Dismiss alert"
               >
                 <X className="h-4 w-4" />
               </button>
-              <div className="flex gap-3 pr-6">
-                <Info className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                <div className="space-y-1">
+              <div className="pr-8">
+                <div className="flex gap-2 mb-2">
+                  <Info className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
                   <p className="text-sm font-semibold text-amber-800">
-                    Already predicted Coventry vs Hull on Twitter?
+                    Predicted Coventry vs Hull on Twitter?
                   </p>
-                  <p className="text-xs text-amber-700">
-                    If you made a prediction for the Coventry vs Hull match on Twitter, please add your Twitter/X handle below when signing up. We'll import your prediction automatically!
-                  </p>
-                  <button
-                    onClick={dismissImportAlert}
-                    className="text-xs text-amber-600 hover:text-amber-800 underline mt-2"
-                  >
-                    Don't show this again
-                  </button>
                 </div>
+                <div className="space-y-2 text-xs text-amber-700">
+                  <p>
+                    <strong>Option 1:</strong> Add your Twitter handle below and we'll import your prediction in the near future.
+                  </p>
+                  <p>
+                    <strong>Option 2:</strong> Sign in with Twitter instead and we'll automatically get your handle.
+                  </p>
+                </div>
+                <button
+                  onClick={dismissImportAlert}
+                  className="text-xs text-amber-600 hover:text-amber-800 underline mt-2"
+                >
+                  Don't show this again
+                </button>
               </div>
             </div>
           )}
@@ -252,7 +257,7 @@ export default function AuthPage() {
                     Twitter/X Handle 
                     <span className="text-gray-400 font-normal ml-1">(optional)</span>
                     {showImportAlert && (
-                      <span className="text-amber-600 font-normal ml-1">- Important for Hull match import!</span>
+                      <span className="text-amber-600 font-normal ml-1 text-xs block md:inline">- For Hull match import</span>
                     )}
                   </Label>
                   <div className="relative">

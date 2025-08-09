@@ -13,8 +13,9 @@ import { toast } from '@/hooks/use-toast';
 import { 
   Trophy, Target, Clock, Calendar, Edit2, Save, X, 
   CheckCircle, AlertCircle, Timer, ChevronDown, ChevronUp,
-  TrendingUp, TrendingDown, Minus, Award
+  TrendingUp, TrendingDown, Minus, Award, Users
 } from 'lucide-react';
+import Link from 'next/link';
 
 interface Prediction {
   id: number;
@@ -471,6 +472,29 @@ export default function PredictionsPage() {
                         Last updated: {format(new Date(pred.updated_at), 'MMM d, h:mm a')}
                       </p>
                     )}
+                    
+                    {/* View All Predictions Button */}
+                    <div className="mt-4 pt-3 border-t border-gray-100">
+                      <Link href={`/predictions/fixture/${pred.fixture_id}`}>
+                        <button className="w-full px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-150 border border-gray-200 rounded-lg transition-all group">
+                          <div className="flex items-center justify-center gap-2">
+                            <Users className="h-4 w-4 text-[rgb(98,181,229)]" />
+                            <span className="text-sm font-medium text-gray-700">
+                              View all predictions for this match
+                            </span>
+                            <span className="text-[rgb(98,181,229)] group-hover:translate-x-1 transition-transform">
+                              →
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {session 
+                              ? `See how others predicted • Filter by your leagues`
+                              : `See all predictions and stats`
+                            }
+                          </p>
+                        </button>
+                      </Link>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -553,6 +577,26 @@ export default function PredictionsPage() {
                       <p className="text-xs text-gray-500 text-center mt-2">
                         Waiting for final result
                       </p>
+                    </div>
+                    
+                    {/* View All Predictions Button */}
+                    <div className="mt-4 pt-3 border-t border-gray-100">
+                      <Link href={`/predictions/fixture/${pred.fixture_id}`}>
+                        <button className="w-full px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-150 border border-gray-200 rounded-lg transition-all group">
+                          <div className="flex items-center justify-center gap-2">
+                            <Users className="h-4 w-4 text-[rgb(98,181,229)]" />
+                            <span className="text-sm font-medium text-gray-700">
+                              View all predictions for this match
+                            </span>
+                            <span className="text-[rgb(98,181,229)] group-hover:translate-x-1 transition-transform">
+                              →
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            See how others are predicting
+                          </p>
+                        </button>
+                      </Link>
                     </div>
                   </div>
                 ))}
@@ -648,6 +692,26 @@ export default function PredictionsPage() {
                           )}
                         </div>
                       </div>
+                    </div>
+                    
+                    {/* View All Predictions Button */}
+                    <div className="mt-4 pt-3 border-t border-gray-100">
+                      <Link href={`/predictions/fixture/${pred.fixture_id}`}>
+                        <button className="w-full px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-150 border border-gray-200 rounded-lg transition-all group">
+                          <div className="flex items-center justify-center gap-2">
+                            <Users className="h-4 w-4 text-[rgb(98,181,229)]" />
+                            <span className="text-sm font-medium text-gray-700">
+                              View all predictions and results
+                            </span>
+                            <span className="text-[rgb(98,181,229)] group-hover:translate-x-1 transition-transform">
+                              →
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            Compare your prediction with others
+                          </p>
+                        </button>
+                      </Link>
                     </div>
                   </div>
                 ))}
