@@ -432,22 +432,24 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
         {fixture.predictions_count === 0 ? (
           <p className="text-xs md:text-sm text-gray-500">Be the first to predict!</p>
         ) : (
-          <div>
-            <Link 
-              href={`/predictions/fixture/${fixture.id}`}
-              className="group inline-flex items-center gap-2 text-xs md:text-sm text-[rgb(98,181,229)] hover:text-[rgb(78,145,183)] transition-colors"
-            >
-              <Users className="h-4 w-4" />
-              <span className="underline">
-                {fixture.predictions_count === 1
-                  ? "1 player has predicted"
-                  : `${fixture.predictions_count} players predicted`}
-              </span>
-            </Link>
-            <p className="text-xs text-gray-400 mt-1">
-              Click to view all predictions{!fixture.can_predict && ' and stats'}
-            </p>
-          </div>
+          <Link href={`/predictions/fixture/${fixture.id}`}>
+            <button className="w-full md:w-auto px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-150 border border-gray-200 rounded-lg transition-all group">
+              <div className="flex items-center justify-center gap-2">
+                <Users className="h-4 w-4 text-[rgb(98,181,229)]" />
+                <span className="text-sm font-medium text-gray-700">
+                  {fixture.predictions_count === 1
+                    ? "1 player predicted"
+                    : `${fixture.predictions_count} players predicted`}
+                </span>
+                <span className="text-[rgb(98,181,229)] group-hover:translate-x-1 transition-transform">
+                  →
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5">
+                View all predictions{!fixture.can_predict && ' and stats'}
+              </p>
+            </button>
+          </Link>
         )}
       </div>
     </div>

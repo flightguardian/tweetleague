@@ -166,19 +166,28 @@ export default function LeaderboardPage() {
         <div className="mb-6">
           {/* Mobile Layout - Dropdown Style */}
           <div className="md:hidden">
+            <div className="mb-2">
+              <p className="text-xs text-gray-500 font-medium">VIEWING LEAGUE TABLE FOR:</p>
+            </div>
             {/* Current League Display */}
             <div className="bg-white rounded-lg border-2 border-[rgb(98,181,229)]/30 p-3 mb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <UsersIcon className="w-4 h-4 text-[rgb(98,181,229)]" />
-                  <span className="font-semibold text-gray-800">
-                    {selectedLeague ? miniLeagues.find(l => l.id === selectedLeague)?.name : 'Main League'}
-                  </span>
-                  {selectedLeague && (
-                    <span className="text-xs text-gray-500">
-                      ({miniLeagues.find(l => l.id === selectedLeague)?.member_count})
+                  <div>
+                    <span className="font-semibold text-gray-800">
+                      {selectedLeague ? miniLeagues.find(l => l.id === selectedLeague)?.name : 'Everyone'}
                     </span>
-                  )}
+                    {selectedLeague ? (
+                      <span className="text-xs text-gray-500 ml-1">
+                        ({miniLeagues.find(l => l.id === selectedLeague)?.member_count} members)
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-500 ml-1">
+                        (All players)
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={() => setShowLeagueSelector(!showLeagueSelector)}
@@ -191,6 +200,7 @@ export default function LeaderboardPage() {
               {/* Dropdown Menu */}
               {showLeagueSelector && (
                 <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
+                  <p className="text-xs text-gray-500 mb-2">Select league to view:</p>
                   {/* Main League - with border */}
                   <div className="border border-gray-200 rounded-lg overflow-hidden">
                     <button
@@ -204,10 +214,16 @@ export default function LeaderboardPage() {
                           : 'hover:bg-gray-50'
                       }`}
                     >
-                      Main League
+                      <div className="flex justify-between items-center">
+                        <span>🌍 Everyone</span>
+                        <span className="text-xs text-gray-500">Main league</span>
+                      </div>
                     </button>
                   </div>
                   
+                  {miniLeagues.length > 0 && (
+                    <div className="text-xs text-gray-500 mt-2 mb-1">Your mini leagues:</div>
+                  )}
                   {/* Mini Leagues - each with their own border */}
                   {miniLeagues.map((league) => (
                     <div key={league.id} className="border border-gray-200 rounded-lg overflow-hidden">
@@ -223,8 +239,8 @@ export default function LeaderboardPage() {
                         }`}
                       >
                         <div className="flex justify-between items-center">
-                          <span>{league.name}</span>
-                          <span className="text-xs text-gray-500">({league.member_count})</span>
+                          <span>👥 {league.name}</span>
+                          <span className="text-xs text-gray-500">{league.member_count} members</span>
                         </div>
                       </button>
                       {league.is_admin && (
@@ -256,6 +272,9 @@ export default function LeaderboardPage() {
           
           {/* Desktop Layout - Keep Original */}
           <div className="hidden md:block">
+            <div className="mb-3">
+              <p className="text-sm text-gray-600 font-medium mb-2">View league table for:</p>
+            </div>
             <div className="flex flex-wrap gap-2 mb-3">
               <button
                 onClick={() => handleLeagueChange(null)}
@@ -265,8 +284,7 @@ export default function LeaderboardPage() {
                     : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                 }`}
               >
-                <UsersIcon className="inline-block w-4 h-4 mr-2" />
-                Main League
+                🌍 Everyone
               </button>
               
               {miniLeagues.map((league) => (
@@ -279,7 +297,7 @@ export default function LeaderboardPage() {
                         : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                     }`}
                   >
-                    {league.name}
+                    👥 {league.name}
                     <span className="ml-2 text-xs opacity-75">({league.member_count})</span>
                     {league.is_admin && (
                       <Info className="inline-block w-3 h-3 ml-2 opacity-60" />

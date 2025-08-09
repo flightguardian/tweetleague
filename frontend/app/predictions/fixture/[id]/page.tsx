@@ -430,8 +430,8 @@ export default function FixturePredictionsPage() {
       </div>
 
 
-      {/* Predictions List */}
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden relative">
+      {/* Predictions List - Table Style like League Table */}
+      <div className="bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl border border-gray-100 overflow-hidden relative">
         {/* Loading Overlay for League Switching */}
         {switchingLeague && (
           <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-30 flex items-center justify-center">
@@ -442,77 +442,84 @@ export default function FixturePredictionsPage() {
           </div>
         )}
         
-        <div className="p-4 bg-gray-50 border-b">
+        {/* Header */}
+        <div className="p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b">
           <h2 className="font-bold text-lg">
             {selectedLeague 
               ? `${miniLeagues.find(l => l.id === selectedLeague)?.name || 'League'} Predictions`
-              : 'Latest Predictions'
+              : 'All Predictions'
             }
           </h2>
           <p className="text-xs text-gray-600 mt-1">
-            Pos = Current league position • Prediction • Season points total
+            {predictions.length} {predictions.length === 1 ? 'prediction' : 'predictions'} submitted
           </p>
         </div>
         
-        <div className="divide-y divide-gray-200">
-          {sortedPredictions.map((prediction, index) => (
-            <div key={prediction.id} className="p-3 hover:bg-gray-50 transition-colors">
-              {/* Compact Mobile Layout */}
-              <div className="flex items-center justify-between gap-2">
-                {/* Left: Position and User */}
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  {/* Position Badge */}
-                  <div className="flex-shrink-0 w-10 text-center">
-                    {prediction.user_position && prediction.user_position <= 3 ? (
-                      <div>
-                        {getPositionBadge(prediction.user_position)}
-                      </div>
-                    ) : (
-                      <div className="bg-gray-100 rounded px-1 py-0.5">
-                        <span className="text-xs font-bold text-gray-600">
-                          #{prediction.user_position || '-'}
+        {/* Table - Responsive without horizontal scroll */}
+        <div>
+          <table className="w-full">
+            <thead className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(78,145,183)] text-white">
+              <tr>
+                <th className="px-1 md:px-3 py-2 md:py-3 text-left text-xs md:text-sm font-semibold w-10">Pos</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold">Player</th>
+                <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Prediction</th>
+                <th className="px-1 md:px-3 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Pts</th>
+                <th className="hidden md:table-cell px-3 py-3 text-center text-sm font-semibold">Time</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {sortedPredictions.map((prediction, index) => (
+                <tr 
+                  key={prediction.id} 
+                  className="bg-white hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-1 md:px-3 py-2 md:py-3">
+                    <div className="flex items-center justify-center">
+                      {prediction.user_position && prediction.user_position <= 3 ? (
+                        getPositionBadge(prediction.user_position)
+                      ) : (
+                        <span className="text-xs md:text-sm font-bold text-gray-600">
+                          {prediction.user_position || '-'}
                         </span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Username */}
-                  <div className="min-w-0 flex-1">
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-2 md:px-4 py-2 md:py-3">
                     <Link 
                       href={`/user/${prediction.username}`}
-                      className="font-medium text-sm hover:text-[rgb(98,181,229)] transition-colors truncate block"
+                      className="hover:text-[rgb(98,181,229)] transition-colors block"
                     >
-                      {prediction.username}
+                      <div className="font-medium text-xs md:text-sm truncate">
+                        {prediction.username}
+                      </div>
+                      <div className="text-xs text-gray-500 md:hidden">
+                        {format(new Date(prediction.created_at), 'h:mm a')}
+                      </div>
                     </Link>
-                  </div>
-                </div>
-
-                {/* Center: Prediction Score */}
-                <div className="flex-shrink-0 bg-white border border-gray-200 rounded-lg px-3 py-1">
-                  <div className="text-lg font-bold text-center">
-                    {prediction.home_prediction} - {prediction.away_prediction}
-                  </div>
-                </div>
-
-                {/* Right: Points Info */}
-                <div className="flex-shrink-0 text-right">
-                  <div className="text-sm font-semibold text-gray-700">
-                    {prediction.user_total_points || 0} pts
-                  </div>
-                  <div className="text-xs text-gray-500">
+                  </td>
+                  <td className="px-2 md:px-4 py-2 md:py-3 text-center">
+                    <span className="inline-flex items-center justify-center bg-white border-2 border-gray-200 rounded-lg px-2 md:px-3 py-1 font-bold text-sm md:text-base">
+                      {prediction.home_prediction} - {prediction.away_prediction}
+                    </span>
+                  </td>
+                  <td className="px-1 md:px-3 py-2 md:py-3 text-center font-bold text-sm md:text-base text-[rgb(98,181,229)]">
+                    {prediction.user_total_points || 0}
+                  </td>
+                  <td className="hidden md:table-cell px-3 py-3 text-center text-sm text-gray-500">
                     {format(new Date(prediction.created_at), 'h:mm a')}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+                  </td>
+                </tr>
+              ))}
+              {predictions.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="text-center py-8 text-gray-500 text-sm">
+                    No predictions yet for this fixture
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-        
-        {predictions.length === 0 && (
-          <div className="p-8 text-center text-gray-500">
-            No predictions yet for this fixture
-          </div>
-        )}
       </div>
     </div>
   );
