@@ -21,6 +21,7 @@ export default function AuthPage() {
     email: '',
     username: '',
     password: '',
+    confirmPassword: '',
     twitter_handle: ''
   });
   const [showImportAlert, setShowImportAlert] = useState(false);
@@ -72,6 +73,17 @@ export default function AuthPage() {
         }
       } else {
         // Sign up with email
+        // Validate password confirmation
+        if (formData.password !== formData.confirmPassword) {
+          toast({
+            title: 'Passwords do not match',
+            description: 'Please make sure both password fields match.',
+            variant: 'destructive',
+          });
+          setLoading(false);
+          return;
+        }
+        
         const signupData: any = {
           email: formData.email,
           username: formData.username,
@@ -100,6 +112,7 @@ export default function AuthPage() {
             email: formData.email, // Keep email for convenience
             username: '',
             password: '',
+            confirmPassword: '',
             twitter_handle: ''
           });
         }
@@ -184,6 +197,27 @@ export default function AuthPage() {
 
         {/* Form */}
         <div className="p-6">
+          {/* Twitter Sign In Button - Moved to top */}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full mb-4"
+            onClick={handleTwitterLogin}
+            disabled={loading}
+          >
+            <Twitter className="h-4 w-4 mr-2" />
+            Continue with Twitter/X
+          </Button>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-white text-gray-500">Or use email</span>
+            </div>
+          </div>
+
           {/* Import Alert for Sign Up */}
           {!isLogin && showImportAlert && (
             <div className="mb-4 p-3 md:p-4 bg-amber-50 border border-amber-200 rounded-lg relative">
@@ -312,6 +346,29 @@ export default function AuthPage() {
               )}
             </div>
 
+            {!isLogin && (
+              <div>
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    required
+                    disabled={loading}
+                    minLength={8}
+                  />
+                </div>
+                {formData.password && formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                  <p className="text-xs text-red-500 mt-1">
+                    Passwords do not match
+                  </p>
+                )}
+              </div>
+            )}
+
             <Button 
               type="submit" 
               className="w-full bg-[rgb(98,181,229)] hover:bg-[rgb(78,145,183)]"
@@ -330,26 +387,6 @@ export default function AuthPage() {
               )}
             </Button>
           </form>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">Or continue with</span>
-            </div>
-          </div>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={handleTwitterLogin}
-            disabled={loading}
-          >
-            <Twitter className="h-4 w-4 mr-2" />
-            Continue with Twitter/X
-          </Button>
 
           {isLogin && (
             <div className="mt-4 text-center">
