@@ -190,9 +190,11 @@ def get_fixture_predictions(
 def get_fixture_predictions_detailed(
     fixture_id: int,
     mini_league_id: Optional[int] = None,
+    limit: int = 50,
+    offset: int = 0,
     db: Session = Depends(get_db)
 ):
-    """Get predictions for a fixture with detailed user stats, optionally filtered by mini league"""
+    """Get predictions for a fixture with detailed user stats, optionally filtered by mini league, with pagination"""
     from sqlalchemy import func, and_, desc, or_
     from models.mini_leagues import MiniLeagueMember
     
@@ -220,7 +222,11 @@ def get_fixture_predictions_detailed(
         
         query = query.filter(Prediction.user_id.in_(member_ids))
     
-    predictions = query.all()
+    # Get total count for pagination
+    total_count = query.count()
+    
+    # Apply pagination
+    predictions = query.limit(limit).offset(offset).all()
     
     response = []
     for pred in predictions:
@@ -274,10 +280,16 @@ def get_fixture_predictions_detailed(
             "away_prediction": pred.away_prediction,
             "points_earned": pred.points_earned,
             "created_at": pred.created_at.isoformat(),
+            "updated_at": pred.updated_at.isoformat() if pred.updated_at else None,
             "user_position": user_position,
             "user_total_points": user_total_points,
             "user_form": user_form,
             "user_avg_points": user_avg_points
         })
     
-    return response
+    return {
+        "predictions": response,
+        "total": total_count,
+        "limit": limit,
+        "offset": offset
+    }

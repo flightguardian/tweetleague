@@ -227,11 +227,11 @@ export default function LeaderboardPage() {
                   </button>
                 </div>
                 
-                {miniLeagues.length > 0 && (
-                  <div className="text-xs text-gray-500 mt-2 mb-1">Your mini leagues:</div>
-                )}
-                {/* Mini Leagues - each with their own border */}
-                {miniLeagues.map((league) => (
+                {/* Separate admin and member leagues */}
+                {miniLeagues.filter(l => l.is_admin).length > 0 && (
+                  <>
+                    <div className="text-xs text-gray-500 mt-2 mb-1">Mini leagues you admin:</div>
+                    {miniLeagues.filter(l => l.is_admin).map((league) => (
                   <div key={league.id} className="border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => {
@@ -269,7 +269,35 @@ export default function LeaderboardPage() {
                       </div>
                     )}
                   </div>
-                ))}
+                    ))}
+                  </>
+                )}
+                
+                {miniLeagues.filter(l => !l.is_admin).length > 0 && (
+                  <>
+                    <div className="text-xs text-gray-500 mt-2 mb-1">Mini leagues you're in:</div>
+                    {miniLeagues.filter(l => !l.is_admin).map((league) => (
+                      <div key={league.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => {
+                            handleLeagueChange(league.id);
+                            setShowLeagueSelector(false);
+                          }}
+                          className={`w-full text-left px-3 py-2 transition-all ${
+                            selectedLeague === league.id
+                              ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
+                              : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <span>👥 {league.name}</span>
+                            <span className="text-xs text-gray-500">{league.member_count} members</span>
+                          </div>
+                        </button>
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             )}
             
@@ -291,8 +319,14 @@ export default function LeaderboardPage() {
               >
                 🌍 Everyone
               </button>
-              
-              {miniLeagues.map((league) => (
+            </div>
+            
+            {/* Admin Leagues */}
+            {miniLeagues.filter(l => l.is_admin).length > 0 && (
+              <>
+                <div className="text-sm text-gray-600 font-medium mb-2 mt-3">Mini leagues you admin:</div>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {miniLeagues.filter(l => l.is_admin).map((league) => (
                 <div key={league.id} className="relative group">
                   <button
                     onClick={() => handleLeagueChange(league.id)}
@@ -330,8 +364,33 @@ export default function LeaderboardPage() {
                     </div>
                   )}
                 </div>
-              ))}
-            </div>
+                  ))}
+                </div>
+              </>
+            )}
+            
+            {/* Member Leagues */}
+            {miniLeagues.filter(l => !l.is_admin).length > 0 && (
+              <>
+                <div className="text-sm text-gray-600 font-medium mb-2 mt-3">Mini leagues you're in:</div>
+                <div className="flex flex-wrap gap-2">
+                  {miniLeagues.filter(l => !l.is_admin).map((league) => (
+                    <button
+                      key={league.id}
+                      onClick={() => handleLeagueChange(league.id)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        selectedLeague === league.id
+                          ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
+                          : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                      }`}
+                    >
+                      👥 {league.name}
+                      <span className="ml-2 text-xs opacity-75">({league.member_count})</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

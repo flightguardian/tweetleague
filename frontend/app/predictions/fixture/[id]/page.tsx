@@ -17,6 +17,7 @@ interface Prediction {
   away_prediction: number;
   points_earned: number;
   created_at: string;
+  updated_at?: string;
   user_position?: number;
   user_total_points?: number;
   user_form?: string; // Last 5 predictions: W (3pts), D (1pt), L (0pts)
@@ -101,9 +102,13 @@ export default function FixturePredictionsPage() {
     }
   };
 
-  // Show latest predictions first
+  // Show latest predictions first (using updated_at if available, otherwise created_at)
   const sortPredictions = (preds: Prediction[]) => {
-    return [...preds].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return [...preds].sort((a, b) => {
+      const dateA = new Date(a.updated_at || a.created_at).getTime();
+      const dateB = new Date(b.updated_at || b.created_at).getTime();
+      return dateB - dateA; // Most recent first
+    });
   };
 
   const getFormIcon = (result: string) => {
@@ -276,7 +281,7 @@ export default function FixturePredictionsPage() {
                       </span>
                     ) : (
                       <span className="text-xs text-gray-500 ml-1">
-                        (All {predictions.length} predictions)
+                        (All {totalPredictions} predictions)
                       </span>
                     )}
                   </div>
@@ -308,14 +313,15 @@ export default function FixturePredictionsPage() {
                   </button>
                 </div>
                 
-                {miniLeagues.length > 0 && (
-                  <div className="text-xs text-gray-500 mt-2 mb-1">Your mini leagues:</div>
-                )}
-                {miniLeagues.map((league) => (
+                {/* Admin Leagues */}
+                {miniLeagues.filter(l => l.is_admin).length > 0 && (
+                  <>
+                    <div className="text-xs text-gray-500 mt-2 mb-1">Mini leagues you admin:</div>
+                    {miniLeagues.filter(l => l.is_admin).map((league) => (
                   <div key={league.id} className="border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => {
-                        setSelectedLeague(league.id);
+                        handleLeagueChange(league.id);
                         setShowLeagueSelector(false);
                       }}
                       className={`w-full text-left px-3 py-2 transition-all text-sm ${
@@ -330,7 +336,36 @@ export default function FixturePredictionsPage() {
                       </div>
                     </button>
                   </div>
-                ))}
+                    ))}
+                  </>
+                )}
+                
+                {/* Member Leagues */}
+                {miniLeagues.filter(l => !l.is_admin).length > 0 && (
+                  <>
+                    <div className="text-xs text-gray-500 mt-2 mb-1">Mini leagues you're in:</div>
+                    {miniLeagues.filter(l => !l.is_admin).map((league) => (
+                      <div key={league.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => {
+                            handleLeagueChange(league.id);
+                            setShowLeagueSelector(false);
+                          }}
+                          className={`w-full text-left px-3 py-2 transition-all text-sm ${
+                            selectedLeague === league.id
+                              ? 'bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] font-semibold'
+                              : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <span>👥 {league.name}</span>
+                            <span className="text-xs text-gray-500">{league.member_count} members</span>
+                          </div>
+                        </button>
+                      </div>
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -350,9 +385,16 @@ export default function FixturePredictionsPage() {
                 }`}
               >
                 🌍 Everyone
-                <span className="ml-2 text-xs opacity-75">({predictions.length})</span>
+                <span className="ml-2 text-xs opacity-75">({totalPredictions})</span>
               </button>
-              {miniLeagues.map((league) => (
+            </div>
+            
+            {/* Admin Leagues */}
+            {miniLeagues.filter(l => l.is_admin).length > 0 && (
+              <>
+                <div className="text-sm text-gray-600 font-medium mb-2 mt-3">Mini leagues you admin:</div>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {miniLeagues.filter(l => l.is_admin).map((league) => (
                 <button
                   key={league.id}
                   onClick={() => setSelectedLeague(league.id)}
@@ -365,8 +407,33 @@ export default function FixturePredictionsPage() {
                   👥 {league.name}
                   <span className="ml-2 text-xs opacity-75">({league.member_count})</span>
                 </button>
-              ))}
-            </div>
+                  ))}
+                </div>
+              </>
+            )}
+            
+            {/* Member Leagues */}
+            {miniLeagues.filter(l => !l.is_admin).length > 0 && (
+              <>
+                <div className="text-sm text-gray-600 font-medium mb-2 mt-3">Mini leagues you're in:</div>
+                <div className="flex flex-wrap gap-2">
+                  {miniLeagues.filter(l => !l.is_admin).map((league) => (
+                    <button
+                      key={league.id}
+                      onClick={() => setSelectedLeague(league.id)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
+                        selectedLeague === league.id
+                          ? 'bg-[rgb(98,181,229)] text-white shadow-lg'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      👥 {league.name}
+                      <span className="ml-2 text-xs opacity-75">({league.member_count})</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </>
       )}
@@ -385,7 +452,7 @@ export default function FixturePredictionsPage() {
         {/* Total Predictions - Full Width on Mobile */}
         <div className="bg-white rounded-xl p-4 text-center shadow-lg border border-gray-100 mb-4">
           <Users className="h-8 w-8 text-[rgb(98,181,229)] mx-auto mb-2" />
-          <p className="text-2xl font-bold">{predictions.length}</p>
+          <p className="text-2xl font-bold">{totalPredictions}</p>
           <p className="text-xs text-gray-600">Total Predictions</p>
         </div>
         
@@ -449,7 +516,7 @@ export default function FixturePredictionsPage() {
             }
           </h2>
           <p className="text-xs text-gray-600 mt-1">
-            {predictions.length} {predictions.length === 1 ? 'prediction' : 'predictions'} submitted
+            {totalPredictions} {totalPredictions === 1 ? 'prediction' : 'predictions'} submitted
           </p>
         </div>
         
@@ -491,7 +558,8 @@ export default function FixturePredictionsPage() {
                         {prediction.username}
                       </div>
                       <div className="text-xs text-gray-500 md:hidden">
-                        {format(new Date(prediction.created_at), 'MMM d, h:mm a')}
+                        {format(new Date(prediction.updated_at || prediction.created_at), 'MMM d, h:mm a')}
+                        {prediction.updated_at && <span className="italic"> (edited)</span>}
                       </div>
                     </Link>
                   </td>
@@ -504,8 +572,9 @@ export default function FixturePredictionsPage() {
                     {prediction.user_total_points || 0}
                   </td>
                   <td className="hidden md:table-cell px-3 py-3 text-center text-xs md:text-sm text-gray-500">
-                    <div>{format(new Date(prediction.created_at), 'MMM d')}</div>
-                    <div>{format(new Date(prediction.created_at), 'h:mm a')}</div>
+                    <div>{format(new Date(prediction.updated_at || prediction.created_at), 'MMM d')}</div>
+                    <div>{format(new Date(prediction.updated_at || prediction.created_at), 'h:mm a')}</div>
+                    {prediction.updated_at && <div className="text-xs italic">(edited)</div>}
                   </td>
                 </tr>
               ))}
@@ -520,6 +589,94 @@ export default function FixturePredictionsPage() {
           </table>
         </div>
       </div>
+      
+      {/* Pagination Controls */}
+      {(() => {
+        const totalPages = Math.ceil(totalPredictions / predictionsPerPage);
+        
+        if (totalPages <= 1) return null;
+        
+        const handlePageChange = (page: number) => {
+          if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        };
+        
+        return (
+          <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white rounded-xl p-4 shadow-lg border border-gray-100">
+            <div className="text-sm text-gray-600">
+              Showing {((currentPage - 1) * predictionsPerPage) + 1}-{Math.min(currentPage * predictionsPerPage, totalPredictions)} of {totalPredictions} predictions
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(1)}
+                disabled={currentPage === 1}
+                className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="First page"
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Previous page"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {/* Show max 5 page numbers */}
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`px-3 py-1 rounded ${
+                        currentPage === pageNum
+                          ? 'bg-[rgb(98,181,229)] text-white'
+                          : 'hover:bg-gray-100'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+              
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Next page"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => handlePageChange(totalPages)}
+                disabled={currentPage === totalPages}
+                className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Last page"
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
