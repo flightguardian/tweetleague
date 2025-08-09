@@ -252,23 +252,6 @@ export default function LeaderboardPage() {
               )}
             </div>
             
-            {/* Action Buttons - Full Width on Mobile */}
-            <div className="space-y-2">
-              <button
-                onClick={() => openModal('join')}
-                className="w-full py-3 rounded-lg bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200 font-medium transition-all flex items-center justify-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Join Mini League
-              </button>
-              <button
-                onClick={() => openModal('create')}
-                className="w-full py-3 rounded-lg bg-green-500 text-white hover:bg-green-600 font-medium transition-all shadow-lg flex items-center justify-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Create New Mini League
-              </button>
-            </div>
           </div>
           
           {/* Desktop Layout - Keep Original */}
@@ -325,23 +308,6 @@ export default function LeaderboardPage() {
                   )}
                 </div>
               ))}
-            </div>
-            
-            <div className="flex gap-2">
-              <button
-                onClick={() => openModal('join')}
-                className="px-4 py-2 rounded-lg bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 font-medium transition-all"
-              >
-                <Plus className="inline-block w-4 h-4 mr-1" />
-                Join Mini League
-              </button>
-              <button
-                onClick={() => openModal('create')}
-                className="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 font-medium transition-all shadow-lg"
-              >
-                <Plus className="inline-block w-4 h-4 mr-1" />
-                Create Mini League
-              </button>
             </div>
           </div>
         </div>
@@ -510,6 +476,47 @@ export default function LeaderboardPage() {
               Jump to My Position
             </button>
           )}
+        </div>
+      )}
+      
+      {/* Mini League Action Buttons - After Table */}
+      {session && (
+        <div className="mt-6">
+          {/* Mobile Layout - Full Width Buttons */}
+          <div className="md:hidden space-y-2">
+            <button
+              onClick={() => openModal('join')}
+              className="w-full py-3 rounded-lg bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200 font-medium transition-all flex items-center justify-center gap-2 shadow-lg"
+            >
+              <Plus className="w-4 h-4" />
+              Join Mini League
+            </button>
+            <button
+              onClick={() => openModal('create')}
+              className="w-full py-3 rounded-lg bg-green-500 text-white hover:bg-green-600 font-medium transition-all shadow-lg flex items-center justify-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Create New Mini League
+            </button>
+          </div>
+          
+          {/* Desktop Layout - Side by Side */}
+          <div className="hidden md:flex gap-3">
+            <button
+              onClick={() => openModal('join')}
+              className="px-6 py-3 rounded-lg bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200 font-medium transition-all shadow-lg flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Join Mini League
+            </button>
+            <button
+              onClick={() => openModal('create')}
+              className="px-6 py-3 rounded-lg bg-green-500 text-white hover:bg-green-600 font-medium transition-all shadow-lg flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Create New Mini League
+            </button>
+          </div>
         </div>
       )}
       

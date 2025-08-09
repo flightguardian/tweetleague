@@ -184,15 +184,21 @@ export function PredictionCard({ fixture, onPredictionSubmit }: PredictionCardPr
   return (
     <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-8 border border-gray-100">
       {/* Header with date and countdown */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4 md:mb-6 pb-3 md:pb-4 border-b border-gray-100">
-        <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
-          <Calendar className="h-3 w-3 md:h-4 md:w-4 text-[rgb(98,181,229)]" />
-          <span>{format(new Date(fixture.kickoff_time), 'EEE, d MMM')}</span>
-          <Clock className="h-3 w-3 md:h-4 md:w-4 text-[rgb(98,181,229)] ml-2" />
-          <span>{format(new Date(fixture.kickoff_time), 'h:mm a')}</span>
+      <div className="flex justify-between items-start mb-4 md:mb-6 pb-3 md:pb-4 border-b border-gray-100">
+        {/* Left side - Date and Time stacked on mobile */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+            <Calendar className="h-3 w-3 md:h-4 md:w-4 text-[rgb(98,181,229)]" />
+            <span>{format(new Date(fixture.kickoff_time), 'EEE, d MMM')}</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600 mt-1 sm:mt-0">
+            <Clock className="h-3 w-3 md:h-4 md:w-4 text-[rgb(98,181,229)]" />
+            <span>{format(new Date(fixture.kickoff_time), 'h:mm a')}</span>
+          </div>
         </div>
-        <div className="text-xs md:text-sm font-bold px-2 md:px-3 py-1 rounded-full bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)] self-start sm:self-auto">
-          {timeLeft}
+        {/* Right side - Entries close timer */}
+        <div className="text-xs md:text-sm font-bold px-2 md:px-3 py-1 rounded-full bg-[rgb(98,181,229)]/10 text-[rgb(98,181,229)]">
+          {timeLeft === 'Predictions closed' ? 'Entries Closed' : `Closes in ${timeLeft}`}
         </div>
       </div>
       

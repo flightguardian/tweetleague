@@ -304,34 +304,27 @@ export default function PredictionsPage() {
                   {categorizedPredictions.upcoming.length}
                 </span>
               </h2>
-              <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 space-y-4">
+              <div className="bg-white rounded-xl shadow-lg divide-y divide-gray-200">
                 {categorizedPredictions.upcoming.map((pred) => (
-                  <div key={pred.id} className="border border-gray-200 rounded-xl p-3 md:p-4 hover:shadow-md transition-shadow">
-                    <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2 mb-3">
-                      <div className="text-xs md:text-sm text-gray-600">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Calendar className="h-3 w-3 md:h-4 md:w-4" />
-                          {format(new Date(pred.fixture_kickoff), 'EEE, MMM d')}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-3 w-3 md:h-4 md:w-4" />
-                          {format(new Date(pred.fixture_kickoff), 'h:mm a')}
-                        </div>
+                  <div key={pred.id} className="p-3 hover:bg-gray-50 transition-colors">
+                    {/* Mobile Compact Header */}
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="text-xs text-gray-600">
+                        <div>{format(new Date(pred.fixture_kickoff), 'EEE, MMM d')}</div>
+                        <div className="font-medium">{format(new Date(pred.fixture_kickoff), 'h:mm a')}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-xs md:text-sm font-medium text-blue-600 mb-1">
-                          Kickoff in {getTimeUntilKickoff(pred.fixture_kickoff)}
+                        <div className="text-xs font-medium text-blue-600">
+                          {getTimeUntilKickoff(pred.fixture_kickoff)}
                         </div>
                         {canEdit(pred) && editingId !== pred.fixture_id && (
-                          <Button
-                            size="sm"
-                            variant="outline"
+                          <button
                             onClick={() => handleEdit(pred)}
-                            className="text-xs"
+                            className="text-xs text-blue-600 hover:text-blue-700 mt-1"
                           >
-                            <Edit2 className="h-3 w-3 mr-1" />
+                            <Edit2 className="h-3 w-3 inline mr-1" />
                             Edit
-                          </Button>
+                          </button>
                         )}
                       </div>
                     </div>
@@ -404,33 +397,16 @@ export default function PredictionsPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between">
+                      /* Compact Prediction Display */
+                      <div className="flex items-center justify-between gap-2">
                         <div className="flex-1 text-center">
-                          <Image 
-                            src={getTeamLogo(pred.fixture_home_team)} 
-                            alt={pred.fixture_home_team}
-                            width={40}
-                            height={40}
-                            className="mx-auto mb-1 md:mb-2 w-10 h-10 md:w-12 md:h-12"
-                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                          />
-                          <p className="text-xs md:text-sm font-medium">{pred.fixture_home_team}</p>
-                          <p className="text-xl md:text-2xl font-bold mt-1">{pred.home_prediction}</p>
+                          <p className="text-xs font-medium text-gray-600 truncate">{pred.fixture_home_team}</p>
+                          <p className="text-lg font-bold">{pred.home_prediction}</p>
                         </div>
-                        <div className="px-2 md:px-4">
-                          <p className="text-lg md:text-xl font-bold text-gray-400">-</p>
-                        </div>
+                        <div className="text-gray-400 font-bold">-</div>
                         <div className="flex-1 text-center">
-                          <Image 
-                            src={getTeamLogo(pred.fixture_away_team)} 
-                            alt={pred.fixture_away_team}
-                            width={40}
-                            height={40}
-                            className="mx-auto mb-1 md:mb-2 w-10 h-10 md:w-12 md:h-12"
-                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                          />
-                          <p className="text-xs md:text-sm font-medium">{pred.fixture_away_team}</p>
-                          <p className="text-xl md:text-2xl font-bold mt-1">{pred.away_prediction}</p>
+                          <p className="text-xs font-medium text-gray-600 truncate">{pred.fixture_away_team}</p>
+                          <p className="text-lg font-bold">{pred.away_prediction}</p>
                         </div>
                       </div>
                     )}
@@ -456,48 +432,27 @@ export default function PredictionsPage() {
                   {categorizedPredictions.live.length}
                 </span>
               </h2>
-              <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 space-y-4">
+              <div className="bg-white rounded-xl shadow-lg divide-y divide-gray-200">
                 {categorizedPredictions.live.map((pred) => (
-                  <div key={pred.id} className="border border-orange-200 rounded-xl p-3 md:p-4 bg-orange-50/30">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="text-xs md:text-sm text-gray-600">
-                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
-                          <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-                          LIVE
-                        </span>
-                      </div>
-                      <div className="text-xs md:text-sm text-gray-500">
-                        Predictions locked
-                      </div>
+                  <div key={pred.id} className="p-3 bg-orange-50/50 hover:bg-orange-50 transition-colors">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                        LIVE
+                      </span>
+                      <span className="text-xs text-gray-500">Locked</span>
                     </div>
                     
-                    <div className="flex items-center justify-between">
+                    {/* Compact Score Display */}
+                    <div className="flex items-center justify-between gap-2">
                       <div className="flex-1 text-center">
-                        <Image 
-                          src={getTeamLogo(pred.fixture_home_team)} 
-                          alt={pred.fixture_home_team}
-                          width={40}
-                          height={40}
-                          className="mx-auto mb-1 md:mb-2 w-10 h-10 md:w-12 md:h-12"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                        <p className="text-xs md:text-sm font-medium">{pred.fixture_home_team}</p>
-                        <p className="text-xl md:text-2xl font-bold mt-1">{pred.home_prediction}</p>
+                        <p className="text-xs font-medium text-gray-600 truncate">{pred.fixture_home_team}</p>
+                        <p className="text-lg font-bold">{pred.home_prediction}</p>
                       </div>
-                      <div className="px-2 md:px-4">
-                        <p className="text-lg md:text-xl font-bold text-gray-400">-</p>
-                      </div>
+                      <div className="text-gray-400 font-bold">-</div>
                       <div className="flex-1 text-center">
-                        <Image 
-                          src={getTeamLogo(pred.fixture_away_team)} 
-                          alt={pred.fixture_away_team}
-                          width={40}
-                          height={40}
-                          className="mx-auto mb-1 md:mb-2 w-10 h-10 md:w-12 md:h-12"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                        <p className="text-xs md:text-sm font-medium">{pred.fixture_away_team}</p>
-                        <p className="text-xl md:text-2xl font-bold mt-1">{pred.away_prediction}</p>
+                        <p className="text-xs font-medium text-gray-600 truncate">{pred.fixture_away_team}</p>
+                        <p className="text-lg font-bold">{pred.away_prediction}</p>
                       </div>
                     </div>
                   </div>
@@ -516,52 +471,46 @@ export default function PredictionsPage() {
                   {categorizedPredictions.completed.length}
                 </span>
               </h2>
-              <div className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 space-y-4">
+              <div className="bg-white rounded-xl shadow-lg divide-y divide-gray-200">
                 {categorizedPredictions.completed.map((pred) => (
-                  <div key={pred.id} className="border border-gray-200 rounded-xl p-3 md:p-4 bg-gray-50/30">
-                    <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-2 mb-3">
-                      <div className="text-xs md:text-sm text-gray-600">
-                        {format(new Date(pred.fixture_kickoff), 'EEE, MMM d, yyyy')}
+                  <div key={pred.id} className="p-3 hover:bg-gray-50 transition-colors">
+                    {/* Compact Header with Date and Points */}
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="text-xs text-gray-600">
+                        {format(new Date(pred.fixture_kickoff), 'MMM d')}
                       </div>
-                      {getPointsBadge(pred.points_earned)}
+                      <div>
+                        {pred.points_earned === 3 ? (
+                          <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                            Perfect +3
+                          </span>
+                        ) : pred.points_earned === 1 ? (
+                          <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
+                            Correct +1
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                            0 pts
+                          </span>
+                        )}
+                      </div>
                     </div>
                     
-                    <div className="flex items-center justify-between">
+                    {/* Compact Score Display */}
+                    <div className="flex items-center justify-between gap-2">
                       <div className="flex-1 text-center">
-                        <Image 
-                          src={getTeamLogo(pred.fixture_home_team)} 
-                          alt={pred.fixture_home_team}
-                          width={40}
-                          height={40}
-                          className="mx-auto mb-1 md:mb-2 opacity-75 w-10 h-10 md:w-12 md:h-12"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                        <p className="text-xs md:text-sm font-medium text-gray-700">{pred.fixture_home_team}</p>
-                        <div className="mt-1">
-                          <p className="text-lg md:text-xl font-bold">{pred.home_prediction}</p>
-                          <p className="text-xs md:text-sm text-gray-500">
-                            Actual: <span className="font-semibold">{pred.fixture_home_score}</span>
-                          </p>
+                        <p className="text-xs font-medium text-gray-600 truncate">{pred.fixture_home_team}</p>
+                        <div className="flex items-center justify-center gap-1">
+                          <span className="text-lg font-bold">{pred.home_prediction}</span>
+                          <span className="text-xs text-gray-500">({pred.fixture_home_score})</span>
                         </div>
                       </div>
-                      <div className="px-2 md:px-4">
-                        <p className="text-lg md:text-xl font-bold text-gray-400">-</p>
-                      </div>
+                      <div className="text-gray-400 font-bold">-</div>
                       <div className="flex-1 text-center">
-                        <Image 
-                          src={getTeamLogo(pred.fixture_away_team)} 
-                          alt={pred.fixture_away_team}
-                          width={40}
-                          height={40}
-                          className="mx-auto mb-1 md:mb-2 opacity-75 w-10 h-10 md:w-12 md:h-12"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                        <p className="text-xs md:text-sm font-medium text-gray-700">{pred.fixture_away_team}</p>
-                        <div className="mt-1">
-                          <p className="text-lg md:text-xl font-bold">{pred.away_prediction}</p>
-                          <p className="text-xs md:text-sm text-gray-500">
-                            Actual: <span className="font-semibold">{pred.fixture_away_score}</span>
-                          </p>
+                        <p className="text-xs font-medium text-gray-600 truncate">{pred.fixture_away_team}</p>
+                        <div className="flex items-center justify-center gap-1">
+                          <span className="text-lg font-bold">{pred.away_prediction}</span>
+                          <span className="text-xs text-gray-500">({pred.fixture_away_score})</span>
                         </div>
                       </div>
                     </div>
