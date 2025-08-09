@@ -469,45 +469,16 @@ export default function FixturePredictionsPage() {
                   </div>
                 </div>
 
-                {/* Right: Points Badge or Form (Mobile) */}
+                {/* Right: Total Points */}
                 <div className="flex-shrink-0">
-                  {fixture.home_score !== null && fixture.away_score !== null ? (
-                    <div className="text-center">
-                      {prediction.points_earned === 3 ? (
-                        <div className="flex flex-col items-center">
-                          <Zap className="h-5 w-5 text-yellow-500" />
-                          <span className="text-xs font-bold text-yellow-600">3pts</span>
-                        </div>
-                      ) : prediction.points_earned === 1 ? (
-                        <div className="flex flex-col items-center">
-                          <Target className="h-5 w-5 text-green-500" />
-                          <span className="text-xs font-bold text-green-600">1pt</span>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center">
-                          <Minus className="h-5 w-5 text-gray-400" />
-                          <span className="text-xs text-gray-400">0pts</span>
-                        </div>
-                      )}
+                  {/* Show user's current total points */}
+                  <div className="text-center bg-gray-50 rounded-lg px-2 py-1">
+                    <div className="text-xs text-gray-500">Total</div>
+                    <div className="text-lg font-bold text-[rgb(98,181,229)]">
+                      {prediction.user_total_points || 0}
                     </div>
-                  ) : (
-                    /* Show compact form on mobile if available */
-                    prediction.user_form && prediction.user_form.length > 0 && (
-                      <div className="flex gap-0.5">
-                        {prediction.user_form.split('').slice(-3).map((result, i) => (
-                          <div key={i} className="w-4 h-4 rounded-full flex items-center justify-center text-xs font-bold bg-gray-100">
-                            {result === 'W' ? (
-                              <span className="text-green-600">W</span>
-                            ) : result === 'D' ? (
-                              <span className="text-yellow-600">D</span>
-                            ) : (
-                              <span className="text-gray-400">L</span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )
-                  )}
+                    <div className="text-xs text-gray-500">pts</div>
+                  </div>
                 </div>
               </div>
             </div>
