@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from database.connection import get_db
+from database.base import get_db
 from models.models import User, Prediction, UserStats, Notification
 from models.mini_leagues import MiniLeague, MiniLeagueMember
 from api.auth import get_current_user
