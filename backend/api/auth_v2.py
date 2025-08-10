@@ -519,7 +519,7 @@ def social_login(auth_data: SocialAuthRequest, db: Session = Depends(get_db)):
             update_needed = False
             
             if auth_data.twitter_handle:
-                new_handle = auth_data.twitter_handle.replace('@', '')
+                new_handle = auth_data.twitter_handle.replace('@', '').lower()
                 if user.twitter_handle != new_handle:
                     print(f"[SOCIAL AUTH] Twitter handle changed for user {user.id}: {user.twitter_handle} -> {new_handle}")
                     user.twitter_handle = new_handle
@@ -550,7 +550,7 @@ def social_login(auth_data: SocialAuthRequest, db: Session = Depends(get_db)):
                 user.twitter_id = auth_data.provider_id
                 # Always update Twitter handle when linking account
                 if auth_data.twitter_handle:
-                    new_handle = auth_data.twitter_handle.replace('@', '')
+                    new_handle = auth_data.twitter_handle.replace('@', '').lower()
                     print(f"[SOCIAL AUTH] Setting twitter_handle for linked user {user.id}: {new_handle}")
                     user.twitter_handle = new_handle
             
@@ -560,7 +560,15 @@ def social_login(auth_data: SocialAuthRequest, db: Session = Depends(get_db)):
             db.commit()
         else:
             # Create new user
-            username = auth_data.name.lower().replace(" ", "_")
+            # For Twitter users, use their handle as username for consistency
+            if auth_data.provider == "twitter" and auth_data.twitter_handle:
+                # Use Twitter handle as username (cleaned: lowercase, no @)
+                username = auth_data.twitter_handle.replace('@', '').lower()
+                print(f"[SOCIAL AUTH] Using Twitter handle as username: {username}")
+            else:
+                # For other providers or if no Twitter handle, use display name
+                username = auth_data.name.lower().replace(" ", "_")
+            
             # Ensure unique username
             base_username = username
             counter = 1
@@ -582,8 +590,10 @@ def social_login(auth_data: SocialAuthRequest, db: Session = Depends(get_db)):
             elif auth_data.provider == "twitter":
                 user_data['twitter_id'] = auth_data.provider_id
                 if auth_data.twitter_handle:
-                    print(f"[SOCIAL AUTH] Setting twitter_handle for new user: {auth_data.twitter_handle}")
-                    user_data['twitter_handle'] = auth_data.twitter_handle.replace('@', '')
+                    # Store the Twitter handle (cleaned: lowercase, no @)
+                    twitter_handle_clean = auth_data.twitter_handle.replace('@', '').lower()
+                    print(f"[SOCIAL AUTH] Setting twitter_handle for new user: {twitter_handle_clean}")
+                    user_data['twitter_handle'] = twitter_handle_clean
             
             print(f"[SOCIAL AUTH] Creating user with data: {user_data}")
             user = User(**user_data)
