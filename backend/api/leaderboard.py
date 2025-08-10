@@ -77,6 +77,7 @@ def get_leaderboard(
 @router.get("/count")
 def get_leaderboard_count(
     season_id: int = Query(default=None),
+    mini_league_id: int = Query(default=None),
     db: Session = Depends(get_db)
 ):
     """Get total count of users in leaderboard"""
@@ -87,10 +88,22 @@ def get_leaderboard_count(
             return {"count": 0}
         season_id = current_season.id
     
-    # Count all users with stats for this season (matching main leaderboard query)
-    count = db.query(UserStats).filter(
-        UserStats.season_id == season_id
-    ).count()
+    # Base query for user stats
+    query = db.query(UserStats).filter(UserStats.season_id == season_id)
+    
+    # If mini_league_id is provided, filter by league members
+    if mini_league_id:
+        from models.mini_leagues import MiniLeagueMember
+        
+        # Get member user IDs for this league
+        member_ids = db.query(MiniLeagueMember.user_id).filter(
+            MiniLeagueMember.mini_league_id == mini_league_id
+        ).subquery()
+        
+        # Filter stats to only league members
+        query = query.filter(UserStats.user_id.in_(member_ids))
+    
+    count = query.count()
     
     return {"count": count}
 

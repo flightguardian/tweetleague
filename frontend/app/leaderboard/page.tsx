@@ -47,8 +47,10 @@ export default function LeaderboardPage() {
       const current = seasonsResponse.data.find((s: any) => s.is_current);
       setCurrentSeason(current);
       
-      // Get total count of users in leaderboard
-      const countResponse = await api.get('/leaderboard/count');
+      // Get total count of users in leaderboard (with mini league filter if selected)
+      const countResponse = await api.get('/leaderboard/count', {
+        params: { mini_league_id: selectedLeague }
+      });
       console.log('Total users from API:', countResponse.data.count);
       setTotalUsers(countResponse.data.count);
       
