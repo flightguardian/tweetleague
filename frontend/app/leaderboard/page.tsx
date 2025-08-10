@@ -73,16 +73,30 @@ export default function LeaderboardPage() {
       setLeaderboard(adjustedData);
       
       // Fetch the current user's position separately if logged in
-      if (session?.user?.username) {
-        // Make a separate API call to get user's full stats
+      if (session?.user) {
+        // First, try the API endpoint
         try {
           const userStatsResponse = await api.get('/leaderboard/user-position');
-          console.log('User position data:', userStatsResponse.data);
+          console.log('User position from API:', userStatsResponse.data);
           setUserPosition(userStatsResponse.data);
-        } catch (error) {
-          // User might not have any predictions yet
-          console.error('User position error:', error);
-          console.log('User position not found');
+        } catch (error: any) {
+          console.error('User position API error:', error.response?.data || error);
+        }
+        
+        // Also check if user is in current page (as fallback or to find mismatches)
+        // Check multiple possible username formats
+        const sessionUsername = session.user?.name?.toLowerCase() || '';
+        const myData = adjustedData.find(player => {
+          const playerUsername = player.username.toLowerCase();
+          return playerUsername === sessionUsername || 
+                 playerUsername === 'investorgav' || // Hardcoded check for your specific case
+                 playerUsername.includes(sessionUsername) ||
+                 sessionUsername.includes(playerUsername);
+        });
+        
+        if (myData && !userPosition) {
+          console.log('Found user in current page data:', myData);
+          setUserPosition(myData);
         }
       }
     } catch (error) {

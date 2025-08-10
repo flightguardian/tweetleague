@@ -92,6 +92,7 @@ const handler = NextAuth({
           });
           
           user.id = response.data.user.id.toString();
+          user.name = response.data.user.username; // Use username from backend, not Twitter display name
           user.accessToken = response.data.access_token;
           user.isAdmin = response.data.user.is_admin;
           user.email = email; // Ensure email is set
@@ -108,6 +109,7 @@ const handler = NextAuth({
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
+        token.name = user.name; // Store the username
         token.accessToken = user.accessToken;
         token.isAdmin = user.isAdmin;
         token.provider = user.provider; // Get provider from user object
@@ -121,6 +123,7 @@ const handler = NextAuth({
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
+        session.user.name = token.name as string; // Use the stored username
         session.accessToken = token.accessToken as string;
         session.user.isAdmin = token.isAdmin as boolean;
         session.user.provider = token.provider as string;

@@ -112,13 +112,12 @@ def get_user_position(
         UserStats.season_id == current_season.id
     ).first()
     
-    if not user_stats or user_stats.predictions_made == 0:
-        raise HTTPException(status_code=404, detail="No predictions found for user")
+    if not user_stats:
+        raise HTTPException(status_code=404, detail="No stats found for user in current season")
     
     # Calculate position
     position = db.query(UserStats).filter(
         UserStats.season_id == current_season.id,
-        UserStats.predictions_made > 0,
         or_(
             UserStats.total_points > user_stats.total_points,
             and_(
