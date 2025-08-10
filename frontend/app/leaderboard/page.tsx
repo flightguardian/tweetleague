@@ -49,6 +49,7 @@ export default function LeaderboardPage() {
       
       // Get total count of users in leaderboard
       const countResponse = await api.get('/leaderboard/count');
+      console.log('Total users from API:', countResponse.data.count);
       setTotalUsers(countResponse.data.count);
       
       // Calculate offset for pagination
@@ -613,13 +614,7 @@ export default function LeaderboardPage() {
       )}
       
       {/* User Position Section - Show for main league only */}
-      {session && selectedLeague === null && (() => {
-        // Find current user in the full leaderboard data
-        const myPosition = leaderboard.find(player => 
-          player.username.toLowerCase() === session.user?.name?.toLowerCase()
-        );
-        
-        return myPosition ? (
+      {session && selectedLeague === null && userPosition && (
         <div className="mt-6 bg-gradient-to-r from-[rgb(98,181,229)]/10 to-[rgb(78,145,183)]/10 rounded-xl md:rounded-2xl shadow-lg md:shadow-xl border-2 border-[rgb(98,181,229)]/30 overflow-hidden">
           <div className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(78,145,183)] text-white px-4 md:px-6 py-3 md:py-4">
             <h2 className="font-bold text-base md:text-lg flex items-center gap-2">

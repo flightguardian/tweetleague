@@ -87,9 +87,9 @@ def get_leaderboard_count(
             return {"count": 0}
         season_id = current_season.id
     
+    # Count all users with stats for this season (matching main leaderboard query)
     count = db.query(UserStats).filter(
-        UserStats.season_id == season_id,
-        UserStats.predictions_made > 0  # Only count users who have made predictions
+        UserStats.season_id == season_id
     ).count()
     
     return {"count": count}
