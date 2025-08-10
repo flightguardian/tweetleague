@@ -51,7 +51,9 @@ def get_leaderboard(
         query = query.filter(UserStats.user_id.in_(member_ids))
     
     # Order and paginate
+    # First sort by whether they've played any games, then by points
     stats = query.order_by(
+        desc(UserStats.predictions_made > 0),  # Users with predictions first
         desc(UserStats.total_points),
         desc(UserStats.correct_scores),
         desc(UserStats.correct_results)
@@ -129,18 +131,31 @@ def get_user_position(
         raise HTTPException(status_code=404, detail="No stats found for user in current season")
     
     # Calculate position
+    # Count users who rank higher (have played and have more points, or haven't played vs not played)
     position = db.query(UserStats).filter(
         UserStats.season_id == current_season.id,
         or_(
-            UserStats.total_points > user_stats.total_points,
+            # Users with predictions rank higher than users without
             and_(
-                UserStats.total_points == user_stats.total_points,
-                UserStats.correct_scores > user_stats.correct_scores
+                UserStats.predictions_made > 0,
+                user_stats.predictions_made == 0
             ),
+            # Among users who have played, use points/scores/results
             and_(
-                UserStats.total_points == user_stats.total_points,
-                UserStats.correct_scores == user_stats.correct_scores,
-                UserStats.correct_results > user_stats.correct_results
+                UserStats.predictions_made > 0,
+                user_stats.predictions_made > 0,
+                or_(
+                    UserStats.total_points > user_stats.total_points,
+                    and_(
+                        UserStats.total_points == user_stats.total_points,
+                        UserStats.correct_scores > user_stats.correct_scores
+                    ),
+                    and_(
+                        UserStats.total_points == user_stats.total_points,
+                        UserStats.correct_scores == user_stats.correct_scores,
+                        UserStats.correct_results > user_stats.correct_results
+                    )
+                )
             )
         )
     ).count() + 1
