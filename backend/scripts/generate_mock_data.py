@@ -181,7 +181,7 @@ def create_mock_predictions(db, users):
                 fixture_id=next_fixture.id,
                 home_prediction=pred_home,
                 away_prediction=pred_away,
-                points_earned=0,  # No points yet
+                points_earned=None,  # No points yet (NULL until fixture is scored)
                 created_at=datetime.now(pytz.UTC) - timedelta(hours=random.randint(1, 24))
             )
             db.add(prediction)

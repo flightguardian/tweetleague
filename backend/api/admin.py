@@ -371,7 +371,6 @@ async def recalculate_all_points(
                 db.add(user_stats)
             
             user_stats.total_points += points
-            user_stats.predictions_made += 1
             
             if points == 3:
                 user_stats.correct_scores += 1
@@ -380,9 +379,19 @@ async def recalculate_all_points(
             
             total_recalculated += 1
     
-    # Update averages
+    # Update predictions_made count and averages
     all_stats = db.query(UserStats).all()
     for stat in all_stats:
+        # Count how many predictions this user has that have been scored
+        predictions_made = db.query(Prediction).filter(
+            Prediction.user_id == stat.user_id,
+            Prediction.points_earned.isnot(None)
+        ).join(Fixture).filter(
+            Fixture.season_id == stat.season_id
+        ).count()
+        
+        stat.predictions_made = predictions_made
+        
         if stat.predictions_made > 0:
             stat.avg_points_per_game = stat.total_points / stat.predictions_made
     

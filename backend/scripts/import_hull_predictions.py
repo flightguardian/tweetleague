@@ -8,7 +8,7 @@ import sys
 import os
 import csv
 import io
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Fix Unicode output on Windows
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -18,7 +18,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
-from models.models import User, Prediction, Fixture
+from models.models import User, Prediction, Fixture, UserStats
 from database.base import Base
 import re
 
@@ -82,6 +82,7 @@ def import_predictions():
         predictions_updated = 0
         predictions_skipped = 0
         no_match_handles = []
+        processed_users = set()  # Track users already processed to handle CSV duplicates
         
         with open(csv_path, 'r', encoding='utf-8') as file:
             reader = csv.reader(file)
@@ -114,6 +115,13 @@ def import_predictions():
                     no_match_handles.append(twitter_handle_csv)
                     continue
                 
+                # Check for duplicate entries in CSV
+                if user.id in processed_users:
+                    print(f"   [DUPLICATE] @{twitter_handle_csv} -> User: {user.username} (ID: {user.id}) - Skipping duplicate CSV entry")
+                    predictions_skipped += 1
+                    continue
+                
+                processed_users.add(user.id)
                 matched_users += 1
                 print(f"   [MATCHED] @{twitter_handle_csv} -> User: {user.username} (ID: {user.id})")
                 
@@ -128,7 +136,7 @@ def import_predictions():
                     print(f"      Updating existing prediction: {existing_prediction.home_prediction}-{existing_prediction.away_prediction} → {home_pred}-{away_pred}")
                     existing_prediction.home_prediction = home_pred
                     existing_prediction.away_prediction = away_pred
-                    existing_prediction.updated_at = datetime.utcnow()
+                    existing_prediction.updated_at = datetime.now(timezone.utc)
                     predictions_updated += 1
                 else:
                     # Create new prediction
@@ -137,7 +145,7 @@ def import_predictions():
                         fixture_id=1,
                         home_prediction=home_pred,
                         away_prediction=away_pred,
-                        points_earned=0  # Will be calculated when match finishes
+                        points_earned=None  # Will be calculated when match finishes
                     )
                     session.add(new_prediction)
                     predictions_created += 1
@@ -154,6 +162,7 @@ def import_predictions():
         print(f"Users matched: {matched_users}")
         print(f"Predictions created: {predictions_created}")
         print(f"Predictions updated: {predictions_updated}")
+        print(f"Duplicates skipped: {predictions_skipped}")
         print(f"Twitter handles not found: {len(no_match_handles)}")
         
         if no_match_handles:
