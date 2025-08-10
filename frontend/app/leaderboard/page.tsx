@@ -438,13 +438,15 @@ export default function LeaderboardPage() {
                     </div>
                   </td>
                   <td className="px-2 md:px-4 py-2 md:py-3 font-medium sticky left-8 md:left-12 bg-inherit">
-                    <Link 
-                      href={`/user/${userPosition.username}`}
-                      className="hover:text-[rgb(98,181,229)] transition-colors text-xs md:text-sm truncate block max-w-[100px] md:max-w-none inline-flex items-center gap-2"
-                    >
-                      {userPosition.username}
-                      <span className="text-xs bg-[rgb(98,181,229)] text-white px-2 py-0.5 rounded-full">You</span>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link 
+                        href={`/user/${userPosition.username}`}
+                        className="hover:text-[rgb(98,181,229)] transition-colors text-xs md:text-sm truncate block max-w-[100px] md:max-w-none"
+                      >
+                        {userPosition.username}
+                      </Link>
+                      <span className="text-xs bg-[rgb(98,181,229)] text-white px-2 py-0.5 rounded-full flex-shrink-0">You</span>
+                    </div>
                   </td>
                   <td className="px-2 md:px-4 py-2 md:py-3 text-center font-bold text-sm md:text-lg text-[rgb(98,181,229)]">
                     {userPosition.total_points}
