@@ -76,9 +76,11 @@ export default function LeaderboardPage() {
         // Make a separate API call to get user's full stats
         try {
           const userStatsResponse = await api.get('/leaderboard/user-position');
+          console.log('User position data:', userStatsResponse.data);
           setUserPosition(userStatsResponse.data);
         } catch (error) {
           // User might not have any predictions yet
+          console.error('User position error:', error);
           console.log('User position not found');
         }
       }
@@ -602,8 +604,22 @@ export default function LeaderboardPage() {
         </div>
       )}
       
-      {/* User Position Section - Only show if user is logged in and has made predictions */}
-      {session && userPosition && (
+      {/* Debug info - remove after testing */}
+      {session && (
+        <div className="mb-4 p-4 bg-gray-100 rounded text-xs">
+          <p>Debug: Session user: {session.user?.name || 'none'}</p>
+          <p>Debug: UserPosition: {userPosition ? JSON.stringify(userPosition) : 'null'}</p>
+        </div>
+      )}
+      
+      {/* User Position Section - Show for main league only */}
+      {session && selectedLeague === null && (() => {
+        // Find current user in the full leaderboard data
+        const myPosition = leaderboard.find(player => 
+          player.username.toLowerCase() === session.user?.name?.toLowerCase()
+        );
+        
+        return myPosition ? (
         <div className="mt-6 bg-gradient-to-r from-[rgb(98,181,229)]/10 to-[rgb(78,145,183)]/10 rounded-xl md:rounded-2xl shadow-lg md:shadow-xl border-2 border-[rgb(98,181,229)]/30 overflow-hidden">
           <div className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(78,145,183)] text-white px-4 md:px-6 py-3 md:py-4">
             <h2 className="font-bold text-base md:text-lg flex items-center gap-2">
@@ -618,31 +634,31 @@ export default function LeaderboardPage() {
                 <tr className="bg-white">
                   <td className="px-2 md:px-4 py-3 md:py-4 sticky left-0 bg-white">
                     <div className="flex items-center justify-center w-6 md:w-auto">
-                      {getPositionIcon(userPosition.position)}
+                      {getPositionIcon(myPosition.position)}
                     </div>
                   </td>
                   <td className="px-2 md:px-4 py-3 md:py-4 font-medium sticky left-8 md:left-12 bg-white">
                     <div className="flex items-center gap-2">
                       <span className="text-xs md:text-sm truncate block max-w-[100px] md:max-w-none">
-                        {userPosition.username}
+                        {myPosition.username}
                       </span>
                       <span className="text-xs bg-[rgb(98,181,229)] text-white px-2 py-0.5 rounded-full">You</span>
                     </div>
                   </td>
                   <td className="px-2 md:px-4 py-3 md:py-4 text-center font-bold text-sm md:text-lg text-[rgb(98,181,229)]">
-                    {userPosition.total_points}
+                    {myPosition.total_points}
                   </td>
                   <td className="px-2 md:px-4 py-3 md:py-4 text-center text-xs md:text-sm">
-                    {userPosition.correct_scores}
+                    {myPosition.correct_scores}
                   </td>
                   <td className="px-2 md:px-4 py-3 md:py-4 text-center text-xs md:text-sm">
-                    {userPosition.correct_results}
+                    {myPosition.correct_results}
                   </td>
                   <td className="px-2 md:px-4 py-3 md:py-4 text-center text-xs md:text-sm">
-                    {userPosition.predictions_made}
+                    {myPosition.predictions_made}
                   </td>
                   <td className="px-2 md:px-4 py-3 md:py-4 text-center text-xs md:text-sm">
-                    {userPosition.avg_points_per_game.toFixed(2)}
+                    {myPosition.avg_points_per_game.toFixed(2)}
                   </td>
                 </tr>
               </tbody>
@@ -652,19 +668,20 @@ export default function LeaderboardPage() {
           {/* Position context */}
           <div className="px-4 md:px-6 py-3 bg-white/50 text-center">
             <p className="text-xs md:text-sm text-gray-700">
-              {userPosition.position === 1 ? (
+              {myPosition.position === 1 ? (
                 <span className="font-bold text-yellow-600">🎉 You're in first place!</span>
-              ) : userPosition.position <= 3 ? (
+              ) : myPosition.position <= 3 ? (
                 <span className="font-bold text-green-600">You're on the podium!</span>
-              ) : userPosition.position <= 10 ? (
+              ) : myPosition.position <= 10 ? (
                 <span className="font-bold text-blue-600">You're in the top 10!</span>
               ) : (
-                <span>You're ranked #{userPosition.position} out of {leaderboard.length} players</span>
+                <span>You're ranked #{myPosition.position} out of {totalUsers} players</span>
               )}
             </p>
           </div>
         </div>
-      )}
+      ) : null;
+    })()}
       
       {/* Scoring System - Mobile Responsive */}
       <div className="mt-6 bg-white rounded-xl md:rounded-2xl shadow-lg md:shadow-xl p-4 md:p-6 border border-gray-100">

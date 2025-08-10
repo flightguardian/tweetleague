@@ -27,6 +27,7 @@ export default function ProfilePage() {
     email_notifications: true,
     twitter_handle: ''
   });
+  const [usernameError, setUsernameError] = useState('');
   const [passwordForm, setPasswordForm] = useState({
     current_password: '',
     new_password: '',
@@ -70,6 +71,29 @@ export default function ProfilePage() {
     }
   };
 
+  const validateUsername = (username: string): string => {
+    if (!username) {
+      return 'Username is required';
+    }
+    if (username.length < 3) {
+      return 'Username must be at least 3 characters';
+    }
+    if (username.length > 20) {
+      return 'Username must be less than 20 characters';
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      return 'Username can only contain letters, numbers, underscores, and hyphens';
+    }
+    if (username.startsWith('_') || username.startsWith('-')) {
+      return 'Username cannot start with underscore or hyphen';
+    }
+    const reserved = ['admin', 'root', 'system', 'moderator', 'ccfc', 'coventry'];
+    if (reserved.includes(username.toLowerCase())) {
+      return 'This username is reserved';
+    }
+    return '';
+  };
+
   const handleResendVerification = async () => {
     setSaving(true);
     try {
@@ -99,6 +123,18 @@ export default function ProfilePage() {
   };
 
   const handleUpdateProfile = async () => {
+    // Validate username first
+    const error = validateUsername(formData.username);
+    if (error) {
+      setUsernameError(error);
+      toast({
+        title: 'Validation Error',
+        description: error,
+        variant: 'destructive'
+      });
+      return;
+    }
+    
     setSaving(true);
     try {
       // Only send email update for non-social logins
@@ -129,6 +165,7 @@ export default function ProfilePage() {
       
       setUserStats(response.data.user);
       setEditMode(false);
+      setUsernameError(''); // Clear validation errors on successful save
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -242,6 +279,7 @@ export default function ProfilePage() {
                   <Button
                     onClick={() => {
                       setEditMode(false);
+                      setUsernameError(''); // Clear any validation errors
                       setFormData({
                         username: userStats.username,
                         email: userStats.email,
@@ -265,12 +303,39 @@ export default function ProfilePage() {
                     Username
                   </label>
                   {editMode ? (
-                    <Input
-                      value={formData.username}
-                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                      placeholder="Enter username"
-                      disabled={saving}
-                    />
+                    <div>
+                      <div className="relative">
+                        <Input
+                          value={formData.username}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setFormData({ ...formData, username: value });
+                            // Real-time validation
+                            setUsernameError(validateUsername(value));
+                          }}
+                          placeholder="Enter username (3-20 characters)"
+                          disabled={saving}
+                          maxLength={20}
+                          className={usernameError ? 'border-red-500 focus:ring-red-500' : ''}
+                        />
+                        <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-xs ${
+                          formData.username.length > 20 ? 'text-red-500' : 
+                          formData.username.length > 15 ? 'text-yellow-500' : 
+                          'text-gray-400'
+                        }`}>
+                          {formData.username.length}/20
+                        </span>
+                      </div>
+                      {usernameError && (
+                        <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3" />
+                          {usernameError}
+                        </p>
+                      )}
+                      <p className="text-gray-500 text-xs mt-1">
+                        Letters, numbers, underscores, and hyphens only
+                      </p>
+                    </div>
                   ) : (
                     <p className="font-medium text-lg">{userStats?.username}</p>
                   )}
