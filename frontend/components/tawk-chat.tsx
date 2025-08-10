@@ -4,6 +4,13 @@ import { useEffect } from 'react';
 
 export function TawkChat() {
   useEffect(() => {
+    // Check if Tawk.to is enabled via environment variable
+    const tawkEnabled = process.env.NEXT_PUBLIC_TAWK_TO_ENABLED === 'TRUE';
+    
+    if (!tawkEnabled) {
+      return; // Don't load Tawk.to if not enabled
+    }
+
     // Only load Tawk.to on the client side
     const loadTawk = () => {
       // @ts-ignore
