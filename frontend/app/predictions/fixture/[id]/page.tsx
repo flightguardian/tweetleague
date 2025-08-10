@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 import { getTeamLogo } from '@/lib/team-logos';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Trophy, Target, TrendingUp, TrendingDown, Minus, Award, Users, ArrowLeft, Zap, Medal, ChevronDown } from 'lucide-react';
+import { Trophy, Target, TrendingUp, TrendingDown, Minus, Award, Users, ArrowLeft, Zap, Medal, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 
 interface Prediction {
   id: number;
