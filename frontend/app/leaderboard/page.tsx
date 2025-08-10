@@ -432,7 +432,7 @@ export default function LeaderboardPage() {
                 leaderboard.map((player, index) => (
                   <tr 
                     key={player.username} 
-                    className={`${index < 3 ? 'bg-yellow-50' : 'bg-white hover:bg-gray-50'} transition-colors`}
+                    className={`${player.position <= 3 ? 'bg-yellow-50' : 'bg-white hover:bg-gray-50'} transition-colors`}
                   >
                     <td className="px-2 md:px-4 py-2 md:py-3 sticky left-0 bg-inherit">
                       <div className="flex items-center justify-center w-6 md:w-auto">
