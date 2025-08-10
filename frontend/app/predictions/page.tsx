@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { 
   Trophy, Target, Clock, Calendar, Edit2, Save, X, 
-  CheckCircle, AlertCircle, Timer, ChevronDown, ChevronUp,
+  CheckCircle, AlertCircle, Timer, ChevronDown, ChevronUp, ChevronRight,
   TrendingUp, TrendingDown, Minus, Award, Users
 } from 'lucide-react';
 import Link from 'next/link';
@@ -604,7 +604,7 @@ export default function PredictionsPage() {
             </div>
           )}
 
-          {/* Completed Predictions */}
+          {/* Completed Predictions - Compact List */}
           {categorizedPredictions.completed.length > 0 && (
             <div>
               <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-800 flex items-center gap-3">
@@ -614,107 +614,96 @@ export default function PredictionsPage() {
                   {categorizedPredictions.completed.length}
                 </span>
               </h2>
-              <div className="space-y-4">
-                {categorizedPredictions.completed.map((pred) => (
-                  <div key={pred.id} className="bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 border border-gray-100">
-                    {/* Header with date and result */}
-                    <div className="flex justify-between items-start mb-4 pb-3 border-b border-gray-100">
-                      <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
-                        <Calendar className="h-3 w-3 md:h-4 md:w-4 text-gray-400" />
-                        <span>{format(new Date(pred.fixture_kickoff), 'EEE, d MMM')}</span>
-                      </div>
-                      <div>
-                        {getPointsBadge(pred.points_earned)}
-                      </div>
-                    </div>
-                    
-                    {/* Teams and Final Score Display */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-center flex-1">
-                        <Image 
-                          src={getTeamLogo(pred.fixture_home_team)} 
-                          alt={pred.fixture_home_team}
-                          width={50}
-                          height={50}
-                          className="mb-2 mx-auto md:w-14 md:h-14 opacity-70"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                        <h3 className="font-bold text-sm md:text-base text-gray-700">{pred.fixture_home_team}</h3>
-                        <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">{pred.fixture_home_score}</p>
-                      </div>
-                      <div className="px-2 md:px-4">
-                        <p className="text-xs text-gray-500 mb-1">FINAL</p>
-                        <p className="text-lg md:text-xl font-bold text-gray-400">-</p>
-                      </div>
-                      <div className="text-center flex-1">
-                        <Image 
-                          src={getTeamLogo(pred.fixture_away_team)} 
-                          alt={pred.fixture_away_team}
-                          width={50}
-                          height={50}
-                          className="mb-2 mx-auto md:w-14 md:h-14 opacity-70"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                        <h3 className="font-bold text-sm md:text-base text-gray-700">{pred.fixture_away_team}</h3>
-                        <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1">{pred.fixture_away_score}</p>
-                      </div>
-                    </div>
-                    
-                    {/* Your Prediction vs Result */}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs text-gray-500 mb-1">YOUR PREDICTION</p>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl md:text-2xl font-bold text-gray-700">
-                              {pred.home_prediction} - {pred.away_prediction}
-                            </span>
+              
+              {/* Compact List View */}
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                <div className="divide-y divide-gray-100">
+                  {categorizedPredictions.completed.map((pred) => (
+                    <Link href={`/predictions/fixture/${pred.fixture_id}`} key={pred.id}>
+                      <div className="hover:bg-gray-50 transition-all cursor-pointer p-3 md:p-4">
+                        <div className="flex items-center gap-3">
+                          {/* Points Badge - Fixed Width */}
+                          <div className="flex-shrink-0 w-16 md:w-20">
+                            {pred.points_earned === 3 && (
+                              <div className="flex items-center justify-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full">
+                                <Trophy className="h-3 w-3" />
+                                <span className="text-xs font-bold">+3</span>
+                              </div>
+                            )}
+                            {pred.points_earned === 1 && (
+                              <div className="flex items-center justify-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                                <Target className="h-3 w-3" />
+                                <span className="text-xs font-bold">+1</span>
+                              </div>
+                            )}
+                            {pred.points_earned === 0 && (
+                              <div className="flex items-center justify-center gap-1 px-2 py-1 bg-gray-100 text-gray-500 rounded-full">
+                                <span className="text-xs">0</span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Match Info - Main Content */}
+                          <div className="flex-1 min-w-0">
+                            {/* Teams and Scores */}
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-sm truncate">
+                                {pred.fixture_home_team.replace('Coventry City', 'Coventry')}
+                              </span>
+                              <span className="font-bold text-sm text-gray-900">
+                                {pred.fixture_home_score}
+                              </span>
+                              <span className="text-gray-400 text-xs">-</span>
+                              <span className="font-bold text-sm text-gray-900">
+                                {pred.fixture_away_score}
+                              </span>
+                              <span className="font-semibold text-sm truncate">
+                                {pred.fixture_away_team.replace('Coventry City', 'Coventry')}
+                              </span>
+                            </div>
+                            
+                            {/* Date and Your Prediction */}
+                            <div className="flex items-center gap-3 text-xs text-gray-500">
+                              <span>{format(new Date(pred.fixture_kickoff), 'd MMM')}</span>
+                              <span>•</span>
+                              <span>
+                                Your prediction: <span className="font-medium text-gray-700">{pred.home_prediction}-{pred.away_prediction}</span>
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Arrow Icon */}
+                          <div className="flex-shrink-0 text-gray-400">
+                            <ChevronRight className="h-4 w-4" />
                           </div>
                         </div>
-                        <div className="text-right">
-                          {pred.points_earned === 3 && (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full">
-                              <Trophy className="h-4 w-4" />
-                              <span className="text-xs font-bold">Perfect!</span>
-                            </div>
-                          )}
-                          {pred.points_earned === 1 && (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
-                              <Target className="h-4 w-4" />
-                              <span className="text-xs font-bold">Correct</span>
-                            </div>
-                          )}
-                          {pred.points_earned === 0 && (
-                            <div className="flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
-                              <X className="h-4 w-4" />
-                              <span className="text-xs">Missed</span>
-                            </div>
-                          )}
-                        </div>
                       </div>
-                    </div>
-                    
-                    {/* View All Predictions Button */}
-                    <div className="mt-4 pt-3 border-t border-gray-100">
-                      <Link href={`/predictions/fixture/${pred.fixture_id}`}>
-                        <button className="w-full px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-150 border border-gray-200 rounded-lg transition-all group">
-                          <div className="flex items-center justify-center gap-2">
-                            <Users className="h-4 w-4 text-[rgb(98,181,229)]" />
-                            <span className="text-sm font-medium text-gray-700">
-                              View all predictions and results
-                            </span>
-                            <span className="text-[rgb(98,181,229)] group-hover:translate-x-1 transition-transform">
-                              →
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            Compare your prediction with others
-                          </p>
-                        </button>
-                      </Link>
+                    </Link>
+                  ))}
+                </div>
+                
+                {/* Summary Footer */}
+                {categorizedPredictions.completed.length > 5 && (
+                  <div className="bg-gray-50 px-4 py-3 border-t border-gray-100">
+                    <div className="flex items-center justify-between text-xs text-gray-600">
+                      <span>Total: {categorizedPredictions.completed.length} matches</span>
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1">
+                          <Trophy className="h-3 w-3 text-green-600" />
+                          <span className="font-medium">{categorizedPredictions.completed.filter(p => p.points_earned === 3).length}</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Target className="h-3 w-3 text-blue-600" />
+                          <span className="font-medium">{categorizedPredictions.completed.filter(p => p.points_earned === 1).length}</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <X className="h-3 w-3 text-gray-400" />
+                          <span className="font-medium">{categorizedPredictions.completed.filter(p => p.points_earned === 0).length}</span>
+                        </span>
+                      </div>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}
