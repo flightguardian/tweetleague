@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import desc, or_, and_
+from sqlalchemy import desc, or_, and_, Integer, func
 from typing import List
 from pydantic import BaseModel
 from database.base import get_db
@@ -151,7 +151,6 @@ def get_top_players(
 ):
     """Get top players based on form (last 5 games)"""
     from models.models import Prediction, Fixture, User
-    from sqlalchemy import func
     
     # Get current season
     current_season = db.query(Season).filter(Season.is_current == True).first()
@@ -170,14 +169,19 @@ def get_top_players(
     fixture_ids = [f.id for f in recent_fixtures]
     
     # Get sum of points for each user in these fixtures
+    # Also get correct scores and results for tie-breaking
     form_stats = db.query(
         Prediction.user_id,
         func.sum(Prediction.points_earned).label('form_points'),
-        func.count(Prediction.id).label('games_played')
+        func.count(Prediction.id).label('games_played'),
+        func.sum(func.cast(Prediction.points_earned == 3, Integer)).label('correct_scores'),
+        func.sum(func.cast(Prediction.points_earned == 1, Integer)).label('correct_results')
     ).filter(
         Prediction.fixture_id.in_(fixture_ids)
     ).group_by(Prediction.user_id).order_by(
-        func.sum(Prediction.points_earned).desc()
+        func.sum(Prediction.points_earned).desc(),
+        func.sum(func.cast(Prediction.points_earned == 3, Integer)).desc(),
+        func.sum(func.cast(Prediction.points_earned == 1, Integer)).desc()
     ).limit(limit).all()
     
     leaderboard = []
@@ -185,14 +189,9 @@ def get_top_players(
         user = db.query(User).filter(User.id == stat.user_id).first()
         user_stats = db.query(UserStats).filter(UserStats.user_id == stat.user_id).first()
         
-        # Calculate correct scores and results for these 5 games
-        recent_preds = db.query(Prediction).filter(
-            Prediction.user_id == stat.user_id,
-            Prediction.fixture_id.in_(fixture_ids)
-        ).all()
-        
-        correct_scores = sum(1 for p in recent_preds if p.points_earned == 3)
-        correct_results = sum(1 for p in recent_preds if p.points_earned == 1)
+        # Use the calculated correct scores and results from the query
+        correct_scores = stat.correct_scores or 0
+        correct_results = stat.correct_results or 0
         
         leaderboard.append(LeaderboardEntry(
             position=position,
@@ -215,7 +214,7 @@ def get_month_leaders(
 ):
     """Get top players for the current month"""
     from models.models import Prediction, Fixture, User
-    from sqlalchemy import func, extract
+    from sqlalchemy import extract
     from datetime import datetime
     
     # Get current season
@@ -242,14 +241,19 @@ def get_month_leaders(
     fixture_ids = [f.id for f in month_fixtures]
     
     # Get sum of points for each user in these fixtures
+    # Also get correct scores and results for tie-breaking
     month_stats = db.query(
         Prediction.user_id,
         func.sum(Prediction.points_earned).label('month_points'),
-        func.count(Prediction.id).label('games_played')
+        func.count(Prediction.id).label('games_played'),
+        func.sum(func.cast(Prediction.points_earned == 3, Integer)).label('correct_scores'),
+        func.sum(func.cast(Prediction.points_earned == 1, Integer)).label('correct_results')
     ).filter(
         Prediction.fixture_id.in_(fixture_ids)
     ).group_by(Prediction.user_id).order_by(
-        func.sum(Prediction.points_earned).desc()
+        func.sum(Prediction.points_earned).desc(),
+        func.sum(func.cast(Prediction.points_earned == 3, Integer)).desc(),
+        func.sum(func.cast(Prediction.points_earned == 1, Integer)).desc()
     ).limit(limit).all()
     
     leaderboard = []
@@ -260,14 +264,9 @@ def get_month_leaders(
             UserStats.season_id == current_season.id
         ).first()
         
-        # Calculate correct scores and results for this month
-        month_preds = db.query(Prediction).filter(
-            Prediction.user_id == stat.user_id,
-            Prediction.fixture_id.in_(fixture_ids)
-        ).all()
-        
-        correct_scores = sum(1 for p in month_preds if p.points_earned == 3)
-        correct_results = sum(1 for p in month_preds if p.points_earned == 1)
+        # Use the calculated correct scores and results from the query
+        correct_scores = stat.correct_scores or 0
+        correct_results = stat.correct_results or 0
         
         leaderboard.append(LeaderboardEntry(
             position=position,
