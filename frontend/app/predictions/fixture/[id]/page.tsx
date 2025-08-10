@@ -55,6 +55,7 @@ export default function FixturePredictionsPage() {
   const [showLeagueSelector, setShowLeagueSelector] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPredictions, setTotalPredictions] = useState(0);
+  const [overallStats, setOverallStats] = useState<any>(null);
   const predictionsPerPage = 50;
 
   useEffect(() => {
@@ -101,6 +102,7 @@ export default function FixturePredictionsPage() {
       const predictionsResponse = await api.get(`/predictions/fixture/${fixtureId}/detailed`, { params });
       setPredictions(predictionsResponse.data.predictions || []);
       setTotalPredictions(predictionsResponse.data.total || 0);
+      setOverallStats(predictionsResponse.data.overall_stats || null);
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
@@ -202,12 +204,15 @@ export default function FixturePredictionsPage() {
   }
 
   const sortedPredictions = sortPredictions(predictions);
-  const averageHomeScore = predictions.length > 0 
-    ? (predictions.reduce((sum, p) => sum + p.home_prediction, 0) / predictions.length).toFixed(1)
-    : '0';
-  const averageAwayScore = predictions.length > 0
-    ? (predictions.reduce((sum, p) => sum + p.away_prediction, 0) / predictions.length).toFixed(1)
-    : '0';
+  // Use overall stats for averages if available, otherwise fallback to current page
+  const averageHomeScore = overallStats?.avg_home_prediction?.toFixed(1) || 
+    (predictions.length > 0 
+      ? (predictions.reduce((sum, p) => sum + p.home_prediction, 0) / predictions.length).toFixed(1)
+      : '0');
+  const averageAwayScore = overallStats?.avg_away_prediction?.toFixed(1) ||
+    (predictions.length > 0
+      ? (predictions.reduce((sum, p) => sum + p.away_prediction, 0) / predictions.length).toFixed(1)
+      : '0');
 
   return (
     <div className="max-w-6xl mx-auto">

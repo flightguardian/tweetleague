@@ -225,7 +225,26 @@ def get_fixture_predictions_detailed(
     # Get total count for pagination
     total_count = query.count()
     
-    # Apply pagination
+    # Calculate overall statistics from ALL predictions (not just current page)
+    from sqlalchemy import func
+    overall_stats = db.query(
+        func.avg(Prediction.home_prediction).label('avg_home'),
+        func.avg(Prediction.away_prediction).label('avg_away'),
+        func.count(Prediction.id).label('total_predictions')
+    ).filter(Prediction.fixture_id == fixture_id)
+    
+    # Apply mini league filter to stats if needed
+    if mini_league_id:
+        member_ids = db.query(MiniLeagueMember.user_id).filter(
+            MiniLeagueMember.mini_league_id == mini_league_id
+        ).subquery()
+        overall_stats = overall_stats.filter(Prediction.user_id.in_(member_ids))
+    
+    stats_result = overall_stats.first()
+    avg_home_prediction = float(stats_result.avg_home) if stats_result.avg_home else 0.0
+    avg_away_prediction = float(stats_result.avg_away) if stats_result.avg_away else 0.0
+    
+    # Apply pagination for the actual predictions list
     predictions = query.limit(limit).offset(offset).all()
     
     response = []
@@ -291,5 +310,10 @@ def get_fixture_predictions_detailed(
         "predictions": response,
         "total": total_count,
         "limit": limit,
-        "offset": offset
+        "offset": offset,
+        "overall_stats": {
+            "avg_home_prediction": round(avg_home_prediction, 1),
+            "avg_away_prediction": round(avg_away_prediction, 1),
+            "total_predictions": total_count
+        }
     }
