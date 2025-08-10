@@ -416,13 +416,13 @@ export default function LeaderboardPage() {
       
       {/* User Position Section - Show for main league only, above the main table */}
       {session && selectedLeague === null && userPosition && (
-        <div className="mb-4 bg-gradient-to-r from-[rgb(98,181,229)]/10 to-[rgb(78,145,183)]/10 rounded-xl md:rounded-2xl shadow-lg border-2 border-[rgb(98,181,229)]/30 overflow-hidden">
+        <div className="bg-white rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl border border-gray-100 overflow-hidden mb-4">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[500px]">
-              <thead className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(78,145,183)] text-white">
+              <thead className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(78,145,183)] text-white sticky top-0 z-10">
                 <tr>
                   <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold sticky left-0 bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(98,181,229)] z-20">Pos</th>
-                  <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold sticky left-8 md:left-12 bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(98,181,229)] z-20">Your Position</th>
+                  <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold sticky left-8 md:left-12 bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(98,181,229)] z-20">Player</th>
                   <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Pts</th>
                   <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Perf</th>
                   <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Corr</th>
@@ -430,20 +430,21 @@ export default function LeaderboardPage() {
                   <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Avg</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr className="bg-white hover:bg-gray-50 transition-colors">
+              <tbody className="divide-y divide-gray-200">
+                <tr className={`${userPosition.position <= 3 ? 'bg-yellow-50' : 'bg-white hover:bg-gray-50'} transition-colors`}>
                   <td className="px-2 md:px-4 py-2 md:py-3 sticky left-0 bg-inherit">
                     <div className="flex items-center justify-center w-6 md:w-auto">
                       {getPositionIcon(userPosition.position)}
                     </div>
                   </td>
                   <td className="px-2 md:px-4 py-2 md:py-3 font-medium sticky left-8 md:left-12 bg-inherit">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs md:text-sm truncate block max-w-[100px] md:max-w-none">
-                        {userPosition.username}
-                      </span>
+                    <Link 
+                      href={`/user/${userPosition.username}`}
+                      className="hover:text-[rgb(98,181,229)] transition-colors text-xs md:text-sm truncate block max-w-[100px] md:max-w-none inline-flex items-center gap-2"
+                    >
+                      {userPosition.username}
                       <span className="text-xs bg-[rgb(98,181,229)] text-white px-2 py-0.5 rounded-full">You</span>
-                    </div>
+                    </Link>
                   </td>
                   <td className="px-2 md:px-4 py-2 md:py-3 text-center font-bold text-sm md:text-lg text-[rgb(98,181,229)]">
                     {userPosition.total_points}
