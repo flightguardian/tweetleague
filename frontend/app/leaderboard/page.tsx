@@ -643,31 +643,31 @@ export default function LeaderboardPage() {
                 <tr className="bg-white">
                   <td className="px-2 md:px-4 py-3 md:py-4 sticky left-0 bg-white">
                     <div className="flex items-center justify-center w-6 md:w-auto">
-                      {getPositionIcon(myPosition.position)}
+                      {getPositionIcon(userPosition.position)}
                     </div>
                   </td>
                   <td className="px-2 md:px-4 py-3 md:py-4 font-medium sticky left-8 md:left-12 bg-white">
                     <div className="flex items-center gap-2">
                       <span className="text-xs md:text-sm truncate block max-w-[100px] md:max-w-none">
-                        {myPosition.username}
+                        {userPosition.username}
                       </span>
                       <span className="text-xs bg-[rgb(98,181,229)] text-white px-2 py-0.5 rounded-full">You</span>
                     </div>
                   </td>
                   <td className="px-2 md:px-4 py-3 md:py-4 text-center font-bold text-sm md:text-lg text-[rgb(98,181,229)]">
-                    {myPosition.total_points}
+                    {userPosition.total_points}
                   </td>
                   <td className="px-2 md:px-4 py-3 md:py-4 text-center text-xs md:text-sm">
-                    {myPosition.correct_scores}
+                    {userPosition.correct_scores}
                   </td>
                   <td className="px-2 md:px-4 py-3 md:py-4 text-center text-xs md:text-sm">
-                    {myPosition.correct_results}
+                    {userPosition.correct_results}
                   </td>
                   <td className="px-2 md:px-4 py-3 md:py-4 text-center text-xs md:text-sm">
-                    {myPosition.predictions_made}
+                    {userPosition.predictions_made}
                   </td>
                   <td className="px-2 md:px-4 py-3 md:py-4 text-center text-xs md:text-sm">
-                    {myPosition.avg_points_per_game.toFixed(2)}
+                    {userPosition.avg_points_per_game.toFixed(2)}
                   </td>
                 </tr>
               </tbody>
@@ -677,14 +677,14 @@ export default function LeaderboardPage() {
           {/* Position context */}
           <div className="px-4 md:px-6 py-3 bg-white/50 text-center">
             <p className="text-xs md:text-sm text-gray-700">
-              {myPosition.position === 1 ? (
+              {userPosition.position === 1 ? (
                 <span className="font-bold text-yellow-600">🎉 You're in first place!</span>
-              ) : myPosition.position <= 3 ? (
+              ) : userPosition.position <= 3 ? (
                 <span className="font-bold text-green-600">You're on the podium!</span>
-              ) : myPosition.position <= 10 ? (
+              ) : userPosition.position <= 10 ? (
                 <span className="font-bold text-blue-600">You're in the top 10!</span>
               ) : (
-                <span>You're ranked #{myPosition.position} out of {totalUsers} players</span>
+                <span>You're ranked #{userPosition.position} out of {totalUsers} players</span>
               )}
             </p>
           </div>
