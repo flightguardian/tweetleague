@@ -689,8 +689,7 @@ export default function LeaderboardPage() {
             </p>
           </div>
         </div>
-      ) : null;
-    })()}
+      ) : null}
       
       {/* Scoring System - Mobile Responsive */}
       <div className="mt-6 bg-white rounded-xl md:rounded-2xl shadow-lg md:shadow-xl p-4 md:p-6 border border-gray-100">
