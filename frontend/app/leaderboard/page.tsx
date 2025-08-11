@@ -66,13 +66,9 @@ export default function LeaderboardPage() {
         }
       });
       
-      // Adjust position numbers based on page
-      const adjustedData = response.data.map((player: any, index: number) => ({
-        ...player,
-        position: offset + index + 1
-      }));
-      
-      setLeaderboard(adjustedData);
+      // Use positions from API (which handles ties correctly)
+      // Don't override with index-based positions
+      setLeaderboard(response.data);
       
       // Fetch the current user's position separately if logged in
       if (session?.user) {
@@ -88,7 +84,7 @@ export default function LeaderboardPage() {
         // Also check if user is in current page (as fallback or to find mismatches)
         // Check multiple possible username formats
         const sessionUsername = session.user?.name?.toLowerCase() || '';
-        const myData = adjustedData.find(player => {
+        const myData = response.data.find(player => {
           const playerUsername = player.username.toLowerCase();
           return playerUsername === sessionUsername || 
                  playerUsername === 'investorgav' || // Hardcoded check for your specific case
