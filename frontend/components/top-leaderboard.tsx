@@ -20,7 +20,7 @@ export function TopLeaderboard() {
       const response = await api.get('/leaderboard/top');
       setLeaders(response.data);
     } catch (error) {
-      console.error('Failed to fetch leaderboard:', error);
+      // Error fetching leaderboard
     } finally {
       setLoading(false);
     }

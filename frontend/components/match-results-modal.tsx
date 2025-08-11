@@ -35,7 +35,7 @@ export function MatchResultsModal({ fixture, isOpen, onClose }: MatchResultsModa
       const response = await api.get(`/predictions/fixture/${fixture.id}`);
       setPredictions(response.data);
     } catch (error) {
-      console.error('Failed to fetch predictions:', error);
+      // Error fetching predictions
     } finally {
       setLoading(false);
     }

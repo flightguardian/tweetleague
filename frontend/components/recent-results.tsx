@@ -25,7 +25,7 @@ export function RecentResults() {
       const response = await api.get('/fixtures/recent');
       setResults(response.data);
     } catch (error) {
-      console.error('Failed to fetch recent results:', error);
+      // Error fetching recent results
     } finally {
       setLoading(false);
     }

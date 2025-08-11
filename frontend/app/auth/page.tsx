@@ -118,8 +118,6 @@ export default function AuthPage() {
         }
       }
     } catch (error: any) {
-      console.error('Auth error:', error.response?.data);
-      
       let errorMessage = 'Something went wrong';
       
       // Handle validation errors (422)

@@ -26,7 +26,7 @@ export function AdminStats() {
       const response = await api.get('/admin/stats');
       setStats(response.data);
     } catch (error) {
-      console.error('Failed to fetch admin stats:', error);
+      // Error fetching admin stats
     } finally {
       setLoading(false);
     }

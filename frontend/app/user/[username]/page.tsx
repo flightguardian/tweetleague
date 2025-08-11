@@ -55,7 +55,7 @@ export default function UserProfilePage() {
       const response = await api.get(`/users/${username}`);
       setProfile(response.data);
     } catch (error) {
-      console.error('Failed to fetch user profile:', error);
+      // Error fetching user profile
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ export default function UserProfilePage() {
       const response = await api.get(`/users/${username}/predictions`);
       setRecentPredictions(response.data);
     } catch (error) {
-      console.error('Failed to fetch predictions:', error);
+      // Error fetching predictions
     }
   };
 

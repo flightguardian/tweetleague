@@ -26,7 +26,7 @@ export function ManagerOfMonth() {
       const response = await api.get('/leaderboard/month');
       setLeaders(response.data);
     } catch (error) {
-      console.error('Failed to fetch monthly leaderboard:', error);
+      // Error fetching monthly leaderboard
     } finally {
       setLoading(false);
     }

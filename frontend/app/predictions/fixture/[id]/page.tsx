@@ -104,7 +104,7 @@ export default function FixturePredictionsPage() {
       setTotalPredictions(predictionsResponse.data.total || 0);
       setOverallStats(predictionsResponse.data.overall_stats || null);
     } catch (error) {
-      console.error('Failed to fetch data:', error);
+      // Error fetching data
     } finally {
       setLoading(false);
       setSwitchingLeague(false);
@@ -116,7 +116,7 @@ export default function FixturePredictionsPage() {
       const response = await api.get('/mini-leagues/my-leagues');
       setMiniLeagues(response.data);
     } catch (error) {
-      console.error('Failed to fetch mini leagues:', error);
+      // Error fetching mini leagues
     }
   };
 

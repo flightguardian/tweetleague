@@ -51,7 +51,6 @@ export default function LeaderboardPage() {
       const countResponse = await api.get('/leaderboard/count', {
         params: { mini_league_id: selectedLeague }
       });
-      console.log('Total users from API:', countResponse.data.count);
       setTotalUsers(countResponse.data.count);
       
       // Calculate offset for pagination
@@ -66,14 +65,6 @@ export default function LeaderboardPage() {
         }
       });
       
-      // Log the leaderboard data for debugging
-      console.log(`Leaderboard data for ${selectedLeague ? `mini league ${selectedLeague}` : 'main league'}:`, {
-        totalReturned: response.data.length,
-        firstUser: response.data[0],
-        positions: response.data.map((u: any) => ({ username: u.username, position: u.position })).slice(0, 5),
-        selectedLeague
-      });
-      
       // Use positions from API (which handles ties correctly)
       // Don't override with index-based positions
       setLeaderboard(response.data);
@@ -83,10 +74,9 @@ export default function LeaderboardPage() {
         // First, try the API endpoint
         try {
           const userStatsResponse = await api.get('/leaderboard/user-position');
-          console.log('User position from API:', userStatsResponse.data);
           setUserPosition(userStatsResponse.data);
         } catch (error: any) {
-          console.error('User position API error:', error.response?.data || error);
+          // User position not available
         }
         
         // Also check if user is in current page (as fallback or to find mismatches)
@@ -101,12 +91,11 @@ export default function LeaderboardPage() {
         });
         
         if (myData && !userPosition) {
-          console.log('Found user in current page data:', myData);
           setUserPosition(myData);
         }
       }
     } catch (error) {
-      console.error('Failed to fetch leaderboard:', error);
+      // Error fetching leaderboard
     } finally {
       setLoading(false);
       setSwitchingLeague(false);
@@ -118,7 +107,7 @@ export default function LeaderboardPage() {
       const response = await api.get('/mini-leagues/my-leagues');
       setMiniLeagues(response.data);
     } catch (error) {
-      console.error('Failed to fetch mini leagues:', error);
+      // Error fetching mini leagues
     }
   };
 

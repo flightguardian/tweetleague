@@ -41,7 +41,7 @@ export function SeasonProvider({ children }: { children: ReactNode }) {
         setSelectedSeasonId(current.id);
       }
     } catch (error) {
-      console.error('Failed to fetch seasons:', error);
+      // Error fetching seasons
     } finally {
       setLoading(false);
     }

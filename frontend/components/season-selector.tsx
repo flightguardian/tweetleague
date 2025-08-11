@@ -41,7 +41,7 @@ export function SeasonSelector() {
         localStorage.setItem('selectedSeasonId', current.id.toString());
       }
     } catch (error) {
-      console.error('Failed to fetch seasons:', error);
+      // Error fetching seasons
     } finally {
       setLoading(false);
     }

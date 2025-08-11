@@ -61,7 +61,7 @@ export default function PredictionsPage() {
       const response = await api.get('/predictions/my');
       setPredictions(response.data);
     } catch (error) {
-      console.error('Failed to fetch predictions:', error);
+      // Error fetching predictions
     } finally {
       setLoading(false);
     }

@@ -65,7 +65,7 @@ export default function ProfilePage() {
         twitter_handle: response.data.twitter_handle || ''
       });
     } catch (error) {
-      console.error('Failed to fetch user stats:', error);
+      // Error fetching user stats
     } finally {
       setLoading(false);
     }

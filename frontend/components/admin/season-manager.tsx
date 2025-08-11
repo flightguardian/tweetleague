@@ -38,7 +38,7 @@ export function SeasonManager() {
       const response = await api.get('/seasons/');
       setSeasons(response.data);
     } catch (error) {
-      console.error('Failed to fetch seasons:', error);
+      // Error fetching seasons
     } finally {
       setLoading(false);
     }

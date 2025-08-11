@@ -57,7 +57,6 @@ export function FixtureManager() {
       const response = await api.get('/fixtures', { params: seasonParams });
       setFixtures(response.data);
     } catch (error) {
-      console.error('Failed to fetch fixtures:', error);
       toast({
         title: 'Error',
         description: 'Failed to fetch fixtures',

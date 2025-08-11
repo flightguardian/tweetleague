@@ -40,7 +40,7 @@ export function EmailVerificationModal() {
       }
       setUserChecked(true);
     } catch (error) {
-      console.error('Failed to check email verification:', error);
+      // Error checking email verification
       setUserChecked(true);
     }
   };

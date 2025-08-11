@@ -31,13 +31,10 @@ export default function Home() {
 
   const fetchNextFixture = async () => {
     try {
-      console.log('Fetching next fixture...');
       const response = await api.get('/fixtures/next');
-      console.log('Next fixture:', response.data);
       setNextFixture(response.data);
     } catch (error: any) {
-      console.error('Failed to fetch next fixture:', error);
-      console.error('Error response:', error.response);
+      // Silent error - fixture may not exist
     } finally {
       setLoading(false);
     }

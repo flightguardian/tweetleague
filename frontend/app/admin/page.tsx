@@ -26,9 +26,6 @@ export default function AdminPage() {
       return;
     }
     
-    console.log('Session data:', session);
-    console.log('Access token:', session.accessToken);
-    
     // Set the token for API calls
     if (session.accessToken) {
       api.defaults.headers.common['Authorization'] = `Bearer ${session.accessToken}`;
@@ -48,7 +45,6 @@ export default function AdminPage() {
         setIsAdmin(true);
       }
     } catch (error: any) {
-      console.error('Admin check error:', error.response?.status, error.response?.data);
       if (error.response?.status === 403 || error.response?.status === 401) {
         // Not an admin or not authenticated
         router.push('/');

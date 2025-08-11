@@ -50,7 +50,6 @@ export function ScoreUpdater() {
       });
       setScores(initialScores);
     } catch (error) {
-      console.error('Failed to fetch fixtures:', error);
       toast({
         title: 'Error',
         description: 'Failed to fetch fixtures',

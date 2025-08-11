@@ -5,7 +5,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { api } from "@/lib/api";
 
 const handler = NextAuth({
-  debug: true, // Enable debug mode for detailed logs
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -49,7 +48,6 @@ const handler = NextAuth({
             };
           }
         } catch (error) {
-          console.error('Auth error:', error);
           return null;
         }
         return null;
@@ -58,13 +56,6 @@ const handler = NextAuth({
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log('SignIn callback triggered:', {
-        provider: account?.provider,
-        user: user,
-        account: account,
-        profile: profile
-      });
-      
       if (account?.provider === "google" || account?.provider === "twitter") {
         try {
           // For Twitter OAuth 2.0, email might not be available
@@ -72,15 +63,6 @@ const handler = NextAuth({
           const twitterUsername = (profile as any)?.data?.username;
           const email = user.email || (twitterUsername ? `${twitterUsername}@twitter.local` : `${account.providerAccountId}@twitter.local`);
           const name = user.name || profile?.name || 'Twitter User';
-          
-          console.log('Sending social auth request:', {
-            provider: account.provider,
-            provider_id: account.providerAccountId,
-            email: email,
-            name: name,
-            avatar_url: user.image,
-            twitter_handle: twitterUsername
-          });
           
           const response = await api.post('/auth/social', {
             provider: account.provider,
@@ -99,8 +81,6 @@ const handler = NextAuth({
           user.provider = response.data.user.provider; // Store provider from backend
           return true;
         } catch (error) {
-          console.error('Social auth error details:', error);
-          console.error('Error response:', error.response?.data);
           return false;
         }
       }
