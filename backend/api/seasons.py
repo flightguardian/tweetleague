@@ -170,6 +170,29 @@ async def activate_season(
     season.status = SeasonStatus.ACTIVE
     season.updated_at = datetime.now(timezone.utc)
     
+    # Create UserStats for all existing users for the new season
+    existing_users = db.query(User).all()
+    for user in existing_users:
+        # Check if UserStats already exists for this user/season
+        existing_stats = db.query(UserStats).filter(
+            UserStats.user_id == user.id,
+            UserStats.season_id == season.id
+        ).first()
+        
+        if not existing_stats:
+            new_stats = UserStats(
+                user_id=user.id,
+                season_id=season.id,
+                total_points=0,
+                correct_scores=0,
+                correct_results=0,
+                predictions_made=0,
+                current_streak=0,
+                best_streak=0,
+                avg_points_per_game=0.0
+            )
+            db.add(new_stats)
+    
     db.commit()
     db.refresh(season)
     
