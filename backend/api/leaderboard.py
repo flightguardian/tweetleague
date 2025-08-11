@@ -61,11 +61,44 @@ def get_leaderboard(
         User.username  # Alphabetical by username for stable ordering
     ).offset(offset).limit(limit).all()
     
+    # Calculate positions with ties
     leaderboard = []
-    for position, stat in enumerate(stats, 1):
+    
+    for i, stat in enumerate(stats):
         user = stat.user
+        
+        # Calculate actual position by counting users with better stats
+        # This handles ties correctly across pages
+        actual_position = db.query(UserStats).filter(
+            UserStats.season_id == season_id,
+            or_(
+                # Users with predictions rank higher
+                and_(
+                    UserStats.predictions_made > 0,
+                    stat.predictions_made == 0
+                ),
+                # Users with better stats rank higher
+                and_(
+                    UserStats.predictions_made > 0,
+                    stat.predictions_made > 0,
+                    or_(
+                        UserStats.total_points > stat.total_points,
+                        and_(
+                            UserStats.total_points == stat.total_points,
+                            UserStats.correct_scores > stat.correct_scores
+                        ),
+                        and_(
+                            UserStats.total_points == stat.total_points,
+                            UserStats.correct_scores == stat.correct_scores,
+                            UserStats.correct_results > stat.correct_results
+                        )
+                    )
+                )
+            )
+        ).count() + 1
+        
         leaderboard.append(LeaderboardEntry(
-            position=position,
+            position=actual_position,
             username=user.username,
             avatar_url=user.avatar_url,
             total_points=stat.total_points,
@@ -132,8 +165,8 @@ def get_user_position(
     if not user_stats:
         raise HTTPException(status_code=404, detail="No stats found for user in current season")
     
-    # Calculate position
-    # Count users who rank higher (have played and have more points, or haven't played vs not played)
+    # Calculate position (users with better stats, not including ties)
+    # Count only users who rank strictly higher
     position = db.query(UserStats).filter(
         UserStats.season_id == current_season.id,
         or_(
@@ -142,7 +175,7 @@ def get_user_position(
                 UserStats.predictions_made > 0,
                 user_stats.predictions_made == 0
             ),
-            # Among users who have played, use points/scores/results
+            # Among users who have played, strictly better stats
             and_(
                 UserStats.predictions_made > 0,
                 user_stats.predictions_made > 0,

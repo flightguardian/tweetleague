@@ -355,34 +355,41 @@ export default function PredictionsPage() {
                       </div>
                     </div>
                     
-                    {/* Teams Display */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-center flex-1">
-                        <Image 
-                          src={getTeamLogo(pred.fixture_home_team)} 
-                          alt={pred.fixture_home_team}
-                          width={60}
-                          height={60}
-                          className="mb-2 mx-auto md:w-16 md:h-16"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                        <h3 className="font-bold text-sm md:text-base">{pred.fixture_home_team}</h3>
-                        <p className="text-xs text-gray-600">Home</p>
+                    {/* Teams Display - Mobile First Grid Layout */}
+                    <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-2 md:gap-4 mb-4">
+                      {/* Home Team */}
+                      <div className="flex flex-col items-center text-center">
+                        <div className="w-12 h-12 md:w-16 md:h-16 mb-2 relative">
+                          <Image 
+                            src={getTeamLogo(pred.fixture_home_team)} 
+                            alt={pred.fixture_home_team}
+                            fill
+                            className="object-contain"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        </div>
+                        <h3 className="font-bold text-xs md:text-base leading-tight">{pred.fixture_home_team}</h3>
+                        <p className="text-[10px] md:text-xs text-gray-500 mt-0.5">Home</p>
                       </div>
-                      <div className="px-2 md:px-4 flex items-center">
-                        <p className="text-lg md:text-xl font-bold text-gray-400">VS</p>
+                      
+                      {/* VS Divider - Perfectly Centered */}
+                      <div className="flex items-center justify-center px-2">
+                        <span className="text-sm md:text-lg font-bold text-gray-400">VS</span>
                       </div>
-                      <div className="text-center flex-1">
-                        <Image 
-                          src={getTeamLogo(pred.fixture_away_team)} 
-                          alt={pred.fixture_away_team}
-                          width={60}
-                          height={60}
-                          className="mb-2 mx-auto md:w-16 md:h-16"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                        <h3 className="font-bold text-sm md:text-base">{pred.fixture_away_team}</h3>
-                        <p className="text-xs text-gray-600">Away</p>
+                      
+                      {/* Away Team */}
+                      <div className="flex flex-col items-center text-center">
+                        <div className="w-12 h-12 md:w-16 md:h-16 mb-2 relative">
+                          <Image 
+                            src={getTeamLogo(pred.fixture_away_team)} 
+                            alt={pred.fixture_away_team}
+                            fill
+                            className="object-contain"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        </div>
+                        <h3 className="font-bold text-xs md:text-base leading-tight">{pred.fixture_away_team}</h3>
+                        <p className="text-[10px] md:text-xs text-gray-500 mt-0.5">Away</p>
                       </div>
                     </div>
                     
@@ -528,34 +535,41 @@ export default function PredictionsPage() {
                       </div>
                     </div>
                     
-                    {/* Teams Display */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-center flex-1">
-                        <Image 
-                          src={getTeamLogo(pred.fixture_home_team)} 
-                          alt={pred.fixture_home_team}
-                          width={50}
-                          height={50}
-                          className="mb-2 mx-auto md:w-14 md:h-14"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                        <h3 className="font-bold text-sm md:text-base">{pred.fixture_home_team}</h3>
-                        <p className="text-xs text-gray-600">Home</p>
+                    {/* Teams Display - Mobile First Grid Layout */}
+                    <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-2 md:gap-4 mb-4">
+                      {/* Home Team */}
+                      <div className="flex flex-col items-center text-center">
+                        <div className="w-12 h-12 md:w-14 md:h-14 mb-2 relative">
+                          <Image 
+                            src={getTeamLogo(pred.fixture_home_team)} 
+                            alt={pred.fixture_home_team}
+                            fill
+                            className="object-contain"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        </div>
+                        <h3 className="font-bold text-xs md:text-base leading-tight">{pred.fixture_home_team}</h3>
+                        <p className="text-[10px] md:text-xs text-gray-500 mt-0.5">Home</p>
                       </div>
-                      <div className="px-2 md:px-4 flex items-center">
-                        <p className="text-lg md:text-xl font-bold text-gray-400">VS</p>
+                      
+                      {/* VS Divider - Perfectly Centered */}
+                      <div className="flex items-center justify-center px-2">
+                        <span className="text-sm md:text-lg font-bold text-gray-400">VS</span>
                       </div>
-                      <div className="text-center flex-1">
-                        <Image 
-                          src={getTeamLogo(pred.fixture_away_team)} 
-                          alt={pred.fixture_away_team}
-                          width={50}
-                          height={50}
-                          className="mb-2 mx-auto md:w-14 md:h-14"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
-                        <h3 className="font-bold text-sm md:text-base">{pred.fixture_away_team}</h3>
-                        <p className="text-xs text-gray-600">Away</p>
+                      
+                      {/* Away Team */}
+                      <div className="flex flex-col items-center text-center">
+                        <div className="w-12 h-12 md:w-14 md:h-14 mb-2 relative">
+                          <Image 
+                            src={getTeamLogo(pred.fixture_away_team)} 
+                            alt={pred.fixture_away_team}
+                            fill
+                            className="object-contain"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        </div>
+                        <h3 className="font-bold text-xs md:text-base leading-tight">{pred.fixture_away_team}</h3>
+                        <p className="text-[10px] md:text-xs text-gray-500 mt-0.5">Away</p>
                       </div>
                     </div>
                     
