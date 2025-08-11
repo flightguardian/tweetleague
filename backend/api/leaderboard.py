@@ -61,41 +61,38 @@ def get_leaderboard(
         User.username  # Alphabetical by username for stable ordering
     ).offset(offset).limit(limit).all()
     
-    # Calculate positions with ties
+    # Calculate positions with ties more efficiently
     leaderboard = []
     
-    for i, stat in enumerate(stats):
+    # Get ALL stats for position calculation (not paginated)
+    all_stats = query.order_by(
+        desc(UserStats.predictions_made > 0),
+        desc(UserStats.total_points),
+        desc(UserStats.correct_scores),
+        desc(UserStats.correct_results),
+        User.username
+    ).all()
+    
+    # Build position map
+    position_map = {}
+    current_position = 1
+    prev_stat = None
+    
+    for i, stat in enumerate(all_stats):
+        if prev_stat and (
+            stat.predictions_made != prev_stat.predictions_made or
+            stat.total_points != prev_stat.total_points or
+            stat.correct_scores != prev_stat.correct_scores or
+            stat.correct_results != prev_stat.correct_results
+        ):
+            current_position = i + 1
+        position_map[stat.user_id] = current_position
+        prev_stat = stat
+    
+    # Now build the paginated response
+    for stat in stats:
         user = stat.user
-        
-        # Calculate actual position by counting users with better stats
-        # This handles ties correctly across pages
-        actual_position = db.query(UserStats).filter(
-            UserStats.season_id == season_id,
-            or_(
-                # Users with predictions rank higher
-                and_(
-                    UserStats.predictions_made > 0,
-                    stat.predictions_made == 0
-                ),
-                # Users with better stats rank higher
-                and_(
-                    UserStats.predictions_made > 0,
-                    stat.predictions_made > 0,
-                    or_(
-                        UserStats.total_points > stat.total_points,
-                        and_(
-                            UserStats.total_points == stat.total_points,
-                            UserStats.correct_scores > stat.correct_scores
-                        ),
-                        and_(
-                            UserStats.total_points == stat.total_points,
-                            UserStats.correct_scores == stat.correct_scores,
-                            UserStats.correct_results > stat.correct_results
-                        )
-                    )
-                )
-            )
-        ).count() + 1
+        actual_position = position_map.get(stat.user_id, offset + 1)
         
         leaderboard.append(LeaderboardEntry(
             position=actual_position,
