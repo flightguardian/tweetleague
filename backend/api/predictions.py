@@ -242,7 +242,7 @@ def get_fixture_predictions_detailed(
     # Build query for predictions
     query = db.query(Prediction).filter(
         Prediction.fixture_id == fixture_id
-    ).join(User)
+    )
     
     # Filter by mini league if specified
     if mini_league_id:
@@ -285,7 +285,7 @@ def get_fixture_predictions_detailed(
         # Handle NULL points_earned (treat as 0)
         # Then by username for stable ordering when points are tied
         from sqlalchemy import func
-        predictions = query.join(User).order_by(
+        predictions = query.join(User, Prediction.user_id == User.id).order_by(
             desc(func.coalesce(Prediction.points_earned, 0)),
             User.username
         ).limit(limit).offset(offset).all()
