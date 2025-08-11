@@ -61,41 +61,39 @@ def get_leaderboard(
         User.username  # Alphabetical by username for stable ordering
     ).offset(offset).limit(limit).all()
     
-    # Calculate positions with ties more efficiently
+    # Build leaderboard with calculated positions
     leaderboard = []
     
-    # Get ALL stats for position calculation (not paginated)
-    all_stats = query.order_by(
-        desc(UserStats.predictions_made > 0),
-        desc(UserStats.total_points),
-        desc(UserStats.correct_scores),
-        desc(UserStats.correct_results),
-        User.username
-    ).all()
+    # Calculate positions efficiently without N+1 queries
+    # We'll track position based on the sorted order, accounting for ties
+    prev_stats = None
+    current_position = offset + 1  # Start position based on offset
+    position_counter = offset + 1  # Tracks actual row number
     
-    # Build position map
-    position_map = {}
-    current_position = 1
-    prev_stat = None
-    
-    for i, stat in enumerate(all_stats):
-        if prev_stat and (
-            stat.predictions_made != prev_stat.predictions_made or
-            stat.total_points != prev_stat.total_points or
-            stat.correct_scores != prev_stat.correct_scores or
-            stat.correct_results != prev_stat.correct_results
-        ):
-            current_position = i + 1
-        position_map[stat.user_id] = current_position
-        prev_stat = stat
-    
-    # Now build the paginated response
     for stat in stats:
         user = stat.user
-        actual_position = position_map.get(stat.user_id, offset + 1)
+        
+        # Check if this user is tied with the previous user
+        if prev_stats and (
+            # Both have same predictions_made status (0 or >0)
+            (prev_stats.predictions_made == 0 and stat.predictions_made == 0) or
+            (prev_stats.predictions_made > 0 and stat.predictions_made > 0 and
+             prev_stats.total_points == stat.total_points and
+             prev_stats.correct_scores == stat.correct_scores and
+             prev_stats.correct_results == stat.correct_results)
+        ):
+            # Tied with previous user, use same position
+            position = current_position
+        else:
+            # Not tied, use the row counter as position
+            position = position_counter
+            current_position = position_counter
+        
+        position_counter += 1
+        prev_stats = stat
         
         leaderboard.append(LeaderboardEntry(
-            position=actual_position,
+            position=position,
             username=user.username,
             avatar_url=user.avatar_url,
             total_points=stat.total_points,
@@ -162,35 +160,36 @@ def get_user_position(
     if not user_stats:
         raise HTTPException(status_code=404, detail="No stats found for user in current season")
     
-    # Calculate position (users with better stats, not including ties)
-    # Count only users who rank strictly higher
-    position = db.query(UserStats).filter(
-        UserStats.season_id == current_season.id,
-        or_(
-            # Users with predictions rank higher than users without
-            and_(
-                UserStats.predictions_made > 0,
-                user_stats.predictions_made == 0
-            ),
-            # Among users who have played, strictly better stats
-            and_(
-                UserStats.predictions_made > 0,
-                user_stats.predictions_made > 0,
-                or_(
-                    UserStats.total_points > user_stats.total_points,
-                    and_(
-                        UserStats.total_points == user_stats.total_points,
-                        UserStats.correct_scores > user_stats.correct_scores
-                    ),
-                    and_(
-                        UserStats.total_points == user_stats.total_points,
-                        UserStats.correct_scores == user_stats.correct_scores,
-                        UserStats.correct_results > user_stats.correct_results
-                    )
+    # Calculate position more efficiently
+    # Count users with strictly better stats (not including ties)
+    better_users = 0
+    
+    if user_stats.predictions_made == 0:
+        # Count all users with predictions_made > 0
+        better_users = db.query(func.count(UserStats.id)).filter(
+            UserStats.season_id == current_season.id,
+            UserStats.predictions_made > 0
+        ).scalar()
+    else:
+        # Count users with predictions_made > 0 and better stats
+        better_users = db.query(func.count(UserStats.id)).filter(
+            UserStats.season_id == current_season.id,
+            UserStats.predictions_made > 0,
+            or_(
+                UserStats.total_points > user_stats.total_points,
+                and_(
+                    UserStats.total_points == user_stats.total_points,
+                    UserStats.correct_scores > user_stats.correct_scores
+                ),
+                and_(
+                    UserStats.total_points == user_stats.total_points,
+                    UserStats.correct_scores == user_stats.correct_scores,
+                    UserStats.correct_results > user_stats.correct_results
                 )
             )
-        )
-    ).count() + 1
+        ).scalar()
+    
+    position = better_users + 1
     
     return LeaderboardEntry(
         position=position,

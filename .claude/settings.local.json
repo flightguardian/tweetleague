@@ -17,7 +17,10 @@
       "Bash(./venv/Scripts/pip.exe install:*)",
       "Bash(./venv/Scripts/python.exe scripts/check_twitter_matches.py)",
       "Bash(./venv/Scripts/python.exe scripts/import_hull_predictions.py)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(./venv/Scripts/python.exe scripts/fix_predictions_and_stats.py)",
+      "Bash(./venv/Scripts/python.exe scripts/reset_predictions_made.py:*)",
+      "Bash(./venv/Scripts/python.exe test_leaderboard.py:*)"
     ],
     "deny": []
   }
