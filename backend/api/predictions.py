@@ -129,36 +129,67 @@ def get_my_predictions(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Get current season
-    current_season = db.query(Season).filter(Season.is_current == True).first()
-    if not current_season:
-        return []
+    import logging
+    logger = logging.getLogger(__name__)
     
-    # Only get predictions for the current season
-    predictions = db.query(Prediction).filter(
-        Prediction.user_id == current_user.id
-    ).join(Fixture).filter(
-        Fixture.season_id == current_season.id
-    ).order_by(Fixture.kickoff_time.desc()).all()
-    
-    response = []
-    for pred in predictions:
-        response.append(PredictionResponse(
-            id=pred.id,
-            fixture_id=pred.fixture_id,
-            home_prediction=pred.home_prediction,
-            away_prediction=pred.away_prediction,
-            points_earned=pred.points_earned,
-            created_at=pred.created_at,
-            updated_at=pred.updated_at,
-            fixture_home_team=pred.fixture.home_team,
-            fixture_away_team=pred.fixture.away_team,
-            fixture_kickoff=pred.fixture.kickoff_time,
-            fixture_home_score=pred.fixture.home_score,
-            fixture_away_score=pred.fixture.away_score
-        ))
-    
-    return response
+    try:
+        logger.info(f"Getting predictions for user: {current_user.username} (id: {current_user.id})")
+        
+        # Get current season
+        current_season = db.query(Season).filter(Season.is_current == True).first()
+        if not current_season:
+            logger.warning("No current season found")
+            return []
+        
+        logger.info(f"Current season: {current_season.id}")
+        
+        # Only get predictions for the current season
+        # Use options to eagerly load the fixture relationship
+        from sqlalchemy.orm import joinedload
+        
+        predictions = db.query(Prediction).options(
+            joinedload(Prediction.fixture)
+        ).filter(
+            Prediction.user_id == current_user.id
+        ).join(Fixture).filter(
+            Fixture.season_id == current_season.id
+        ).order_by(Fixture.kickoff_time.desc()).all()
+        
+        logger.info(f"Found {len(predictions)} predictions for user")
+        
+        response = []
+        for pred in predictions:
+            try:
+                logger.debug(f"Processing prediction {pred.id} for fixture {pred.fixture_id}")
+                
+                if not pred.fixture:
+                    logger.error(f"Prediction {pred.id} has no fixture loaded!")
+                    continue
+                    
+                response.append(PredictionResponse(
+                    id=pred.id,
+                    fixture_id=pred.fixture_id,
+                    home_prediction=pred.home_prediction,
+                    away_prediction=pred.away_prediction,
+                    points_earned=pred.points_earned,
+                    created_at=pred.created_at,
+                    updated_at=pred.updated_at,
+                    fixture_home_team=pred.fixture.home_team,
+                    fixture_away_team=pred.fixture.away_team,
+                    fixture_kickoff=pred.fixture.kickoff_time,
+                    fixture_home_score=pred.fixture.home_score,
+                    fixture_away_score=pred.fixture.away_score
+                ))
+            except Exception as e:
+                logger.error(f"Error processing prediction {pred.id}: {str(e)}")
+                raise
+        
+        logger.info(f"Returning {len(response)} predictions")
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error in get_my_predictions: {str(e)}", exc_info=True)
+        raise
 
 @router.get("/fixture/{fixture_id}", response_model=List[PublicPrediction])
 def get_fixture_predictions(

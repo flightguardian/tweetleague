@@ -68,28 +68,45 @@ def get_leaderboard(
     # We'll track position based on the sorted order, accounting for ties
     prev_stats = None
     current_position = offset + 1  # Start position based on offset
-    position_counter = offset + 1  # Tracks actual row number
+    tied_users_count = 0  # Track how many users are at the current tied position
     
-    for stat in stats:
+    # Debug logging
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    for i, stat in enumerate(stats):
         user = stat.user
         
         # Check if this user is tied with the previous user
-        if prev_stats and (
-            # Both have same predictions_made status (0 or >0)
-            (prev_stats.predictions_made == 0 and stat.predictions_made == 0) or
-            (prev_stats.predictions_made > 0 and stat.predictions_made > 0 and
-             prev_stats.total_points == stat.total_points and
-             prev_stats.correct_scores == stat.correct_scores and
-             prev_stats.correct_results == stat.correct_results)
-        ):
+        is_tied = False
+        if prev_stats:
+            # Check if both users have no predictions (all tied at bottom)
+            if prev_stats.predictions_made == 0 and stat.predictions_made == 0:
+                is_tied = True
+                logger.debug(f"Tie detected (no predictions): {user.username} tied with previous")
+            # Check if both users have predictions and same stats
+            elif (prev_stats.predictions_made > 0 and stat.predictions_made > 0 and
+                  prev_stats.total_points == stat.total_points and
+                  prev_stats.correct_scores == stat.correct_scores and
+                  prev_stats.correct_results == stat.correct_results):
+                is_tied = True
+                logger.debug(f"Tie detected (same stats): {user.username} has {stat.total_points}/{stat.correct_scores}/{stat.correct_results} same as previous")
+        
+        if is_tied:
             # Tied with previous user, use same position
             position = current_position
+            tied_users_count += 1
         else:
-            # Not tied, use the row counter as position
-            position = position_counter
-            current_position = position_counter
+            # Not tied, calculate new position
+            # If there were tied users before, skip their positions
+            if tied_users_count > 0:
+                current_position = offset + i + 1
+                tied_users_count = 0
+            else:
+                current_position = offset + i + 1
+            position = current_position
         
-        position_counter += 1
+        logger.debug(f"User {user.username}: position={position}, offset={offset}, i={i}, is_tied={is_tied}, tied_count={tied_users_count}")
         prev_stats = stat
         
         leaderboard.append(LeaderboardEntry(

@@ -2,12 +2,19 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import uvicorn
+import logging
 from database.base import engine, Base
 from api import auth_v2 as auth, auth_twitter, fixtures, predictions, admin, users, leaderboard, seasons, mini_leagues, user_account
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG if os.getenv("DEBUG") == "true" else logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
