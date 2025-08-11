@@ -120,14 +120,8 @@ export default function FixturePredictionsPage() {
     }
   };
 
-  // Show latest predictions first (using updated_at if available, otherwise created_at)
-  const sortPredictions = (preds: Prediction[]) => {
-    return [...preds].sort((a, b) => {
-      const dateA = new Date(a.updated_at || a.created_at).getTime();
-      const dateB = new Date(b.updated_at || b.created_at).getTime();
-      return dateB - dateA; // Most recent first
-    });
-  };
+  // Predictions are already sorted by the backend (most recent first)
+  // No need to sort on frontend anymore
 
   const getFormIcon = (result: string) => {
     switch (result) {
@@ -203,7 +197,7 @@ export default function FixturePredictionsPage() {
     );
   }
 
-  const sortedPredictions = sortPredictions(predictions);
+  // Predictions are already sorted by backend (most recent first)
   // Use overall stats for averages if available, otherwise fallback to current page
   const averageHomeScore = overallStats?.avg_home_prediction?.toFixed(1) || 
     (predictions.length > 0 
@@ -558,11 +552,10 @@ export default function FixturePredictionsPage() {
                 <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold">Player</th>
                 <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Prediction</th>
                 <th className="px-1 md:px-3 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Pts</th>
-                <th className="hidden md:table-cell px-3 py-3 text-center text-sm font-semibold">Submitted</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {sortedPredictions.map((prediction, index) => (
+              {predictions.map((prediction, index) => (
                 <tr 
                   key={prediction.id} 
                   className="bg-white hover:bg-gray-50 transition-colors"
@@ -600,16 +593,11 @@ export default function FixturePredictionsPage() {
                   <td className="px-1 md:px-3 py-2 md:py-3 text-center font-bold text-sm md:text-base text-[rgb(98,181,229)]">
                     {prediction.user_total_points || 0}
                   </td>
-                  <td className="hidden md:table-cell px-3 py-3 text-center text-xs md:text-sm text-gray-500">
-                    <div>{format(new Date(prediction.updated_at || prediction.created_at), 'MMM d')}</div>
-                    <div>{format(new Date(prediction.updated_at || prediction.created_at), 'h:mm a')}</div>
-                    {prediction.updated_at && <div className="text-xs italic">(edited)</div>}
-                  </td>
                 </tr>
               ))}
               {predictions.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="text-center py-8 text-gray-500 text-sm">
+                  <td colSpan={4} className="text-center py-8 text-gray-500 text-sm">
                     No predictions yet for this fixture
                   </td>
                 </tr>

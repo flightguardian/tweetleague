@@ -369,7 +369,7 @@ export default function PredictionsPage() {
                         <h3 className="font-bold text-sm md:text-base">{pred.fixture_home_team}</h3>
                         <p className="text-xs text-gray-600">Home</p>
                       </div>
-                      <div className="px-2 md:px-4">
+                      <div className="px-2 md:px-4 flex items-center">
                         <p className="text-lg md:text-xl font-bold text-gray-400">VS</p>
                       </div>
                       <div className="text-center flex-1">
@@ -542,7 +542,7 @@ export default function PredictionsPage() {
                         <h3 className="font-bold text-sm md:text-base">{pred.fixture_home_team}</h3>
                         <p className="text-xs text-gray-600">Home</p>
                       </div>
-                      <div className="px-2 md:px-4">
+                      <div className="px-2 md:px-4 flex items-center">
                         <p className="text-lg md:text-xl font-bold text-gray-400">VS</p>
                       </div>
                       <div className="text-center flex-1">

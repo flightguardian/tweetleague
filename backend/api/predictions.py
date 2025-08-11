@@ -244,8 +244,15 @@ def get_fixture_predictions_detailed(
     avg_home_prediction = float(stats_result.avg_home) if stats_result.avg_home else 0.0
     avg_away_prediction = float(stats_result.avg_away) if stats_result.avg_away else 0.0
     
-    # Apply pagination for the actual predictions list
-    predictions = query.limit(limit).offset(offset).all()
+    # Apply ordering and pagination for the actual predictions list
+    # Order by most recent activity first (updated_at if exists, otherwise created_at)
+    from sqlalchemy import case, desc
+    predictions = query.order_by(
+        desc(case(
+            (Prediction.updated_at.isnot(None), Prediction.updated_at),
+            else_=Prediction.created_at
+        ))
+    ).limit(limit).offset(offset).all()
     
     response = []
     for pred in predictions:
