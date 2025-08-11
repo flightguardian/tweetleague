@@ -276,14 +276,27 @@ def get_fixture_predictions_detailed(
     avg_away_prediction = float(stats_result.avg_away) if stats_result.avg_away else 0.0
     
     # Apply ordering and pagination for the actual predictions list
-    # Order by most recent activity first (updated_at if exists, otherwise created_at)
+    # If fixture is completed, order by points earned (highest first)
+    # Otherwise, order by most recent activity
     from sqlalchemy import case, desc
-    predictions = query.order_by(
-        desc(case(
-            (Prediction.updated_at.isnot(None), Prediction.updated_at),
-            else_=Prediction.created_at
-        ))
-    ).limit(limit).offset(offset).all()
+    
+    if fixture.status == FixtureStatus.FINISHED:
+        # For completed fixtures, order by points earned (descending)
+        # Handle NULL points_earned (treat as 0)
+        # Then by username for stable ordering when points are tied
+        from sqlalchemy import func
+        predictions = query.join(User).order_by(
+            desc(func.coalesce(Prediction.points_earned, 0)),
+            User.username
+        ).limit(limit).offset(offset).all()
+    else:
+        # For upcoming/live fixtures, order by most recent activity
+        predictions = query.order_by(
+            desc(case(
+                (Prediction.updated_at.isnot(None), Prediction.updated_at),
+                else_=Prediction.created_at
+            ))
+        ).limit(limit).offset(offset).all()
     
     response = []
     for pred in predictions:

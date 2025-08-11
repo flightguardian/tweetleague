@@ -551,7 +551,9 @@ export default function FixturePredictionsPage() {
                 <th className="px-1 md:px-3 py-2 md:py-3 text-left text-xs md:text-sm font-semibold w-10">Pos</th>
                 <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold">Player</th>
                 <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Prediction</th>
-                <th className="px-1 md:px-3 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Pts</th>
+                <th className="px-1 md:px-3 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">
+                  {fixture.home_score !== null && fixture.away_score !== null ? 'Pts' : 'Total'}
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -590,8 +592,20 @@ export default function FixturePredictionsPage() {
                       {prediction.home_prediction} - {prediction.away_prediction}
                     </span>
                   </td>
-                  <td className="px-1 md:px-3 py-2 md:py-3 text-center font-bold text-sm md:text-base text-[rgb(98,181,229)]">
-                    {prediction.user_total_points || 0}
+                  <td className="px-1 md:px-3 py-2 md:py-3 text-center font-bold text-sm md:text-base">
+                    {fixture.home_score !== null && fixture.away_score !== null ? (
+                      <span className={
+                        prediction.points_earned === 3 ? 'text-yellow-500' :
+                        prediction.points_earned === 1 ? 'text-green-600' :
+                        'text-gray-400'
+                      }>
+                        {prediction.points_earned ?? 0}
+                      </span>
+                    ) : (
+                      <span className="text-[rgb(98,181,229)]">
+                        {prediction.user_total_points || 0}
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}
