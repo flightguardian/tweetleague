@@ -548,7 +548,7 @@ export default function FixturePredictionsPage() {
           <table className="w-full">
             <thead className="bg-gradient-to-r from-[rgb(98,181,229)] to-[rgb(78,145,183)] text-white">
               <tr>
-                <th className="px-1 md:px-3 py-2 md:py-3 text-left text-xs md:text-sm font-semibold w-10">Pos</th>
+                <th className="px-1 md:px-3 py-2 md:py-3 text-left text-xs md:text-sm font-semibold w-10" title="League Position">Pos</th>
                 <th className="px-2 md:px-4 py-2 md:py-3 text-left text-xs md:text-sm font-semibold">Player</th>
                 <th className="px-2 md:px-4 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">Prediction</th>
                 <th className="px-1 md:px-3 py-2 md:py-3 text-center text-xs md:text-sm font-semibold">

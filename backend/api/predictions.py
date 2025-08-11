@@ -312,7 +312,8 @@ def get_fixture_predictions_detailed(
         
         if user_stats and user_stats.predictions_made > 0:
             # Calculate position
-            user_position = db.query(UserStats).filter(
+            # If viewing a mini league, calculate position within that league
+            position_query = db.query(UserStats).filter(
                 UserStats.season_id == current_season.id,
                 UserStats.predictions_made > 0,
                 or_(
@@ -322,7 +323,16 @@ def get_fixture_predictions_detailed(
                         UserStats.correct_scores > user_stats.correct_scores
                     )
                 )
-            ).count() + 1
+            )
+            
+            # Filter by mini league if specified
+            if mini_league_id:
+                member_ids = db.query(MiniLeagueMember.user_id).filter(
+                    MiniLeagueMember.mini_league_id == mini_league_id
+                ).subquery()
+                position_query = position_query.filter(UserStats.user_id.in_(member_ids))
+            
+            user_position = position_query.count() + 1
             
             user_total_points = user_stats.total_points
             user_avg_points = user_stats.avg_points_per_game
