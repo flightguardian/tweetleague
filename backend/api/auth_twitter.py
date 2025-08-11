@@ -261,16 +261,35 @@ async def twitter_callback(
             user = existing_user
         else:
             # Create new user
-            # Use Twitter handle for username (it's unique), not display name
-            username = twitter_handle  # Use Twitter handle which is guaranteed unique
+            # Check if Twitter handle is already taken as a username (case-insensitive)
+            from sqlalchemy import func
+            base_username = twitter_handle
+            username = base_username
+            counter = 1
+            
+            # Keep trying until we find an available username
+            while True:
+                existing = db.query(User).filter(
+                    func.lower(User.username) == username.lower()
+                ).first()
+                
+                if not existing:
+                    break
+                    
+                # Username taken, try with suffix
+                username = f"{base_username}_{counter}"
+                counter += 1
+                
+                if counter > 100:  # Safety check
+                    raise HTTPException(status_code=500, detail="Could not generate unique username")
             
             print(f"[TWITTER AUTH] Creating user - username: {username}, twitter_handle: {twitter_handle}, email: {email}")
             
             user = User(
                 email=email,
-                username=username,  # Use Twitter handle for username (unique)
+                username=username,  # Use available username (may have suffix)
                 twitter_id=user_id,
-                twitter_handle=twitter_handle,  # Also save in twitter_handle field
+                twitter_handle=twitter_handle,  # Always save original twitter handle
                 provider="twitter",
                 email_verified=True,  # Twitter accounts are pre-verified
                 avatar_url=twitter_user.get("profile_image_url_https")

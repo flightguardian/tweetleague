@@ -7,6 +7,9 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Set up database connection
+os.environ['DATABASE_URL'] = "postgresql://tweetleague_db_user:76LozrILJDapCyrJChETfltLIUhvF0KG@dpg-d2acp7p5pdvs73al0a90-a.frankfurt-postgres.render.com/tweetleague_db"
+
 from database.base import SessionLocal
 from models.models import User
 from sqlalchemy import func
@@ -47,9 +50,9 @@ def fix_duplicate_usernames():
         if duplicates_found:
             # Commit changes
             db.commit()
-            print("\n✅ Duplicate usernames have been fixed!")
+            print("\nDuplicate usernames have been fixed!")
         else:
-            print("\n✅ No duplicate usernames found!")
+            print("\nNo duplicate usernames found!")
             
         # Verify no more duplicates
         print("\nVerifying...")
@@ -63,14 +66,14 @@ def fix_duplicate_usernames():
         ).all()
         
         if result:
-            print("⚠️ Warning: Still found duplicates after fix:")
+            print("! Warning: Still found duplicates after fix:")
             for row in result:
                 print(f"  - '{row.username_lower}': {row.count} users")
         else:
-            print("✅ No duplicate usernames remain!")
+            print("No duplicate usernames remain!")
             
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"X Error: {e}")
         db.rollback()
     finally:
         db.close()

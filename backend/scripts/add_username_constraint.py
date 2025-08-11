@@ -7,6 +7,9 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Set up database connection
+os.environ['DATABASE_URL'] = "postgresql://tweetleague_db_user:76LozrILJDapCyrJChETfltLIUhvF0KG@dpg-d2acp7p5pdvs73al0a90-a.frankfurt-postgres.render.com/tweetleague_db"
+
 from database.base import engine
 from sqlalchemy import text
 
@@ -22,7 +25,7 @@ def add_username_constraint():
             """))
             
             if result.fetchone():
-                print("✅ Index 'ix_users_username_lower' already exists")
+                print("Index 'ix_users_username_lower' already exists")
                 return
             
             # Create unique index on lowercase username
@@ -33,11 +36,11 @@ def add_username_constraint():
             """))
             conn.commit()
             
-            print("✅ Successfully created unique index on lowercase username!")
+            print("Successfully created unique index on lowercase username!")
             print("   This will prevent usernames that differ only by case")
             
         except Exception as e:
-            print(f"❌ Error creating index: {e}")
+            print(f"Error creating index: {e}")
             print("\nNote: You may need to fix duplicate usernames first using:")
             print("  python scripts/fix_duplicate_usernames.py")
 
