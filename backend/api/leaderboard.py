@@ -52,11 +52,13 @@ def get_leaderboard(
     
     # Order and paginate
     # First sort by whether they've played any games, then by points
-    stats = query.order_by(
+    # Add username as final tiebreaker for stable ordering
+    stats = query.join(User).order_by(
         desc(UserStats.predictions_made > 0),  # Users with predictions first
         desc(UserStats.total_points),
         desc(UserStats.correct_scores),
-        desc(UserStats.correct_results)
+        desc(UserStats.correct_results),
+        User.username  # Alphabetical by username for stable ordering
     ).offset(offset).limit(limit).all()
     
     leaderboard = []

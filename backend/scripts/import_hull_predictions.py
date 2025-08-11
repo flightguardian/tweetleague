@@ -132,12 +132,17 @@ def import_predictions():
                 ).first()
                 
                 if existing_prediction:
-                    # Update existing prediction
-                    print(f"      Updating existing prediction: {existing_prediction.home_prediction}-{existing_prediction.away_prediction} → {home_pred}-{away_pred}")
-                    existing_prediction.home_prediction = home_pred
-                    existing_prediction.away_prediction = away_pred
-                    existing_prediction.updated_at = datetime.now(timezone.utc)
-                    predictions_updated += 1
+                    # Check if prediction needs updating
+                    if existing_prediction.home_prediction == home_pred and existing_prediction.away_prediction == away_pred:
+                        print(f"      Prediction already correct: {home_pred}-{away_pred} (skipping)")
+                        predictions_skipped += 1
+                    else:
+                        # Update existing prediction
+                        print(f"      Updating existing prediction: {existing_prediction.home_prediction}-{existing_prediction.away_prediction} → {home_pred}-{away_pred}")
+                        existing_prediction.home_prediction = home_pred
+                        existing_prediction.away_prediction = away_pred
+                        existing_prediction.updated_at = datetime.now(timezone.utc)
+                        predictions_updated += 1
                 else:
                     # Create new prediction
                     new_prediction = Prediction(
@@ -162,7 +167,7 @@ def import_predictions():
         print(f"Users matched: {matched_users}")
         print(f"Predictions created: {predictions_created}")
         print(f"Predictions updated: {predictions_updated}")
-        print(f"Duplicates skipped: {predictions_skipped}")
+        print(f"Skipped (duplicates/unchanged): {predictions_skipped}")
         print(f"Twitter handles not found: {len(no_match_handles)}")
         
         if no_match_handles:
