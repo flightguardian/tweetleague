@@ -62,52 +62,43 @@ def get_leaderboard(
     ).offset(offset).limit(limit).all()
     
     # Build leaderboard with calculated positions
-    leaderboard = []
+    # First, get ALL users' stats to calculate true positions
+    all_stats_query = db.query(UserStats).filter(
+        UserStats.season_id == season_id
+    )
     
-    # Calculate positions efficiently without N+1 queries
-    # We'll track position based on the sorted order, accounting for ties
-    prev_stats = None
-    current_position = offset + 1  # Start position based on offset
-    tied_users_count = 0  # Track how many users are at the current tied position
+    # Apply mini league filter if needed
+    if mini_league_id:
+        from models.mini_leagues import MiniLeagueMember
+        member_ids = db.query(MiniLeagueMember.user_id).filter(
+            MiniLeagueMember.mini_league_id == mini_league_id
+        ).subquery()
+        all_stats_query = all_stats_query.filter(UserStats.user_id.in_(member_ids))
     
-    # Debug logging
-    import logging
-    logger = logging.getLogger(__name__)
+    all_stats = all_stats_query.all()
     
-    for i, stat in enumerate(stats):
-        user = stat.user
-        
-        # Check if this user is tied with the previous user
-        is_tied = False
-        if prev_stats:
-            # Check if both users have no predictions (all tied at bottom)
-            if prev_stats.predictions_made == 0 and stat.predictions_made == 0:
-                is_tied = True
-                logger.debug(f"Tie detected (no predictions): {user.username} tied with previous")
-            # Check if both users have predictions and same stats
-            elif (prev_stats.predictions_made > 0 and stat.predictions_made > 0 and
-                  prev_stats.total_points == stat.total_points and
-                  prev_stats.correct_scores == stat.correct_scores and
-                  prev_stats.correct_results == stat.correct_results):
-                is_tied = True
-                logger.debug(f"Tie detected (same stats): {user.username} has {stat.total_points}/{stat.correct_scores}/{stat.correct_results} same as previous")
-        
-        if is_tied:
-            # Tied with previous user, use same position
-            position = current_position
-            tied_users_count += 1
+    # Build a position map
+    position_map = {}
+    for user_stat in all_stats:
+        if user_stat.predictions_made == 0:
+            # Count all users with predictions > 0
+            position = sum(1 for s in all_stats if s.predictions_made > 0) + 1
         else:
-            # Not tied, calculate new position
-            # If there were tied users before, skip their positions
-            if tied_users_count > 0:
-                current_position = offset + i + 1
-                tied_users_count = 0
-            else:
-                current_position = offset + i + 1
-            position = current_position
-        
-        logger.debug(f"User {user.username}: position={position}, offset={offset}, i={i}, is_tied={is_tied}, tied_count={tied_users_count}")
-        prev_stats = stat
+            # Count users with better stats
+            position = sum(
+                1 for s in all_stats 
+                if s.predictions_made > 0 and (
+                    s.total_points > user_stat.total_points or
+                    (s.total_points == user_stat.total_points and s.correct_scores > user_stat.correct_scores) or
+                    (s.total_points == user_stat.total_points and s.correct_scores == user_stat.correct_scores and s.correct_results > user_stat.correct_results)
+                )
+            ) + 1
+        position_map[user_stat.user_id] = position
+    
+    leaderboard = []
+    for stat in stats:
+        user = stat.user
+        position = position_map.get(stat.user_id, 999)
         
         leaderboard.append(LeaderboardEntry(
             position=position,
