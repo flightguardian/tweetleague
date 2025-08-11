@@ -35,25 +35,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        print(f"Token received: {token[:50]}..." if len(token) > 50 else f"Token received: {token}")
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        print(f"Token payload: {payload}")
         user_id = payload.get("sub")
         if user_id is None:
-            print("No user_id in token payload")
             raise credentials_exception
         # Convert to int if it's a string
         user_id = int(user_id) if isinstance(user_id, str) else user_id
-        print(f"Looking for user with ID: {user_id}")
     except (JWTError, ValueError) as e:
-        print(f"Token validation error: {e}")
         raise credentials_exception
     
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
-        print(f"User with ID {user_id} not found in database")
         raise credentials_exception
-    print(f"User authenticated: {user.email}")
     return user
 
 async def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme_optional), db: Session = Depends(get_db)):

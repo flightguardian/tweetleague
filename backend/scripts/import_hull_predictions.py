@@ -22,8 +22,23 @@ from models.models import User, Prediction, Fixture, UserStats
 from database.base import Base
 import re
 
-# Database connection - Using Render production database
-DATABASE_URL = "postgresql://tweetleague_db_user:76LozrILJDapCyrJChETfltLIUhvF0KG@dpg-d2acp7p5pdvs73al0a90-a.frankfurt-postgres.render.com/tweetleague_db"
+# Get database URL from environment variable
+DATABASE_URL = os.getenv('DATABASE_URL')
+if not DATABASE_URL:
+    # Try to load from .env file if it exists
+    env_file = os.path.join(os.path.dirname(__file__), '.env')
+    if os.path.exists(env_file):
+        with open(env_file) as f:
+            for line in f:
+                if line.startswith('DATABASE_URL='):
+                    DATABASE_URL = line.split('=', 1)[1].strip()
+                    break
+    
+    if not DATABASE_URL:
+        print("ERROR: DATABASE_URL not found")
+        print("Please set DATABASE_URL environment variable or create scripts/.env file")
+        sys.exit(1)
+
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 

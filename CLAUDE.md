@@ -5,7 +5,7 @@ This is a football prediction league application with a FastAPI backend and Next
 
 ## Database
 - Production: PostgreSQL on Render
-- Connection: `postgresql://tweetleague_db_user:76LozrILJDapCyrJChETfltLIUhvF0KG@dpg-d2acp7p5pdvs73al0a90-a.frankfurt-postgres.render.com/tweetleague_db`
+- Connection: Set via DATABASE_URL environment variable
 
 ## Key Commands
 - Backend virtual environment: `cd backend && ./venv/Scripts/activate` (Windows)

@@ -14,7 +14,8 @@
 
 ## Database Connection
 ```python
-DATABASE_URL = "postgresql://tweetleague_db_user:76LozrILJDapCyrJChETfltLIUhvF0KG@dpg-d2acp7p5pdvs73al0a90-a.frankfurt-postgres.render.com/tweetleague_db"
+# Set in environment variable
+DATABASE_URL = os.getenv("DATABASE_URL")
 ```
 
 ## Key Models
@@ -79,5 +80,5 @@ DATABASE_URL = "postgresql://tweetleague_db_user:76LozrILJDapCyrJChETfltLIUhvF0K
 
 ## Testing with psql
 ```bash
-psql postgresql://tweetleague_db_user:76LozrILJDapCyrJChETfltLIUhvF0KG@dpg-d2acp7p5pdvs73al0a90-a.frankfurt-postgres.render.com/tweetleague_db
+psql $DATABASE_URL
 ```
