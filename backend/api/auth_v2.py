@@ -135,11 +135,12 @@ async def register(
     print(f"=== REGISTRATION ATTEMPT for email: {user_data.email}, username: {user_data.username} ===")
     logger.info(f"=== REGISTRATION ATTEMPT for email: {user_data.email}, username: {user_data.username} ===")
     
-    # Check for existing user
+    # Check for existing user (case-insensitive for username)
+    from sqlalchemy import func
     existing_user = db.query(User).filter(
         or_(
             User.email == user_data.email.lower(),
-            User.username == user_data.username
+            func.lower(User.username) == user_data.username.lower()
         )
     ).first()
     

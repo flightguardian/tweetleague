@@ -149,10 +149,11 @@ def update_profile(
 ):
     """Update current user's profile"""
     
-    # Check if username is taken
-    if update_data.username and update_data.username != current_user.username:
+    # Check if username is taken (case-insensitive)
+    if update_data.username and update_data.username.lower() != current_user.username.lower():
+        from sqlalchemy import func
         existing_user = db.query(User).filter(
-            User.username == update_data.username
+            func.lower(User.username) == update_data.username.lower()
         ).first()
         if existing_user:
             raise HTTPException(status_code=400, detail="Username already taken")
