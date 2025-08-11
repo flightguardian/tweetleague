@@ -74,8 +74,21 @@ def get_leaderboard(
             MiniLeagueMember.mini_league_id == mini_league_id
         ).subquery()
         all_stats_query = all_stats_query.filter(UserStats.user_id.in_(member_ids))
+        
+        # Debug logging for mini leagues
+        import logging
+        logger = logging.getLogger(__name__)
+        member_count = db.query(MiniLeagueMember).filter(
+            MiniLeagueMember.mini_league_id == mini_league_id
+        ).count()
+        logger.info(f"Mini league {mini_league_id} has {member_count} members")
     
     all_stats = all_stats_query.all()
+    
+    # Log stats count
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Calculating positions for {len(all_stats)} users (mini_league_id={mini_league_id})")
     
     # Build a position map
     position_map = {}
@@ -94,6 +107,12 @@ def get_leaderboard(
                 )
             ) + 1
         position_map[user_stat.user_id] = position
+    
+    # Log position range for debugging
+    if position_map:
+        min_pos = min(position_map.values())
+        max_pos = max(position_map.values())
+        logger.info(f"Position range: {min_pos} to {max_pos} for {len(position_map)} users")
     
     leaderboard = []
     for stat in stats:

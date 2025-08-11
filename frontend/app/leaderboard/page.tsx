@@ -66,6 +66,14 @@ export default function LeaderboardPage() {
         }
       });
       
+      // Log the leaderboard data for debugging
+      console.log(`Leaderboard data for ${selectedLeague ? `mini league ${selectedLeague}` : 'main league'}:`, {
+        totalReturned: response.data.length,
+        firstUser: response.data[0],
+        positions: response.data.map((u: any) => ({ username: u.username, position: u.position })).slice(0, 5),
+        selectedLeague
+      });
+      
       // Use positions from API (which handles ties correctly)
       // Don't override with index-based positions
       setLeaderboard(response.data);
