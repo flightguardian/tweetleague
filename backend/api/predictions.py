@@ -29,7 +29,7 @@ class PredictionResponse(BaseModel):
     fixture_id: int
     home_prediction: int
     away_prediction: int
-    points_earned: int
+    points_earned: Optional[int] = None  # Can be None for unscored fixtures
     created_at: datetime
     updated_at: Optional[datetime]
     fixture_home_team: str
@@ -42,7 +42,7 @@ class PublicPrediction(BaseModel):
     username: str
     home_prediction: int
     away_prediction: int
-    points_earned: int
+    points_earned: Optional[int] = None  # Can be None for unscored fixtures
 
 @router.post("/", response_model=PredictionResponse)
 def create_or_update_prediction(
