@@ -65,7 +65,9 @@ def find_non_predictors(fixture_id, send_reminders=False):
         # Display fixture details
         print(f"\n📅 Fixture Details:")
         print(f"   {fixture.home_team} vs {fixture.away_team}")
-        print(f"   Competition: {fixture.competition}")
+        # Format competition type for display
+        competition_display = fixture.competition.value.replace('_', ' ').title() if hasattr(fixture.competition, 'value') else str(fixture.competition)
+        print(f"   Competition: {competition_display}")
         print(f"   Kickoff: {fixture.kickoff_time.strftime('%B %d, %Y at %H:%M')}")
         print(f"   Status: {fixture.status}")
         
@@ -172,10 +174,13 @@ def send_email_reminders(email_users, fixture, db):
     print("\n📤 Sending reminder emails...")
     print("-" * 40)
     
+    # Format competition type for display
+    competition_display = fixture.competition.value.replace('_', ' ').title() if hasattr(fixture.competition, 'value') else str(fixture.competition)
+    
     fixture_details = {
         'home_team': fixture.home_team,
         'away_team': fixture.away_team,
-        'competition': fixture.competition,
+        'competition': competition_display,
         'kickoff_time': fixture.kickoff_time.strftime('%B %d, %Y at %H:%M')
     }
     
