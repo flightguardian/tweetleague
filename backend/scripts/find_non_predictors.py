@@ -29,7 +29,14 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from models.models import User, Prediction, Fixture
 from datetime import datetime
-import pytz
+from utils.email import email_service
+
+# Always send reminders to these emails (admin/test accounts)
+ALWAYS_NOTIFY_EMAILS = [
+    'gavmcbride@hotmail.co.uk',
+    'martin.w9@icloud.com', 
+    'mattywrightwright@hotmail.com'
+]
 
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
@@ -44,7 +51,7 @@ def get_fixture_details(db, fixture_id):
         return None
     return fixture
 
-def find_non_predictors(fixture_id):
+def find_non_predictors(fixture_id, send_reminders=False):
     """Find all users who haven't predicted for this fixture"""
     db = SessionLocal()
     
@@ -137,6 +144,27 @@ def find_non_predictors(fixture_id):
                 print("\nEmail addresses (CSV format):")
                 emails = [user.email for user in email_users if not user.email.endswith('@twitter.local')]
                 print(", ".join(emails))
+            
+            # Ask if user wants to send reminder emails
+            if send_reminders:
+                if email_users or ALWAYS_NOTIFY_EMAILS:
+                    send_choice = input("\n📧 Send reminder emails to non-predictors? (y/n): ").strip().lower()
+                    if send_choice == 'y':
+                        # Add always-notify users if they're not already in the list
+                        all_email_users = list(email_users)
+                        existing_emails = [u.email.lower() for u in email_users]
+                        
+                        for email in ALWAYS_NOTIFY_EMAILS:
+                            if email.lower() not in existing_emails:
+                                # Find user with this email to get their username
+                                always_user = db.query(User).filter(
+                                    User.email.ilike(email)
+                                ).first()
+                                if always_user:
+                                    all_email_users.append(always_user)
+                                    print(f"\n📌 Adding admin/test account: {always_user.username} ({email})")
+                        
+                        send_email_reminders(all_email_users, fixture)
         else:
             print("\n✅ Great! All users have made predictions for this fixture!")
         
@@ -144,6 +172,49 @@ def find_non_predictors(fixture_id):
         print(f"\n❌ Error: {e}")
     finally:
         db.close()
+
+def send_email_reminders(email_users, fixture):
+    """Send reminder emails to users who haven't predicted"""
+    print("\n📤 Sending reminder emails...")
+    print("-" * 40)
+    
+    fixture_details = {
+        'home_team': fixture.home_team,
+        'away_team': fixture.away_team,
+        'competition': fixture.competition,
+        'kickoff_time': fixture.kickoff_time.strftime('%B %d, %Y at %H:%M')
+    }
+    
+    sent_count = 0
+    failed_count = 0
+    
+    for user in email_users:
+        # Skip Twitter-only users
+        if user.email.endswith('@twitter.local'):
+            continue
+        
+        try:
+            success = email_service.send_fixture_reminder_email(
+                to_email=user.email,
+                username=user.username,
+                fixture_details=fixture_details
+            )
+            
+            if success:
+                print(f"   ✅ Sent to {user.email} ({user.username})")
+                sent_count += 1
+            else:
+                print(f"   ❌ Failed to send to {user.email} ({user.username})")
+                failed_count += 1
+                
+        except Exception as e:
+            print(f"   ❌ Error sending to {user.email}: {str(e)}")
+            failed_count += 1
+    
+    print("\n📊 Email Summary:")
+    print(f"   Sent successfully: {sent_count}")
+    print(f"   Failed: {failed_count}")
+    print(f"   Total: {sent_count + failed_count}")
 
 def list_fixtures():
     """List all available fixtures"""
@@ -187,7 +258,10 @@ def main():
             fixture_id = input("\nEnter fixture ID to check: ").strip()
             try:
                 fixture_id = int(fixture_id)
-                find_non_predictors(fixture_id)
+                # Ask if they want to send reminders
+                send_reminder_choice = input("Enable email reminder sending? (y/n): ").strip().lower()
+                send_reminders = (send_reminder_choice == 'y')
+                find_non_predictors(fixture_id, send_reminders)
             except ValueError:
                 print("❌ Invalid fixture ID! Please enter a number.")
         elif choice == '3':

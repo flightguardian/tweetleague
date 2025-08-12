@@ -312,5 +312,147 @@ class EmailService:
         """
         
         return self.send_email(to_email, subject, html_content, text_content)
+    
+    def send_fixture_reminder_email(self, to_email: str, username: str, fixture_details: dict) -> bool:
+        """Send fixture reminder email"""
+        logger.info(f"Sending fixture reminder to {to_email} for fixture {fixture_details['home_team']} vs {fixture_details['away_team']}")
+        
+        prediction_url = f"{self.frontend_url}"
+        
+        subject = f"⚽ Don't forget to predict: {fixture_details['home_team']} vs {fixture_details['away_team']}"
+        
+        html_content = f"""
+        <!DOCTYPE html>
+        <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <meta name="x-apple-disable-message-reformatting">
+            <!--[if mso]>
+            <noscript>
+                <xml>
+                    <o:OfficeDocumentSettings>
+                        <o:PixelsPerInch>96</o:PixelsPerInch>
+                    </o:OfficeDocumentSettings>
+                </xml>
+            </noscript>
+            <![endif]-->
+            <style>
+                table, td, div, h1, p {{font-family: Arial, sans-serif;}}
+            </style>
+        </head>
+        <body style="margin:0;padding:0;word-spacing:normal;background-color:#f4f4f4;">
+            <div role="article" aria-roledescription="email" lang="en" style="text-size-adjust:100%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;background-color:#f4f4f4;">
+                <table role="presentation" style="width:100%;border:none;border-spacing:0;">
+                    <tr>
+                        <td align="center" style="padding:20px 0;">
+                            <!--[if mso]>
+                            <table role="presentation" align="center" style="width:600px;">
+                            <tr>
+                            <td>
+                            <![endif]-->
+                            <table role="presentation" style="width:94%;max-width:600px;border:none;border-spacing:0;text-align:left;font-family:Arial,sans-serif;font-size:16px;line-height:22px;color:#363636;">
+                                <!-- Header with Outlook-compatible background -->
+                                <tr>
+                                    <td style="padding:0;background:#62B5E5;">
+                                        <!--[if mso]>
+                                        <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:600px;height:120px;">
+                                            <v:fill type="gradient" color="#62B5E5" color2="#315B73" angle="135"/>
+                                            <v:textbox inset="0,0,0,0">
+                                        <![endif]-->
+                                        <div style="padding:40px 30px;text-align:center;">
+                                            <h1 style="margin:0;font-size:28px;line-height:36px;color:#ffffff;font-weight:bold;">⚽ Match Prediction Reminder</h1>
+                                        </div>
+                                        <!--[if mso]>
+                                            </v:textbox>
+                                        </v:rect>
+                                        <![endif]-->
+                                    </td>
+                                </tr>
+                                <!-- Content -->
+                                <tr>
+                                    <td style="padding:30px;background:#ffffff;">
+                                        <h2 style="margin:0 0 20px 0;font-size:20px;line-height:28px;color:#333333;">Hi {username},</h2>
+                                        <p style="margin:0 0 20px 0;">Don't forget to make your prediction for the upcoming match!</p>
+                                        
+                                        <!-- Match Details Box -->
+                                        <div style="background-color:#f8f9fa;border-left:4px solid #62B5E5;padding:20px;margin:20px 0;border-radius:5px;">
+                                            <h3 style="margin:0 0 15px 0;color:#333;font-size:18px;">📅 {fixture_details['home_team']} vs {fixture_details['away_team']}</h3>
+                                            <p style="margin:5px 0;color:#666;"><strong>Competition:</strong> {fixture_details['competition']}</p>
+                                            <p style="margin:5px 0;color:#666;"><strong>Kick-off:</strong> {fixture_details['kickoff_time']}</p>
+                                            <p style="margin:15px 0 0 0;color:#d9534f;font-weight:bold;">⏰ Deadline: 5 minutes before kick-off</p>
+                                        </div>
+                                        
+                                        <p style="margin:20px 0;">Remember: You can earn <strong>3 points</strong> for a perfect score or <strong>1 point</strong> for the correct result!</p>
+                                        
+                                        <!-- Button with VML fallback -->
+                                        <table role="presentation" style="width:100%;border:none;border-spacing:0;margin:30px 0;">
+                                            <tr>
+                                                <td align="center">
+                                                    <!--[if mso]>
+                                                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{prediction_url}" style="height:50px;v-text-anchor:middle;width:200px;" arcsize="10%" stroke="f" fillcolor="#62B5E5">
+                                                        <w:anchorlock/>
+                                                        <center style="color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;">Make Your Prediction</center>
+                                                    </v:roundrect>
+                                                    <![endif]-->
+                                                    <!--[if !mso]><!-->
+                                                    <a href="{prediction_url}" style="display:inline-block;padding:15px 30px;background-color:#62B5E5;color:#ffffff;font-weight:bold;text-decoration:none;border-radius:5px;font-size:16px;">Make Your Prediction</a>
+                                                    <!--<![endif]-->
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        
+                                        <p style="margin:20px 0;font-size:14px;color:#666666;">Good luck! 🍀</p>
+                                    </td>
+                                </tr>
+                                <!-- Footer -->
+                                <tr>
+                                    <td style="padding:20px;text-align:center;font-size:12px;background-color:#f4f4f4;color:#666666;">
+                                        <p style="margin:0;">© 2025 COV Tweet League. All rights reserved.</p>
+                                        <p style="margin:5px 0 0 0;">
+                                            <a href="https://twitter.com/covtweetleague" style="color:#62B5E5;text-decoration:none;">@covtweetleague</a>
+                                        </p>
+                                        <p style="margin:10px 0 0 0;font-size:11px;">
+                                            You're receiving this because you haven't made a prediction for an upcoming match.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <!--[if mso]>
+                            </td>
+                            </tr>
+                            </table>
+                            <![endif]-->
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </body>
+        </html>
+        """
+        
+        text_content = f"""
+        Match Prediction Reminder
+        
+        Hi {username},
+        
+        Don't forget to make your prediction for:
+        
+        {fixture_details['home_team']} vs {fixture_details['away_team']}
+        Competition: {fixture_details['competition']}
+        Kick-off: {fixture_details['kickoff_time']}
+        
+        Deadline: 5 minutes before kick-off
+        
+        Make your prediction at: {prediction_url}
+        
+        Remember: You can earn 3 points for a perfect score or 1 point for the correct result!
+        
+        Good luck!
+        
+        © 2025 COV Tweet League
+        """
+        
+        return self.send_email(to_email, subject, html_content, text_content)
 
 email_service = EmailService()

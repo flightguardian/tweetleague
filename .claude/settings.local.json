@@ -17,10 +17,16 @@
       "Bash(./venv/Scripts/pip.exe install:*)",
       "Bash(./venv/Scripts/python.exe scripts/check_twitter_matches.py)",
       "Bash(./venv/Scripts/python.exe scripts/import_hull_predictions.py)",
+      "Bash(./venv/Scripts/python.exe scripts/find_non_predictors.py)",
       "Bash(git commit:*)",
       "Bash(./venv/Scripts/python.exe scripts/fix_predictions_and_stats.py)",
       "Bash(./venv/Scripts/python.exe scripts/reset_predictions_made.py:*)",
-      "Bash(./venv/Scripts/python.exe test_leaderboard.py:*)"
+      "Bash(./venv/Scripts/python.exe test_leaderboard.py:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(mv:*)",
+      "Bash(rm:*)",
+      "Bash(./venv/Scripts/python.exe scripts/find_non_predictors.py)"
     ],
     "deny": []
   }
