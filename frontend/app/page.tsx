@@ -7,15 +7,19 @@ import { PredictionCard } from '@/components/prediction-card';
 import { RecentResults } from '@/components/recent-results';
 import { ManagerOfMonth } from '@/components/manager-of-month';
 import { EmailVerificationModal } from '@/components/email-verification-modal';
-import { Trophy, Users, Target, HelpCircle, ArrowRight } from 'lucide-react';
+import { MiniLeagueModal } from '@/components/mini-league-modal';
+import { Trophy, Users, Target, HelpCircle, ArrowRight, Plus } from 'lucide-react';
 import { FaXTwitter } from 'react-icons/fa6';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 
 export default function Home() {
   const { data: session, status } = useSession();
   const [nextFixture, setNextFixture] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showLeagueModal, setShowLeagueModal] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'join'>('create');
 
   useEffect(() => {
     // Fetch fixtures regardless of auth status
@@ -40,10 +44,33 @@ export default function Home() {
     }
   };
 
+  const openModal = (mode: 'create' | 'join') => {
+    setModalMode(mode);
+    setShowLeagueModal(true);
+  };
+
+  const handleModalSuccess = () => {
+    setShowLeagueModal(false);
+    toast({
+      title: 'Success!',
+      description: modalMode === 'create' ? 'Your mini league has been created' : 'You have joined the mini league',
+    });
+  };
+
   return (
     <div className="space-y-8">
       {/* Email Verification Modal */}
       {session && <EmailVerificationModal />}
+      
+      {/* Mini League Modal */}
+      {session && (
+        <MiniLeagueModal
+          isOpen={showLeagueModal}
+          onClose={() => setShowLeagueModal(false)}
+          mode={modalMode}
+          onSuccess={handleModalSuccess}
+        />
+      )}
       
       <div className="relative overflow-hidden rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl bg-gradient-to-br from-[rgb(98,181,229)] to-[rgb(49,91,115)] text-white">
         <div className="absolute inset-0 bg-black/10"></div>
@@ -162,12 +189,26 @@ export default function Home() {
               </Button>
             </Link>
             {session && (
-              <Link href="/leaderboard" className="flex-1 sm:flex-none">
-                <Button variant="outline" className="w-full border-[rgb(98,181,229)] text-[rgb(98,181,229)] hover:bg-[rgb(98,181,229)]/10 font-semibold">
-                  <Users className="mr-2 h-4 w-4" />
-                  Create Mini League
-                </Button>
-              </Link>
+              <>
+                <button
+                  onClick={() => openModal('join')}
+                  className="flex-1 sm:flex-none"
+                >
+                  <Button variant="outline" className="w-full border-[rgb(98,181,229)] text-[rgb(98,181,229)] hover:bg-[rgb(98,181,229)]/10 font-semibold">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Join Mini League
+                  </Button>
+                </button>
+                <button
+                  onClick={() => openModal('create')}
+                  className="flex-1 sm:flex-none"
+                >
+                  <Button variant="outline" className="w-full border-green-500 text-green-600 hover:bg-green-50 font-semibold">
+                    <Users className="mr-2 h-4 w-4" />
+                    Create Mini League
+                  </Button>
+                </button>
+              </>
             )}
           </div>
         </div>
