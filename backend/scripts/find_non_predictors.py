@@ -101,6 +101,9 @@ def find_non_predictors(fixture_id, send_reminders=False):
             for user in non_predictors:
                 if user.provider == 'twitter' or user.twitter_handle:
                     twitter_users.append(user)
+                    # Also add to email list if they have a valid email
+                    if user.email and not user.email.endswith('@twitter.local'):
+                        email_users.append(user)
                 else:
                     email_users.append(user)
             
@@ -142,7 +145,12 @@ def find_non_predictors(fixture_id, send_reminders=False):
             # Email list
             if email_users:
                 print("\nEmail addresses (CSV format):")
-                emails = [user.email for user in email_users if not user.email.endswith('@twitter.local')]
+                emails = []
+                for user in email_users:
+                    if user.email and not user.email.endswith('@twitter.local'):
+                        emails.append(user.email)
+                # Remove duplicates while preserving order
+                emails = list(dict.fromkeys(emails))
                 print(", ".join(emails))
             
             # Ask if user wants to send reminder emails
