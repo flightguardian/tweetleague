@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from database.base import get_db
 from models.models import User, Fixture, Prediction, UserStats, FixtureStatus, CompetitionType, Season
 from utils.admin_auth import get_admin_user
+from utils.position_calculator import update_all_positions
 import pytz
 
 router = APIRouter()
@@ -265,6 +266,9 @@ async def update_fixture_score(
             user_stats.avg_points_per_game = user_stats.total_points / user_stats.predictions_made
     
     db.commit()
+    
+    # Recalculate all positions after updating scores
+    update_all_positions(db, fixture.season_id)
     
     return {
         "message": "Score updated and points calculated",
