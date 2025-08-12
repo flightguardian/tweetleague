@@ -158,21 +158,7 @@ def find_non_predictors(fixture_id, send_reminders=False):
                 if email_users or ALWAYS_NOTIFY_EMAILS:
                     send_choice = input("\n📧 Send reminder emails to non-predictors? (y/n): ").strip().lower()
                     if send_choice == 'y':
-                        # Add always-notify users if they're not already in the list
-                        all_email_users = list(email_users)
-                        existing_emails = [u.email.lower() for u in email_users]
-                        
-                        for email in ALWAYS_NOTIFY_EMAILS:
-                            if email.lower() not in existing_emails:
-                                # Find user with this email to get their username
-                                always_user = db.query(User).filter(
-                                    User.email.ilike(email)
-                                ).first()
-                                if always_user:
-                                    all_email_users.append(always_user)
-                                    print(f"\n📌 Adding admin/test account: {always_user.username} ({email})")
-                        
-                        send_email_reminders(all_email_users, fixture)
+                        send_email_reminders(email_users, fixture, db)
         else:
             print("\n✅ Great! All users have made predictions for this fixture!")
         
@@ -181,7 +167,7 @@ def find_non_predictors(fixture_id, send_reminders=False):
     finally:
         db.close()
 
-def send_email_reminders(email_users, fixture):
+def send_email_reminders(email_users, fixture, db):
     """Send reminder emails to users who haven't predicted"""
     print("\n📤 Sending reminder emails...")
     print("-" * 40)
@@ -196,7 +182,30 @@ def send_email_reminders(email_users, fixture):
     sent_count = 0
     failed_count = 0
     
-    for user in email_users:
+    # First, add the hardcoded admin emails
+    all_email_users = list(email_users)
+    existing_emails = [u.email.lower() for u in email_users if u.email]
+    
+    for admin_email in ALWAYS_NOTIFY_EMAILS:
+        if admin_email.lower() not in existing_emails:
+            # Find user with this email to get their username
+            admin_user = db.query(User).filter(
+                User.email.ilike(admin_email)
+            ).first()
+            if admin_user:
+                all_email_users.append(admin_user)
+                print(f"   📌 Adding admin account: {admin_user.username} ({admin_email})")
+            else:
+                # Create a temporary user object for sending email
+                class TempUser:
+                    def __init__(self, email):
+                        self.email = email
+                        self.username = email.split('@')[0]
+                temp_user = TempUser(admin_email)
+                all_email_users.append(temp_user)
+                print(f"   📌 Adding admin email: {admin_email}")
+    
+    for user in all_email_users:
         # Skip Twitter-only users
         if user.email.endswith('@twitter.local'):
             continue
