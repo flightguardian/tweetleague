@@ -167,9 +167,23 @@ export default function ProfilePage() {
       setEditMode(false);
       setUsernameError(''); // Clear validation errors on successful save
     } catch (error: any) {
+      let errorMessage = 'Failed to update profile';
+      
+      // Handle Pydantic validation errors
+      if (error.response?.data?.detail) {
+        if (typeof error.response.data.detail === 'string') {
+          errorMessage = error.response.data.detail;
+        } else if (Array.isArray(error.response.data.detail)) {
+          // Pydantic validation errors come as an array
+          errorMessage = error.response.data.detail
+            .map((err: any) => err.msg || err.message || 'Validation error')
+            .join(', ');
+        }
+      }
+      
       toast({
         title: 'Error',
-        description: error.response?.data?.detail || 'Failed to update profile',
+        description: errorMessage,
         variant: 'destructive'
       });
     } finally {

@@ -36,9 +36,12 @@ class UserUpdate(BaseModel):
     @validator('username')
     def validate_username(cls, v):
         if v:
-            # Only allow alphanumeric and underscore
-            if not v.replace('_', '').isalnum():
-                raise ValueError('Username can only contain letters, numbers, and underscores')
+            # Allow alphanumeric, underscore, and hyphen
+            import re
+            if not re.match(r'^[a-zA-Z0-9_-]+$', v):
+                raise ValueError('Username can only contain letters, numbers, underscores, and hyphens')
+            if v.startswith('_') or v.startswith('-'):
+                raise ValueError('Username cannot start with underscore or hyphen')
         return v
     
     @validator('twitter_handle')
