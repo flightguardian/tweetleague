@@ -401,6 +401,12 @@ async def recalculate_all_points(
     
     db.commit()
     
+    # Recalculate all positions after recalculating points
+    # Get current season ID
+    current_season = db.query(Season).filter(Season.is_current == True).first()
+    if current_season:
+        update_all_positions(db, current_season.id)
+    
     return {
         "message": "All points recalculated successfully",
         "fixtures_processed": len(finished_fixtures),
