@@ -581,7 +581,7 @@ export default function FixturePredictionsPage() {
                       <div className="font-medium text-xs md:text-sm truncate">
                         {prediction.username}
                       </div>
-                      <div className="text-xs text-gray-500 md:hidden">
+                      <div className="text-xs text-gray-500">
                         {format(new Date(prediction.updated_at || prediction.created_at), 'MMM d, h:mm a')}
                         {prediction.updated_at && <span className="italic"> (edited)</span>}
                       </div>
