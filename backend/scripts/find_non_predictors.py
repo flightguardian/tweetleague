@@ -96,26 +96,26 @@ def find_non_predictors(fixture_id, send_reminders=False):
             
             # Separate by contact method
             email_users = []
-            twitter_users = []
+            twitter_only_users = []  # Users who can ONLY be contacted via Twitter
             
             for user in non_predictors:
-                if user.provider == 'twitter' or user.twitter_handle:
-                    twitter_users.append(user)
-                    # Also add to email list if they have a valid email
-                    if user.email and not user.email.endswith('@twitter.local'):
-                        email_users.append(user)
-                else:
+                # Check if user has a valid email
+                has_valid_email = user.email and not user.email.endswith('@twitter.local')
+                
+                if has_valid_email:
+                    # User has email - add to email list regardless of Twitter status
                     email_users.append(user)
+                elif user.provider == 'twitter' or user.twitter_handle:
+                    # User has no valid email but has Twitter - add to Twitter-only list
+                    twitter_only_users.append(user)
             
-            # Display Twitter users
-            if twitter_users:
-                print("\n🐦 TWITTER USERS (contact via Twitter):")
+            # Display Twitter-only users (no email available)
+            if twitter_only_users:
+                print("\n🐦 TWITTER-ONLY USERS (no email available):")
                 print("-" * 40)
-                for user in twitter_users:
+                for user in twitter_only_users:
                     handle = user.twitter_handle or user.username
                     print(f"   @{handle} - {user.username}")
-                    if user.email and not user.email.endswith('@twitter.local'):
-                        print(f"      (also has email: {user.email})")
             
             # Display email users
             if email_users:
@@ -130,11 +130,11 @@ def find_non_predictors(fixture_id, send_reminders=False):
             print("\n📋 QUICK COPY LISTS:")
             print("-" * 40)
             
-            # Twitter handles list
-            if twitter_users:
-                print("\nTwitter handles (for mass mention):")
+            # Twitter handles list (only for users without email)
+            if twitter_only_users:
+                print("\nTwitter-only handles (for mass mention):")
                 handles = []
-                for user in twitter_users:
+                for user in twitter_only_users:
                     handle = user.twitter_handle or user.username
                     handles.append(f"@{handle}")
                 # Print in batches of 10 for Twitter mention limits
