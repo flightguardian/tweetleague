@@ -84,20 +84,20 @@ export function UserProfileModal({ username, isOpen, onClose }: UserProfileModal
     
     if (points === 3) {
       return (
-        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">
-          🎯 3 pts
+        <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-semibold">
+          Perfect! +3
         </span>
       );
     } else if (points === 1) {
       return (
-        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">
-          ✓ 1 pt
+        <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold">
+          Correct +1
         </span>
       );
     } else {
       return (
-        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">
-          ✗ 0 pts
+        <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-semibold">
+          Wrong
         </span>
       );
     }
