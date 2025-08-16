@@ -456,37 +456,40 @@ export default function ProfilePage() {
                 </div>
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Notifications
-                </label>
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => editMode && setFormData({ ...formData, email_notifications: !formData.email_notifications })}
-                    disabled={!editMode || saving}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
-                      formData.email_notifications 
-                        ? 'bg-[rgb(98,181,229)]/10 border-[rgb(98,181,229)] text-[rgb(98,181,229)]' 
-                        : 'bg-gray-100 border-gray-300 text-gray-600'
-                    } ${editMode && !saving ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed opacity-60'}`}
-                  >
-                    {formData.email_notifications ? (
-                      <>
-                        <Bell className="h-4 w-4" />
-                        Notifications On
-                      </>
-                    ) : (
-                      <>
-                        <BellOff className="h-4 w-4" />
-                        Notifications Off
-                      </>
-                    )}
-                  </button>
-                  <span className="text-sm text-gray-600">
-                    Receive email reminders about upcoming matches
-                  </span>
+              {/* Only show email notifications for non-Twitter users */}
+              {session.user?.provider !== 'twitter' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Notifications
+                  </label>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={() => editMode && setFormData({ ...formData, email_notifications: !formData.email_notifications })}
+                      disabled={!editMode || saving}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                        formData.email_notifications 
+                          ? 'bg-[rgb(98,181,229)]/10 border-[rgb(98,181,229)] text-[rgb(98,181,229)]' 
+                          : 'bg-gray-100 border-gray-300 text-gray-600'
+                      } ${editMode && !saving ? 'cursor-pointer hover:opacity-80' : 'cursor-not-allowed opacity-60'}`}
+                    >
+                      {formData.email_notifications ? (
+                        <>
+                          <Bell className="h-4 w-4" />
+                          Notifications On
+                        </>
+                      ) : (
+                        <>
+                          <BellOff className="h-4 w-4" />
+                          Notifications Off
+                        </>
+                      )}
+                    </button>
+                    <span className="text-sm text-gray-600">
+                      Receive email reminders about upcoming matches
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
               
               <div className="grid md:grid-cols-2 gap-6 pt-4 border-t">
                 <div>

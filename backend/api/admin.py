@@ -383,7 +383,7 @@ async def recalculate_all_points(
             
             total_recalculated += 1
     
-    # Update predictions_made count and averages
+    # Update predictions_made count, averages, and streaks
     all_stats = db.query(UserStats).all()
     for stat in all_stats:
         # Count how many predictions this user has that have been scored
@@ -398,6 +398,28 @@ async def recalculate_all_points(
         
         if stat.predictions_made > 0:
             stat.avg_points_per_game = stat.total_points / stat.predictions_made
+        
+        # Recalculate streaks by processing predictions in chronological order
+        scored_predictions = db.query(Prediction).join(Fixture).filter(
+            Prediction.user_id == stat.user_id,
+            Fixture.season_id == stat.season_id,
+            Fixture.status == FixtureStatus.FINISHED,
+            Prediction.points_earned.isnot(None)
+        ).order_by(Fixture.kickoff_time).all()
+        
+        current_streak = 0
+        best_streak = 0
+        
+        for pred in scored_predictions:
+            if pred.points_earned > 0:
+                current_streak += 1
+                if current_streak > best_streak:
+                    best_streak = current_streak
+            else:
+                current_streak = 0
+        
+        stat.current_streak = current_streak
+        stat.best_streak = best_streak
     
     db.commit()
     

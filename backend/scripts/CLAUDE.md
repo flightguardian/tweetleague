@@ -1,7 +1,10 @@
 # Backend Scripts
 
 ## Purpose
-Utility scripts for data management, imports, and fixes.
+Utility scripts for data management, imports, fixes, and notifications.
+
+## Environment Setup
+All scripts require DATABASE_URL environment variable or .env file in scripts directory.
 
 ## Key Scripts
 
@@ -27,6 +30,20 @@ Utility scripts for data management, imports, and fixes.
 - Specifically fixes predictions_made for fixture 1 users
 - Sets to 1 for all users who predicted on fixture 1
 
+### `find_non_predictors.py` (NEW)
+- Interactive script to find users who haven't predicted for a fixture
+- Features:
+  - Lists all available fixtures
+  - Separates users by contact method (Twitter vs Email)
+  - Provides quick-copy lists for mass contacting
+  - Optional email reminder sending
+  - Always notifies admin emails:
+    - gavmcbride@hotmail.co.uk
+    - martin.w9@icloud.com
+    - mattywrightwright@hotmail.com
+  - Twitter users with emails are included in email list
+  - Formats competition types properly (e.g., LEAGUE_CUP → League Cup)
+
 ## Common Workflows
 
 ### After importing new predictions:
@@ -38,6 +55,16 @@ Utility scripts for data management, imports, and fixes.
 ./venv/Scripts/python.exe scripts/reset_predictions_made.py
 
 # 3. Run recalculate from admin panel to calculate points (safe - won't mess up predictions_made)
+```
+
+### Find non-predictors and send reminders:
+```bash
+# Run interactive script
+./venv/Scripts/python.exe scripts/find_non_predictors.py
+
+# On Render:
+cd scripts
+python find_non_predictors.py
 ```
 
 ### If predictions_made counts are wrong:
@@ -55,3 +82,4 @@ Utility scripts for data management, imports, and fixes.
 - Always check fixture IDs before running
 - Scripts are idempotent (safe to run multiple times)
 - Check output carefully for any errors
+- Email service requires SMTP credentials in environment variables
