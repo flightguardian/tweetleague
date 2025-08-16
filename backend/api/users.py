@@ -272,17 +272,25 @@ def get_user_predictions(
     limit: int = 10,
     db: Session = Depends(get_db)
 ):
-    """Get recent predictions for a specific user"""
+    """Get recent predictions for a specific user (current season only)"""
     user = db.query(User).filter(User.username == username).first()
     
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Get recent predictions with fixture details
-    from models.models import Prediction, Fixture
-    predictions = db.query(Prediction).join(Fixture).filter(
+    # Get current season
+    from models.models import Prediction, Fixture, Season
+    current_season = db.query(Season).filter(Season.is_current == True).first()
+    
+    # Get recent predictions with fixture details (current season only)
+    query = db.query(Prediction).join(Fixture).filter(
         Prediction.user_id == user.id
-    ).order_by(Fixture.kickoff_time.desc()).limit(limit).all()
+    )
+    
+    if current_season:
+        query = query.filter(Fixture.season_id == current_season.id)
+    
+    predictions = query.order_by(Fixture.kickoff_time.desc()).limit(limit).all()
     
     result = []
     for pred in predictions:

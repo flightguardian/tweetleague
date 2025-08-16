@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { 
   Trophy, Target, Star, TrendingUp, Award, CheckCircle,
-  User, Calendar, Activity, BarChart3, X
+  User, Calendar, Activity, BarChart3, X, Clock
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -24,6 +24,18 @@ interface UserProfile {
   avg_points_per_game: number;
 }
 
+interface RecentPrediction {
+  fixture_id: number;
+  home_team: string;
+  away_team: string;
+  home_prediction: number;
+  away_prediction: number;
+  home_score: number | null;
+  away_score: number | null;
+  points_earned: number | null;
+  kickoff_time: string;
+}
+
 interface UserProfileModalProps {
   username: string | null;
   isOpen: boolean;
@@ -32,11 +44,13 @@ interface UserProfileModalProps {
 
 export function UserProfileModal({ username, isOpen, onClose }: UserProfileModalProps) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [predictions, setPredictions] = useState<RecentPrediction[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (username && isOpen) {
       fetchUserProfile();
+      fetchUserPredictions();
     }
   }, [username, isOpen]);
 
@@ -51,6 +65,41 @@ export function UserProfileModal({ username, isOpen, onClose }: UserProfileModal
       // Error fetching user profile
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUserPredictions = async () => {
+    if (!username) return;
+    
+    try {
+      const response = await api.get(`/users/${username}/predictions`);
+      setPredictions(response.data); // Already sorted by most recent first from API
+    } catch (error) {
+      // Error fetching predictions
+    }
+  };
+
+  const getPointsBadge = (points: number | null) => {
+    if (points === null) return null;
+    
+    if (points === 3) {
+      return (
+        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">
+          🎯 3 pts
+        </span>
+      );
+    } else if (points === 1) {
+      return (
+        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">
+          ✓ 1 pt
+        </span>
+      );
+    } else {
+      return (
+        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">
+          ✗ 0 pts
+        </span>
+      );
     }
   };
 
@@ -214,6 +263,48 @@ export function UserProfileModal({ username, isOpen, onClose }: UserProfileModal
                 </p>
               </div>
             </div>
+            
+            {/* Recent Predictions Section */}
+            {predictions.length > 0 && (
+              <div className="mt-6 pt-6 border-t">
+                <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-gray-600" />
+                  Recent Predictions
+                </h3>
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {predictions.map((pred) => (
+                    <div key={pred.fixture_id} className="bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="font-medium truncate">{pred.home_team}</span>
+                            <span className="text-gray-600 flex-shrink-0">
+                              {pred.home_prediction} - {pred.away_prediction}
+                            </span>
+                            <span className="font-medium truncate">{pred.away_team}</span>
+                          </div>
+                          {pred.home_score !== null && pred.away_score !== null && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              Actual: {pred.home_score} - {pred.away_score}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-shrink-0">
+                          {pred.points_earned !== null ? (
+                            getPointsBadge(pred.points_earned)
+                          ) : (
+                            <span className="text-xs text-gray-500">Pending</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-400 mt-1">
+                        {format(new Date(pred.kickoff_time), 'dd MMM yyyy')}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
