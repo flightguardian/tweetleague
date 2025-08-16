@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { api } from '@/lib/api';
 import { Trophy, Medal, Award, User, TrendingUp, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Target, Plus, Users as UsersIcon, ChevronDown, Info, Copy, Check } from 'lucide-react';
-import Link from 'next/link';
 import { TopLeaderboard } from '@/components/top-leaderboard';
 import { MiniLeagueModal } from '@/components/mini-league-modal';
+import { UserProfileModal } from '@/components/user-profile-modal';
 import { toast } from '@/hooks/use-toast';
 
 export default function LeaderboardPage() {
@@ -24,6 +24,8 @@ export default function LeaderboardPage() {
   const [showLeagueSelector, setShowLeagueSelector] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [switchingLeague, setSwitchingLeague] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [showUserModal, setShowUserModal] = useState(false);
   const usersPerPage = 50;
 
   useEffect(() => {
@@ -432,12 +434,15 @@ export default function LeaderboardPage() {
                   </td>
                   <td className="px-2 md:px-4 py-2 md:py-3 font-medium sticky left-8 md:left-12 bg-inherit">
                     <div className="flex items-center gap-2">
-                      <Link 
-                        href={`/user/${userPosition.username}`}
-                        className="hover:text-[rgb(98,181,229)] transition-colors text-xs md:text-sm truncate block max-w-[100px] md:max-w-none"
+                      <button
+                        onClick={() => {
+                          setSelectedUser(userPosition.username);
+                          setShowUserModal(true);
+                        }}
+                        className="hover:text-[rgb(98,181,229)] transition-colors text-xs md:text-sm truncate block max-w-[100px] md:max-w-none text-left"
                       >
                         {userPosition.username}
-                      </Link>
+                      </button>
                       <span className="text-xs bg-[rgb(98,181,229)] text-white px-2 py-0.5 rounded-full flex-shrink-0">You</span>
                     </div>
                   </td>
@@ -508,12 +513,15 @@ export default function LeaderboardPage() {
                       </div>
                     </td>
                     <td className="px-2 md:px-4 py-2 md:py-3 font-medium sticky left-8 md:left-12 bg-inherit">
-                      <Link 
-                        href={`/user/${player.username}`}
-                        className="hover:text-[rgb(98,181,229)] transition-colors text-xs md:text-sm truncate block max-w-[100px] md:max-w-none"
+                      <button
+                        onClick={() => {
+                          setSelectedUser(player.username);
+                          setShowUserModal(true);
+                        }}
+                        className="hover:text-[rgb(98,181,229)] transition-colors text-xs md:text-sm truncate block max-w-[100px] md:max-w-none text-left"
                       >
                         {player.username}
-                      </Link>
+                      </button>
                     </td>
                     <td className="px-2 md:px-4 py-2 md:py-3 text-center font-bold text-sm md:text-lg text-[rgb(98,181,229)]">
                       {player.total_points}
@@ -712,6 +720,16 @@ export default function LeaderboardPage() {
           }}
         />
       )}
+      
+      {/* User Profile Modal */}
+      <UserProfileModal
+        username={selectedUser}
+        isOpen={showUserModal}
+        onClose={() => {
+          setShowUserModal(false);
+          setSelectedUser(null);
+        }}
+      />
     </div>
   );
 }

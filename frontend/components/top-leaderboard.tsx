@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { Trophy, Medal, Award } from 'lucide-react';
-import Link from 'next/link';
+import { UserProfileModal } from '@/components/user-profile-modal';
 
 export function TopLeaderboard() {
   const [leaders, setLeaders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [showUserModal, setShowUserModal] = useState(false);
 
   useEffect(() => {
     // Clear old season selection since we removed the selector
@@ -86,12 +88,15 @@ export function TopLeaderboard() {
                 {getPositionIcon(player.position)}
               </div>
               <div>
-                <Link 
-                  href={`/user/${player.username}`}
-                  className="font-medium hover:text-[rgb(98,181,229)] transition-colors"
+                <button
+                  onClick={() => {
+                    setSelectedUser(player.username);
+                    setShowUserModal(true);
+                  }}
+                  className="font-medium hover:text-[rgb(98,181,229)] transition-colors text-left"
                 >
                   {player.username}
-                </Link>
+                </button>
                 <p className="text-xs text-gray-600">
                   {player.predictions_made}/5 games
                 </p>
@@ -106,6 +111,16 @@ export function TopLeaderboard() {
           </div>
         ))}
       </div>
+      
+      {/* User Profile Modal */}
+      <UserProfileModal
+        username={selectedUser}
+        isOpen={showUserModal}
+        onClose={() => {
+          setShowUserModal(false);
+          setSelectedUser(null);
+        }}
+      />
     </div>
   );
 }

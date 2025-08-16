@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { Trophy, Medal, Award, Calendar } from 'lucide-react';
 import Link from 'next/link';
+import { UserProfileModal } from '@/components/user-profile-modal';
 
 export function ManagerOfMonth() {
   const [leaders, setLeaders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentMonth, setCurrentMonth] = useState('');
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [showUserModal, setShowUserModal] = useState(false);
 
   useEffect(() => {
     // Clear old season selection since we removed the selector
@@ -94,12 +97,15 @@ export function ManagerOfMonth() {
               <Trophy className="h-8 w-8 text-yellow-500" />
               <div>
                 <p className="text-xs text-gray-600 font-semibold">MANAGER OF THE MONTH</p>
-                <Link 
-                  href={`/user/${leader.username}`}
-                  className="text-lg font-bold hover:text-[rgb(98,181,229)] transition-colors"
+                <button
+                  onClick={() => {
+                    setSelectedUser(leader.username);
+                    setShowUserModal(true);
+                  }}
+                  className="text-lg font-bold hover:text-[rgb(98,181,229)] transition-colors text-left"
                 >
                   {leader.username}
-                </Link>
+                </button>
                 <p className="text-xs text-gray-600">
                   {leader.predictions_made} games • {leader.avg_points_per_game.toFixed(1)} pts/game
                 </p>
@@ -122,12 +128,15 @@ export function ManagerOfMonth() {
                 {getPositionIcon(player.position)}
               </div>
               <div>
-                <Link 
-                  href={`/user/${player.username}`}
-                  className="font-medium hover:text-[rgb(98,181,229)] transition-colors"
+                <button
+                  onClick={() => {
+                    setSelectedUser(player.username);
+                    setShowUserModal(true);
+                  }}
+                  className="font-medium hover:text-[rgb(98,181,229)] transition-colors text-left"
                 >
                   {player.username}
-                </Link>
+                </button>
                 <p className="text-xs text-gray-600">
                   {player.predictions_made} games
                 </p>
@@ -151,6 +160,16 @@ export function ManagerOfMonth() {
           View full leaderboard →
         </Link>
       )}
+      
+      {/* User Profile Modal */}
+      <UserProfileModal
+        username={selectedUser}
+        isOpen={showUserModal}
+        onClose={() => {
+          setShowUserModal(false);
+          setSelectedUser(null);
+        }}
+      />
     </div>
   );
 }
