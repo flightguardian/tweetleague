@@ -256,7 +256,7 @@ export function UserProfileModal({ username, isOpen, onClose }: UserProfileModal
               <div className="bg-gray-50 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Activity className="h-4 w-4 text-gray-600" />
-                  <p className="text-sm font-medium text-gray-600">Avg Points</p>
+                  <p className="text-sm font-medium text-gray-600">Avg Pts/Game</p>
                 </div>
                 <p className="text-2xl font-bold text-gray-800">
                   {profile.avg_points_per_game?.toFixed(2) || '0.00'}

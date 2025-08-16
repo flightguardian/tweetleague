@@ -24,6 +24,7 @@ class UserProfile(BaseModel):
     position: int | None
     current_streak: int
     best_streak: int
+    avg_points_per_game: float
     email_notifications: bool = True
     is_admin: bool = False
 
@@ -140,6 +141,7 @@ def get_user_profile(
         position=stats.position,
         current_streak=stats.current_streak,
         best_streak=stats.best_streak,
+        avg_points_per_game=stats.avg_points_per_game if stats.avg_points_per_game else 0.0,
         email_notifications=user.email_notifications,
         is_admin=user.is_admin
     )
